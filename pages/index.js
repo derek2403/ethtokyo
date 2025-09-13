@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Button } from "@/components/ui/button";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -61,6 +62,24 @@ export default function Home() {
           >
             Read our docs
           </a>
+        </div>
+
+        {/* shadcn/ui Button Examples */}
+        <div className="flex flex-col gap-4 items-center">
+          <h2 className="text-2xl font-bold">shadcn/ui Components</h2>
+          <div className="flex gap-4 flex-wrap justify-center">
+            <Button>Default Button</Button>
+            <Button variant="outline">Outline Button</Button>
+            <Button variant="secondary">Secondary Button</Button>
+            <Button variant="destructive">Destructive Button</Button>
+            <Button variant="ghost">Ghost Button</Button>
+            <Button variant="link">Link Button</Button>
+          </div>
+          <div className="flex gap-4 flex-wrap justify-center">
+            <Button size="sm">Small</Button>
+            <Button size="default">Default</Button>
+            <Button size="lg">Large</Button>
+          </div>
         </div>
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
