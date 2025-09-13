@@ -1,19 +1,21 @@
 const { ethers } = require("hardhat");
 
 async function main() {
-  console.log("Deploying Counter contract...");
+  console.log("Deploying Subscription contract...");
 
-  const Counter = await ethers.getContractFactory("Counter");
-  const counter = await Counter.deploy();
+  const Subscription = await ethers.getContractFactory("Subscription");
+  const subscription = await Subscription.deploy();
 
-  await counter.waitForDeployment();
+  await subscription.waitForDeployment();
 
-  const counterAddress = await counter.getAddress();
-  console.log("Counter deployed to:", counterAddress);
+  const subscriptionAddress = await subscription.getAddress();
+  console.log("Subscription deployed to:", subscriptionAddress);
 
-  // Verify the initial count
-  const initialCount = await counter.getCount();
-  console.log("Initial count:", initialCount.toString());
+  // Verify the initial state
+  const owner = await subscription.owner();
+  const nextPlanId = await subscription.nextPlanId();
+  console.log("Contract owner:", owner);
+  console.log("Next plan ID:", nextPlanId.toString());
 }
 
 main()
