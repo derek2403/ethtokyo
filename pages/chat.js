@@ -74,11 +74,11 @@ const animationState = {
   eyeBlinkTimer: 0,
   eyeBlinkTarget: 1,
   eyeBlinkCurrent: 1,
+  isBlinking: false,
   
   // Mouth animation
   mouthTarget: 0,
   mouthCurrent: 0,
-  mouthEnvelope: { attack: 70, hold: 50, release: 100 },
   
   // Head sway
   headSwayTime: 0,
@@ -88,7 +88,10 @@ const animationState = {
   
   // Expression states
   expressionTarget: 'neutral',
-  expressionTimer: 0
+  expressionTimer: 0,
+  
+  // Initialize flag
+  initialized: false
 };
 
 // Linear interpolation helper
@@ -117,21 +120,44 @@ function throttle(func, delay) {
 }
 
 // Idle behaviors - eye blinking and head sway
-function updateIdleBehaviors(deltaMS, state) {
-  // Random eye blink every 2-4 seconds
-  state.eyeBlinkTimer += deltaMS;
-  if (state.eyeBlinkTimer > (2000 + Math.random() * 2000)) {
-    state.eyeBlinkTimer = 0;
-    // Trigger blink animation
-    state.eyeBlinkTarget = 0;
-    setTimeout(() => { state.eyeBlinkTarget = 1; }, 120);
+function updateIdleBehaviors(deltaMS, state, model) {
+  // Initialize state from current model parameters if not done
+  if (!state.initialized && model?.internalModel?.coreModel) {
+    try {
+      const core = model.internalModel.coreModel;
+      state.eyeBlinkCurrent = core.getParameterValueById('ParamEyeLOpen') || 1;
+      state.mouthCurrent = core.getParameterValueById('ParamMouthOpenY') || 0;
+      state.headAngleX = core.getParameterValueById('ParamAngleX') || 0;
+      state.headAngleY = core.getParameterValueById('ParamAngleY') || 0;
+      state.headAngleZ = core.getParameterValueById('ParamAngleZ') || 0;
+      state.initialized = true;
+      console.log('Animation state initialized from model');
+    } catch (e) {
+      // Use defaults if parameter reading fails
+      state.initialized = true;
+    }
   }
   
-  // Head sway - very gentle movement to prevent disappearing
+  // Natural eye blink every 3-5 seconds
+  state.eyeBlinkTimer += deltaMS;
+  if (state.eyeBlinkTimer > (3000 + Math.random() * 2000)) {
+    state.eyeBlinkTimer = 0;
+    if (!state.isBlinking) {
+      state.isBlinking = true;
+      state.eyeBlinkTarget = 0;
+      // Quick blink - open eyes after 150ms
+      setTimeout(() => {
+        state.eyeBlinkTarget = 1;
+        setTimeout(() => { state.isBlinking = false; }, 100);
+      }, 150);
+    }
+  }
+  
+  // Smooth head sway - very subtle
   state.headSwayTime += deltaMS * 0.001;
-  state.headAngleX = Math.sin(state.headSwayTime * 0.5) * 2; // ±2 degrees (reduced)
-  state.headAngleY = Math.cos(state.headSwayTime * 0.3) * 1; // ±1 degree (reduced) 
-  state.headAngleZ = Math.sin(state.headSwayTime * 0.7) * 1; // ±1 degree (reduced)
+  state.headAngleX = Math.sin(state.headSwayTime * 0.4) * 1.5; // ±1.5 degrees
+  state.headAngleY = Math.cos(state.headSwayTime * 0.25) * 0.8; // ±0.8 degrees 
+  state.headAngleZ = Math.sin(state.headSwayTime * 0.6) * 0.5; // ±0.5 degrees
 }
 
 // Expression system
@@ -416,32 +442,33 @@ function ChatPage() {
             console.log('Starting Live2D parameter animations');
           }
           
-          // Update idle behaviors with more conservative values
-          updateIdleBehaviors(deltaMS, animationState);
+          // Update idle behaviors
+          updateIdleBehaviors(deltaMS, animationState, pixiModel);
           
-          // Smooth parameter transitions
+          // Fast, natural parameter transitions
+          const eyeBlinkSpeed = animationState.isBlinking ? 0.15 : 0.08; // Faster blink
           animationState.eyeBlinkCurrent = lerp(
             animationState.eyeBlinkCurrent, 
             animationState.eyeBlinkTarget, 
-            deltaMS * 0.01
+            deltaMS * eyeBlinkSpeed
           );
           
           animationState.mouthCurrent = lerp(
             animationState.mouthCurrent,
             animationState.mouthTarget,
-            deltaMS * 0.008
+            deltaMS * 0.02 // Faster mouth response
           );
           
-          // Apply to model or placeholder - be gentle with head parameters
+          // Apply parameters directly - no extra multipliers for natural feel
           if (pixiModel) {
             setModelParameter('ParamEyeLOpen', animationState.eyeBlinkCurrent, pixiModel);
             setModelParameter('ParamEyeROpen', animationState.eyeBlinkCurrent, pixiModel);
             setModelParameter('ParamMouthOpenY', animationState.mouthCurrent, pixiModel);
             
-            // Use much smaller head movements to prevent disappearing
-            setModelParameter('ParamAngleX', animationState.headAngleX * 0.3, pixiModel);
-            setModelParameter('ParamAngleY', animationState.headAngleY * 0.3, pixiModel);
-            setModelParameter('ParamAngleZ', animationState.headAngleZ * 0.2, pixiModel);
+            // Natural head movement without excessive dampening
+            setModelParameter('ParamAngleX', animationState.headAngleX, pixiModel);
+            setModelParameter('ParamAngleY', animationState.headAngleY, pixiModel);
+            setModelParameter('ParamAngleZ', animationState.headAngleZ, pixiModel);
           } else if (pixiPlaceholder) {
             animatePlaceholder(pixiPlaceholder, {
               eyeBlink: animationState.eyeBlinkCurrent,
@@ -524,29 +551,30 @@ function ChatPage() {
   const startDemoStream = () => {
     addMessage("Demo stream starting...", false);
     
-    // Test mouth movement
+    // Test mouth movement with more natural timing
     const testPhrase = "Hello! This is a test of mouth sync animation.";
     let index = 0;
     
     const animateText = setInterval(() => {
       if (index >= testPhrase.length) {
         clearInterval(animateText);
-        animationState.mouthTarget = 0; // Close mouth at end
+        // Smooth close mouth
+        animationState.mouthTarget = 0;
         addMessage("Demo animation complete!", false);
         return;
       }
       
       const char = testPhrase[index];
       
-      // Animate mouth based on character type
+      // More natural mouth movements
       if (/[aeiouAEIOU]/.test(char)) {
-        // Vowel - wider mouth
-        animationState.mouthTarget = 0.8;
+        // Vowel - moderate mouth opening
+        animationState.mouthTarget = 0.6;
       } else if (/[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]/.test(char)) {
         // Consonant - smaller mouth
-        animationState.mouthTarget = 0.4;
+        animationState.mouthTarget = 0.3;
       } else if (/[.,!?;:]/.test(char)) {
-        // Punctuation - pause
+        // Punctuation - brief pause
         animationState.mouthTarget = 0;
         
         // Quick expressions
@@ -556,12 +584,12 @@ function ChatPage() {
           triggerExpression('surprised', model);
         }
       } else {
-        // Space or other - neutral
-        animationState.mouthTarget = 0;
+        // Space or other - slight opening for natural flow
+        animationState.mouthTarget = 0.1;
       }
       
       index++;
-    }, 100); // 100ms per character
+    }, 80); // Slightly faster for more natural speech
   };
   
   // Test expression functions
@@ -664,8 +692,22 @@ function ChatPage() {
                   variant={animationsEnabled ? "default" : "outline"}
                   size="sm"
                   onClick={() => {
-                    setAnimationsEnabled(!animationsEnabled);
-                    addMessage(`Animations ${!animationsEnabled ? 'enabled' : 'disabled'}`, false);
+                    const newState = !animationsEnabled;
+                    setAnimationsEnabled(newState);
+                    
+                    // Reset animation state when enabling to prevent fade-in
+                    if (newState && model?.internalModel?.coreModel) {
+                      try {
+                        const core = model.internalModel.coreModel;
+                        animationState.eyeBlinkCurrent = core.getParameterValueById('ParamEyeLOpen') || 1;
+                        animationState.mouthCurrent = core.getParameterValueById('ParamMouthOpenY') || 0;
+                        animationState.initialized = true;
+                      } catch (e) {
+                        console.log('Could not read current parameters:', e);
+                      }
+                    }
+                    
+                    addMessage(`Animations ${newState ? 'enabled' : 'disabled'}`, false);
                   }}
                 >
                   {animationsEnabled ? 'Stop' : 'Animate'}
