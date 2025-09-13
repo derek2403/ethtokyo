@@ -124,7 +124,7 @@ export default function HomePage() {
         if (o.isMesh) {
           o.castShadow = true;
           o.receiveShadow = true;
-          islandMeshes.push(o); // (we’re filtering water in groundHitAt)
+          islandMeshes.push(o);
         }
       });
 
@@ -166,7 +166,6 @@ export default function HomePage() {
         }
       })();
 
-      // --- HOUSE ---
       loader.load("/assets/house.glb", (hgltf) => {
         const house = hgltf.scene;
         house.traverse((o) => {
@@ -293,6 +292,80 @@ export default function HomePage() {
             )
           );
           scene.add(tree);
+        });
+
+        loader.load("/assets/torii.glb", (ggltf) => {
+          const torii = ggltf.scene;
+          torii.traverse((o) => {
+            if (o.isMesh) {
+              o.castShadow = true;
+              o.receiveShadow = true;
+            }
+          });
+          torii.scale.set(0.75, 0.75, 0.75);
+
+          let grassTop = null;
+          islandRoot.traverse((o) => {
+            if (!grassTop && o.isMesh) {
+              const n = (o.name || "").toLowerCase(),
+                m = (o.material?.name || "").toLowerCase();
+              if (/grass|top/.test(n) || /grass|top/.test(m)) grassTop = o;
+            }
+          });
+          if (!grassTop) grassTop = islandRoot;
+
+          const box = new THREE.Box3().setFromObject(grassTop);
+          const half = box.getSize(new THREE.Vector3()).multiplyScalar(0.5);
+          const ctr = box.getCenter(new THREE.Vector3());
+
+          const up = new THREE.Vector3(0, 1, 0);
+          const front = camera.position.clone().sub(ctr).setY(0).normalize();
+          const left = new THREE.Vector3().crossVectors(up, front).normalize();
+
+          const margin = 0.18;
+          const dist = Math.max(0.01, Math.min(half.x, half.z) - margin);
+
+          const targetXZ = ctr
+            .clone()
+            .addScaledVector(front, dist * 0)
+            .addScaledVector(left, dist * 0.2);
+
+          const drop = (x, z) => {
+            const rc = new THREE.Raycaster(
+              new THREE.Vector3(x, 50, z),
+              new THREE.Vector3(0, -1, 0)
+            );
+            const hits = rc.intersectObjects(islandMeshes, true);
+            return hits.length ? hits[0] : null;
+          };
+
+          let hit = drop(targetXZ.x, targetXZ.z);
+          if (!hit) {
+            for (let i = 1; i <= 12 && !hit; i++) {
+              const p = targetXZ
+                .clone()
+                .addScaledVector(front, -0.1 * i)
+                .addScaledVector(left, -0.1 * i);
+              hit = drop(p.x, p.z);
+            }
+          }
+          if (!hit) return;
+
+          const n =
+            hit.face && hit.face.normal
+              ? hit.face.normal.clone().normalize()
+              : up.clone();
+          torii.position.copy(hit.point).addScaledVector(n, 0.05);
+          const q = new THREE.Quaternion().setFromUnitVectors(up, n);
+          torii.quaternion.copy(q);
+
+          const hp = new THREE.Vector3();
+          house.getWorldPosition(hp);
+          torii.lookAt(new THREE.Vector3(hp.x, torii.position.y, hp.z));
+
+          torii.rotateY(THREE.MathUtils.degToRad(-14));
+
+          scene.add(torii);
         });
       });
     });
