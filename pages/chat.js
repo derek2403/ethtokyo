@@ -1,6 +1,6 @@
-"use client";
-
 import React, { useState, useRef, useEffect } from 'react';
+import dynamic from 'next/dynamic';
+import Script from 'next/script';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -19,15 +19,86 @@ const Textarea = ({ className, ...props }) => (
   />
 );
 
-export default function ChatPage() {
+// Placeholder Face Implementation (PixiJS v6 API)
+function createPlaceholderFace(app, PIXI) {
+  const face = new PIXI.Container();
+  
+  // Head circle (PixiJS v6 syntax)
+  const head = new PIXI.Graphics();
+  head.beginFill(0xffdbac);
+  head.lineStyle(2, 0x000000);
+  head.drawCircle(0, 0, 100);
+  head.endFill();
+  
+  // Eyes
+  const leftEye = new PIXI.Graphics();
+  leftEye.beginFill(0x000000);
+  leftEye.drawCircle(-30, -20, 15);
+  leftEye.endFill();
+  
+  const rightEye = new PIXI.Graphics();
+  rightEye.beginFill(0x000000);
+  rightEye.drawCircle(30, -20, 15);
+  rightEye.endFill();
+  
+  // Mouth
+  const mouth = new PIXI.Graphics();
+  mouth.beginFill(0x000000);
+  mouth.drawRoundedRect(-20, 20, 40, 10, 5);
+  mouth.endFill();
+  
+  face.addChild(head, leftEye, rightEye, mouth);
+  face.position.set(app.screen.width / 2, app.screen.height / 2);
+  
+  // Add animation properties for compatibility
+  face.eyeBlinkValue = 1;
+  face.mouthOpenValue = 0;
+  
+  return face;
+}
+
+// Live2D parameter control
+function setModelParameter(paramName, value, model) {
+  if (model?.internalModel?.coreModel) {
+    try {
+      model.internalModel.coreModel.setParameterValueById(paramName, value);
+    } catch (e) {
+      console.warn(`Parameter ${paramName} not found`);
+    }
+  }
+}
+
+// Placeholder animation
+function animatePlaceholder(placeholder, params) {
+  if (!placeholder) return;
+  
+  // Eye blink
+  placeholder.children[1].scale.y = params.eyeBlink;
+  placeholder.children[2].scale.y = params.eyeBlink;
+  
+  // Mouth open
+  placeholder.children[3].scale.y = 0.5 + params.mouthOpen * 0.5;
+  
+  // Head rotation
+  placeholder.rotation = params.headAngle * 0.1;
+}
+
+function ChatPage() {
   // State management
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [isChatOpen, setIsChatOpen] = useState(false);
   
   // References
-  const canvasRef = useRef(null);
+  const canvasContainerRef = useRef(null);
   const messagesEndRef = useRef(null);
+  
+  // PixiJS & Live2D state
+  const [app, setApp] = useState(null);
+  const [model, setModel] = useState(null);
+  const [placeholderFace, setPlaceholderFace] = useState(null);
+  const [cubismLoaded, setCubismLoaded] = useState(false);
+  const [debugInfo, setDebugInfo] = useState('Initializing...');
 
   // Scroll to bottom function
   const scrollToBottom = () => {
@@ -57,6 +128,153 @@ export default function ChatPage() {
     }
   }, [messages]);
 
+
+  // PixiJS initialization (client-only)
+  useEffect(() => {
+    const live2DCubismCoreAvailable = typeof window !== 'undefined' && window.Live2DCubismCore;
+    
+    console.log('PixiJS Effect triggered:', { 
+      containerExists: !!canvasContainerRef.current, 
+      cubismLoaded, 
+      windowExists: typeof window !== 'undefined',
+      live2DCubismCoreAvailable
+    });
+
+    if (!canvasContainerRef.current || !cubismLoaded || typeof window === 'undefined' || !live2DCubismCoreAvailable) {
+      if (cubismLoaded && !live2DCubismCoreAvailable) {
+        setDebugInfo('Waiting for Live2DCubismCore global...');
+      }
+      return;
+    }
+
+    let pixiApp = null;
+    let pixiModel = null;
+    let pixiPlaceholder = null;
+
+    const initializePixi = async () => {
+      try {
+        console.log('Starting PixiJS initialization...');
+        setDebugInfo('Loading PixiJS and Live2D libraries...');
+
+        // Dynamic import of client-only libraries - use Cubism 4 specific bundle
+        const [PIXI, { Live2DModel }] = await Promise.all([
+          import('pixi.js'),
+          import('pixi-live2d-display/cubism4')  // Use Cubism 4 specific bundle
+        ]);
+
+        console.log('Libraries loaded successfully');
+        
+        // Expose PIXI to window for Live2D plugin (required by documentation)
+        if (typeof window !== 'undefined') {
+          window.PIXI = PIXI;
+          console.log('PIXI exposed to window for Live2D auto-update');
+        }
+        
+        setDebugInfo('Libraries loaded, creating PixiJS application...');
+
+        const container = canvasContainerRef.current;
+        console.log('Container dimensions:', container.clientWidth, 'x', container.clientHeight);
+        
+        // PixiJS v7 Application setup - try both sync and async patterns
+        pixiApp = new PIXI.Application();
+        
+        // Check if v7 requires async initialization
+        if (typeof pixiApp.init === 'function') {
+          console.log('Using PixiJS v7+ async initialization');
+          await pixiApp.init({
+            width: container.clientWidth,
+            height: container.clientHeight,
+            background: 0x000000,
+            backgroundAlpha: 0,
+            antialias: true,
+            autoStart: false
+          });
+        } else {
+          console.log('Using legacy PixiJS initialization');
+          // Fallback for older versions
+          pixiApp = new PIXI.Application({
+            width: container.clientWidth,
+            height: container.clientHeight,
+            background: 0x000000,
+            backgroundAlpha: 0,
+            antialias: true,
+            autoStart: false
+          });
+        }
+
+        console.log('PixiJS Application created');
+
+        // Append Pixi-created canvas to container (check both v6 and v7 properties)
+        const canvas = pixiApp.canvas || pixiApp.view;
+        console.log('Canvas element:', canvas, 'Type:', typeof canvas);
+        
+        if (canvas && canvas.nodeType === Node.ELEMENT_NODE) {
+          container.appendChild(canvas);
+          console.log('Canvas successfully appended to container');
+        } else {
+          throw new Error(`Invalid canvas element: ${canvas}`);
+        }
+
+        // Limit to 60 FPS
+        pixiApp.ticker.maxFPS = 60;
+
+        setApp(pixiApp);
+        setDebugInfo('PixiJS ready, loading Live2D model...');
+
+        // Live2D Model Loading
+        try {
+          console.log('Attempting to load Live2D model...');
+          pixiModel = await Live2DModel.from('/model/Hiyori/hiyori_pro_jp.model3.json');
+          
+          console.log('Live2D model loaded, setting up display...');
+          setDebugInfo('Live2D model loaded successfully!');
+
+          // Scale and position model
+          const scale = Math.min(
+            pixiApp.screen.width / pixiModel.width,
+            pixiApp.screen.height / pixiModel.height
+          ) * 0.8;
+          
+          pixiModel.scale.set(scale);
+          pixiModel.anchor.set(0.5, 0.5);
+          pixiModel.position.set(pixiApp.screen.width / 2, pixiApp.screen.height / 2);
+          
+          pixiApp.stage.addChild(pixiModel);
+          setModel(pixiModel);
+          
+          console.log('Live2D model added to stage successfully');
+        } catch (error) {
+          console.warn('Live2D model failed to load, using placeholder:', error);
+          setDebugInfo('Live2D model failed, showing placeholder face');
+          
+          // Create placeholder face fallback
+          pixiPlaceholder = createPlaceholderFace(pixiApp, PIXI);
+          pixiApp.stage.addChild(pixiPlaceholder);
+          setPlaceholderFace(pixiPlaceholder);
+          console.log('Placeholder face created and added to stage');
+        }
+
+        // Start the application
+        pixiApp.start();
+        console.log('PixiJS application started');
+
+      } catch (error) {
+        console.error('PixiJS initialization failed:', error);
+        setDebugInfo(`PixiJS initialization failed: ${error.message}`);
+      }
+    };
+
+    initializePixi();
+
+    // Cleanup function
+    return () => {
+      if (pixiApp) {
+        pixiApp.stop();
+        pixiApp.destroy(true, { children: true, texture: true, baseTexture: true });
+      }
+    };
+  }, [cubismLoaded]);
+
   // Handle send message
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
@@ -77,15 +295,39 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="h-screen w-screen relative bg-background text-foreground overflow-hidden">
-      {/* Character Stage - Full screen minus chat input area */}
-      <div className="absolute inset-0 bottom-20">
-        <canvas 
-          ref={canvasRef} 
-          className="w-full h-full"
-          style={{ display: 'block' }}
-        />
-      </div>
+    <>
+      {/* Load Cubism Core with afterInteractive for proper timing */}
+      <Script 
+        src="/libs/live2dcubismcore.min.js" 
+        strategy="afterInteractive"
+        onReady={() => {
+          console.log('Cubism Core loaded and ready');
+          console.log('Live2DCubismCore available:', !!window.Live2DCubismCore);
+          setDebugInfo('Cubism Core ready, initializing PixiJS...');
+          setCubismLoaded(true);
+        }}
+        onError={(e) => {
+          console.error('Failed to load Cubism Core:', e);
+          setDebugInfo('Cubism Core failed to load');
+        }}
+      />
+      
+      <div className="h-screen w-screen relative bg-background text-foreground overflow-hidden">
+        {/* Character Stage - Full screen minus chat input area */}
+        <div className="absolute inset-0 bottom-20">
+          <div ref={canvasContainerRef} className="w-full h-full" />
+          {/* No <canvas> element - Pixi will create and append one */}
+          
+          {/* Debug Info Overlay */}
+          <div className="absolute top-4 left-4 bg-black/50 text-white p-2 rounded text-sm max-w-xs">
+            <div>Debug: {debugInfo}</div>
+            <div>Cubism Loaded: {cubismLoaded ? '✅' : '❌'}</div>
+            <div>Core Global: {(typeof window !== 'undefined' && window.Live2DCubismCore) ? '✅' : '❌'}</div>
+            <div>App: {app ? '✅' : '❌'}</div>
+            <div>Model: {model ? '✅' : '❌'}</div>
+            <div>Placeholder: {placeholderFace ? '✅' : '❌'}</div>
+          </div>
+        </div>
       
       {/* Chat History Toggle Button */}
       <div className="absolute bottom-24 right-4 z-50">
@@ -179,6 +421,10 @@ export default function ChatPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
+
+// Export as client-only to prevent SSR crashes
+export default dynamic(() => Promise.resolve(ChatPage), { ssr: false });

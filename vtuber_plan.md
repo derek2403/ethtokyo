@@ -15,21 +15,29 @@ Create a single-page Next.js application (`pages/chat.js`) that renders a Live2D
 
 ### 1.1 Install Required Dependencies
 ```bash
-npm install pixi.js pixi-live2d-display
+npm install pixi.js@6.5.10 pixi-live2d-display
 ```
 
-### 1.2 Live2D Model Setup ✅ ALREADY COMPLETE
+### 1.2 Cubism Core Runtime Setup
+**File**: Move `/public/live2dcubismcore.min.js` to `/public/libs/live2dcubismcore.min.js`
+
+**Requirements**:
+- Must be loaded before Live2D model creation
+- Use Next.js Script component with `strategy="beforeInteractive"`
+- Add to pages/_document.js or load directly in chat.js
+
+### 1.3 Live2D Model Setup ✅ ALREADY COMPLETE
 Your Hiyori model is already set up correctly at `/public/model/Hiyori/`:
 - `hiyori_pro_jp.model3.json` (main model file)
 - `hiyori_pro_jp.moc3` (model data)  
 - `hiyori_pro_jp.physics3.json` (physics settings)
 - `hiyori_pro_jp.2048/texture_00.png`, `texture_01.png` (textures)
 - `motion/` directory with 10 motion files
-- **Available motions**: Idle, Flick, FlickDown, FlickUp, Tap, Tap@Body, Flick@Body
+- **Available motions**: "Idle" (3 variants), "Flick", "FlickDown", "FlickUp", "Tap" (2 variants), "Tap@Body", "Flick@Body"
 - **Available parameters**: ParamMouthOpenY, ParamEyeLOpen, ParamEyeROpen, ParamAngleX/Y/Z, etc.
 - **Fallback**: If model loading fails, system creates placeholder graphics
 
-### 1.3 File Structure Verification
+### 1.4 File Structure Verification
 ```
 pages/
   chat.js           # New file to create
@@ -47,25 +55,54 @@ styles/
 **File**: `pages/chat.js`
 
 **Requirements**:
-- Use `"use client"` directive at top
+- **NO** `"use client"` directive (this is Pages Router, not App Router)
+- Make page client-only with dynamic import to prevent SSR issues
 - Import existing components: `Button` from `@/components/ui/button`
 - Import utilities: `cn` from `@/lib/utils`
+- Load Cubism Core runtime with Next.js Script component
 - Create responsive layout with CSS Grid or Flexbox
+
+**Client-Only Pattern**:
+```jsx
+import dynamic from 'next/dynamic'
+import * as PIXI from 'pixi.js'
+import { Live2DModel } from 'pixi-live2d-display'
+
+// Main component implementation here...
+function ChatPage() {
+  // Component logic
+}
+
+// Export as client-only to prevent SSR crashes
+export default dynamic(() => Promise.resolve(ChatPage), { ssr: false })
+```
 
 ### 2.2 Layout Specifications
 ```jsx
+import Script from 'next/script'
+
 // Layout Structure:
-<div className="h-screen flex flex-col bg-background text-foreground">
-  {/* Character Stage - Takes remaining space */}
-  <div className="flex-1 relative">
-    <canvas ref={canvasRef} className="w-full h-full" />
-  </div>
+<>
+  {/* Load Cubism Core before anything else */}
+  <Script 
+    src="/libs/live2dcubismcore.min.js" 
+    strategy="beforeInteractive"
+    onLoad={() => console.log('Cubism Core loaded')}
+  />
   
-  {/* Chat Panel - Fixed height bottom dock */}
-  <div className="h-40 border-t border-border">
-    {/* Chat UI components */}
+  <div className="h-screen flex flex-col bg-background text-foreground">
+    {/* Character Stage - Takes remaining space */}
+    <div className="flex-1 relative">
+      <div ref={canvasContainerRef} className="w-full h-full" />
+      {/* No <canvas> element - Pixi will create and append one */}
+    </div>
+    
+    {/* Chat Panel - Fixed height bottom dock */}
+    <div className="h-40 border-t border-border">
+      {/* Chat UI components */}
+    </div>
   </div>
-</div>
+</>
 ```
 
 ### 2.3 Inline UI Components
@@ -97,9 +134,8 @@ const Textarea = ({ className, ...props }) => (
 import * as PIXI from 'pixi.js';
 import { Live2DModel } from 'pixi-live2d-display';
 
-// In useEffect:
-const app = new PIXI.Application();
-await app.init({
+// In useEffect (PixiJS v6.5.10 syntax):
+const app = new PIXI.Application({
   width: container.clientWidth,
   height: container.clientHeight,
   backgroundColor: 0x000000,
@@ -107,6 +143,9 @@ await app.init({
   antialias: true,
   autoStart: false
 });
+
+// Append Pixi-created canvas to container
+container.appendChild(app.view);
 
 // Limit to 60 FPS
 app.ticker.maxFPS = 60;
@@ -138,30 +177,34 @@ try {
 }
 ```
 
-### 3.3 Placeholder Face Implementation
+### 3.3 Placeholder Face Implementation (PixiJS v6 API)
 ```jsx
 function createPlaceholderFace(app) {
   const face = new PIXI.Container();
   
-  // Head circle
+  // Head circle (PixiJS v6 syntax)
   const head = new PIXI.Graphics();
-  head.circle(0, 0, 100);
-  head.fill(0xffdbac);
-  head.stroke({ color: 0x000000, width: 2 });
+  head.beginFill(0xffdbac);
+  head.lineStyle(2, 0x000000);
+  head.drawCircle(0, 0, 100);
+  head.endFill();
   
   // Eyes
   const leftEye = new PIXI.Graphics();
-  leftEye.circle(-30, -20, 15);
-  leftEye.fill(0x000000);
+  leftEye.beginFill(0x000000);
+  leftEye.drawCircle(-30, -20, 15);
+  leftEye.endFill();
   
   const rightEye = new PIXI.Graphics();
-  rightEye.circle(30, -20, 15);
-  rightEye.fill(0x000000);
+  rightEye.beginFill(0x000000);
+  rightEye.drawCircle(30, -20, 15);
+  rightEye.endFill();
   
   // Mouth
   const mouth = new PIXI.Graphics();
-  mouth.roundRect(-20, 20, 40, 10, 5);
-  mouth.fill(0x000000);
+  mouth.beginFill(0x000000);
+  mouth.drawRoundedRect(-20, 20, 40, 10, 5);
+  mouth.endFill();
   
   face.addChild(head, leftEye, rightEye, mouth);
   face.position.set(app.screen.width / 2, app.screen.height / 2);
@@ -300,14 +343,16 @@ function triggerExpression(expressionName) {
   animationState.expressionTarget = expressionName;
   animationState.expressionTimer = 1000; // Hold for 1 second
   
-  // Available motions for Hiyori model: Idle, Flick, FlickDown, FlickUp, Tap, Tap@Body, Flick@Body
+  // Available motions from hiyori_pro_jp.model3.json: "Idle", "Flick", "FlickDown", "FlickUp", "Tap", "Tap@Body", "Flick@Body"
   if (model?.motion) {
     try {
-      // Map emotes to actual motions
+      // Map emotes to actual motion group names (must match model3.json exactly)
       const motionMap = {
         'smile': 'Tap',
         'surprised': 'FlickUp', 
-        'relaxed': 'Idle'
+        'relaxed': 'Idle',
+        'excited': 'Flick',
+        'body_tap': 'Tap@Body'
       };
       const motion = motionMap[expressionName] || expressionName;
       model.motion(motion);
@@ -464,12 +509,32 @@ useEffect(() => {
 }, [app, model, placeholderFace]);
 ```
 
-### 7.2 Resize Handling
+### 7.2 Resize Handling (with simple throttle)
 ```jsx
+// Simple throttle helper
+function throttle(func, delay) {
+  let timeoutId;
+  let lastExecTime = 0;
+  return function (...args) {
+    const currentTime = Date.now();
+    
+    if (currentTime - lastExecTime > delay) {
+      func.apply(this, args);
+      lastExecTime = currentTime;
+    } else {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        func.apply(this, args);
+        lastExecTime = Date.now();
+      }, delay - (currentTime - lastExecTime));
+    }
+  };
+}
+
 useEffect(() => {
   const handleResize = throttle(() => {
-    if (app && canvasRef.current) {
-      const container = canvasRef.current.parentElement;
+    if (app && canvasContainerRef.current) {
+      const container = canvasContainerRef.current;
       app.renderer.resize(container.clientWidth, container.clientHeight);
       
       // Reposition model/placeholder
@@ -490,20 +555,26 @@ useEffect(() => {
 ```jsx
 useEffect(() => {
   return () => {
+    // Stop all streaming
+    streamingActive = false;
+    
+    // Clear any running intervals/timeouts
+    if (streamIntervalRef.current) {
+      clearInterval(streamIntervalRef.current);
+    }
+    
+    // Destroy Pixi app
     if (app) {
       app.stop();
-      app.destroy(true, { children: true });
+      app.destroy(true, { children: true, texture: true, baseTexture: true });
     }
     
     // Clear global function
-    if (window.pushStreamChunk) {
+    if (typeof window !== 'undefined' && window.pushStreamChunk) {
       delete window.pushStreamChunk;
     }
-    
-    // Clear any running timers
-    streamingActive = false;
   };
-}, []);
+}, [app]);
 ```
 
 ---
@@ -530,15 +601,16 @@ useEffect(() => {
 
 ### 8.3 Setup Instructions
 ```bash
-# 1. Install dependencies
-npm install pixi.js pixi-live2d-display
+# 1. Install dependencies (specific versions)
+npm install pixi.js@6.5.10 pixi-live2d-display
 
-# 2. Create model directory
-mkdir -p public/model
+# 2. Move Cubism Core to proper location
+mv public/live2dcubismcore.min.js public/libs/live2dcubismcore.min.js
 
 # 3. Live2D model already available at:
 # /public/model/Hiyori/hiyori_pro_jp.model3.json
-# (Model files already present - skip this step)
+# Motion groups: "Idle", "Flick", "FlickDown", "FlickUp", "Tap", "Tap@Body", "Flick@Body"
+# Parameters: ParamMouthOpenY, ParamEyeLOpen, ParamEyeROpen
 
 # 4. Start development server
 npm run dev
@@ -556,3 +628,7 @@ npm run dev
 - **Self-Contained**: All UI components inlined within the single file
 - **Error Handling**: Graceful fallbacks for missing models or failed loads
 - **Performance**: Target 60 FPS with 45+ FPS minimum during animations
+- **SSR Prevention**: Use dynamic import with `{ ssr: false }` to prevent server-side crashes
+- **PixiJS v6.5.10**: Use v6 API syntax (beginFill/drawCircle/endFill, not chained methods)
+- **Canvas Handling**: Let Pixi create the canvas, append to container div
+- **Cubism Core**: Must load before Live2D model creation via Script component
