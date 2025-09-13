@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@privy-io/react-auth": "^2.24.0",
+    "@solana/spl-token": "^0.4.14",
     "next": "15.5.3",
     "react": "19.1.0",
     "react-dom": "19.1.0"
