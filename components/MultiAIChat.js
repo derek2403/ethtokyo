@@ -155,7 +155,10 @@ export default function MultiAIChat() {
     setIsLoading(true);
     
     const round3Messages = messages.filter(m => m.round === 'round3');
-    const userQuestion = messages.find(m => m.speaker === 'user')?.content || '';
+    const userQuestionFromMessages = messages.find(m => m.speaker === 'user')?.content || '';
+    
+    // Use the state userQuestion as fallback
+    const finalUserQuestion = userQuestionFromMessages || userQuestion;
     
     // Prepare round 3 responses for judge
     const round3Responses = {
@@ -164,8 +167,38 @@ export default function MultiAIChat() {
       ai3: round3Messages.find(m => m.speaker === 'ai3')?.content || ''
     };
     
-    console.log('Sending to judge:', { round3Responses, userQuestion });
+    console.log('Sending to judge:', { round3Responses, userQuestion: finalUserQuestion });
     console.log('Round 3 messages:', round3Messages);
+    console.log('All messages:', messages);
+    
+    // Validate we have the required data
+    if (!finalUserQuestion.trim()) {
+      console.error('No user question found');
+      const recommendation = {
+        summary: "🏆 Final Mental Health Recommendation",
+        content: "Unable to generate final recommendation - no user question found. Please try the consultation again.",
+        timestamp: new Date().toLocaleTimeString(),
+        color: 'bg-yellow-500'
+      };
+      setFinalRecommendation(recommendation);
+      setRound(0);
+      setIsLoading(false);
+      return;
+    }
+    
+    if (!round3Responses.ai1 && !round3Responses.ai2 && !round3Responses.ai3) {
+      console.error('No round 3 responses found');
+      const recommendation = {
+        summary: "🏆 Final Mental Health Recommendation",
+        content: "Unable to generate final recommendation - no specialist responses found. Please try the consultation again.",
+        timestamp: new Date().toLocaleTimeString(),
+        color: 'bg-yellow-500'
+      };
+      setFinalRecommendation(recommendation);
+      setRound(0);
+      setIsLoading(false);
+      return;
+    }
     
     try {
       const response = await fetch('/api/judge', {
@@ -175,7 +208,7 @@ export default function MultiAIChat() {
         },
         body: JSON.stringify({
           round3Responses,
-          userQuestion
+          userQuestion: finalUserQuestion
         }),
       });
 
