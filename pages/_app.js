@@ -2,7 +2,8 @@ import "@/styles/globals.css";
 import { PrivyProvider } from "@privy-io/react-auth";
 
 const PRIVY_APP_ID = (process.env.NEXT_PUBLIC_PRIVY_APP_ID || "").trim();
-const PRIVY_CLIENT_ID = (process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID || "").trim() || undefined;
+const PRIVY_CLIENT_ID =
+  (process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID || "").trim() || undefined;
 
 export default function App({ Component, pageProps }) {
   if (!PRIVY_APP_ID) {
@@ -44,13 +45,7 @@ export default function App({ Component, pageProps }) {
             "wallet_connect"
           ]
         },
-        loginMethods: [
-          "email",
-          "google",
-          "apple",
-          "github",
-          "discord"
-        ],
+        loginMethods: ["email", "google", "wallet", "discord"],
         fundingMethodConfig: {
           moonpay: {
             useSandbox: true
@@ -66,7 +61,14 @@ export default function App({ Component, pageProps }) {
         mfa: {
           noPromptOnMfaRequired: false
         },
-        externalWallets: {}
+        externalWallets: {
+          ethereum: {
+            connectors: {
+              injected: {},
+              walletConnect: {} // ✅ fixed key
+            }
+          }
+        }
       }}
     >
       <Component {...pageProps} />
