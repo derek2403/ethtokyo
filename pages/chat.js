@@ -387,10 +387,25 @@ function ChatPage() {
         }}
       />
       
-      <div className="h-screen w-screen relative bg-background text-foreground overflow-hidden">
-        {/* Character Stage */}
+      <div 
+        className="h-screen w-screen relative text-foreground overflow-hidden"
+        style={{
+          backgroundImage: 'url(/background/room.jpeg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        {/* Character Stage - positioned to stand on floor */}
         <div className="absolute inset-0 bottom-20">
-          <div ref={canvasContainerRef} className="w-full h-full" />
+          <div 
+            ref={canvasContainerRef} 
+            className="w-full h-full"
+            style={{
+              transform: 'translateX(-17%)',
+              transformOrigin: 'center bottom'
+            }}
+          />
           
           {/* Debug Overlay */}
           <DebugOverlay
