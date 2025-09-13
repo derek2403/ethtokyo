@@ -65,11 +65,11 @@ export default function HomePage() {
       { sinkDepth = 0.03, alignToSlope = true } = {}
     ) {
       if (!islandMeshes.length) return;
-
       const rayOrigin = new THREE.Vector3(x, 50, z);
-      const rayDir = new THREE.Vector3(0, -1, 0);
-      const raycaster = new THREE.Raycaster(rayOrigin, rayDir);
-
+      const raycaster = new THREE.Raycaster(
+        rayOrigin,
+        new THREE.Vector3(0, -1, 0)
+      );
       const hits = raycaster.intersectObjects(islandMeshes, true);
       if (!hits.length) {
         object3D.position.set(x, 0, z);
@@ -77,18 +77,16 @@ export default function HomePage() {
       }
 
       const hit = hits[0];
-      const pos = hit.point
-        .clone()
-        .addScaledVector(hit.face.normal, -sinkDepth);
+      const n =
+        hit.face && hit.face.normal
+          ? hit.face.normal.clone().normalize()
+          : new THREE.Vector3(0, 1, 0);
+      const pos = hit.point.clone().addScaledVector(n, -sinkDepth);
       object3D.position.copy(pos);
 
       if (alignToSlope) {
         const up = new THREE.Vector3(0, 1, 0);
-        const q = new THREE.Quaternion().setFromUnitVectors(
-          up,
-          hit.face.normal.clone().normalize()
-        );
-
+        const q = new THREE.Quaternion().setFromUnitVectors(up, n);
         const blended = new THREE.Quaternion().slerpQuaternions(
           new THREE.Quaternion(),
           q,
@@ -98,23 +96,77 @@ export default function HomePage() {
       }
     }
 
+    function groundHitAt(x, z, meshes) {
+      const rc = new THREE.Raycaster(
+        new THREE.Vector3(x, 50, z),
+        new THREE.Vector3(0, -1, 0)
+      );
+      const hits = rc.intersectObjects(meshes, true);
+      for (const h of hits) {
+        const n = (h.object.name || "").toLowerCase();
+        const m = (h.object.material?.name || "").toLowerCase();
+        if (!/water|pond|lake|pool/.test(n) && !/water|pond|lake|pool/.test(m))
+          return h;
+      }
+      return null;
+    }
+    function boundsXZ(root) {
+      const b = new THREE.Box3().setFromObject(root);
+      return { minX: b.min.x, maxX: b.max.x, minZ: b.min.z, maxZ: b.max.z };
+    }
+    const rand = (a, b) => a + Math.random() * (b - a);
+
     loader.load("/assets/island.glb", (gltf) => {
       islandRoot = gltf.scene;
-
       islandRoot.scale.set(2.0, 2.0, 2.0);
 
       islandRoot.traverse((o) => {
         if (o.isMesh) {
           o.castShadow = true;
           o.receiveShadow = true;
-          islandMeshes.push(o);
+          islandMeshes.push(o); // (we’re filtering water in groundHitAt)
         }
       });
 
       scene.add(islandRoot);
       frameObject(islandRoot);
 
-      // --- Load HOUSE first (keep your existing house code) ---
+      (function addPetals() {
+        const { minX, maxX, minZ, maxZ } = boundsXZ(islandRoot);
+        const petalGeo = new THREE.CircleGeometry(0.035, 16);
+        const baseMat = new THREE.MeshBasicMaterial({
+          color: 0xff6fb0,
+          side: THREE.DoubleSide,
+          depthTest: true,
+          depthWrite: true,
+        });
+        const PETALS = 10;
+        for (let i = 0; i < PETALS; i++) {
+          const x = rand(minX + 0.22, maxX - 0.22);
+          const z = rand(minZ + 0.22, maxZ - 0.22);
+          const hit = groundHitAt(x, z, islandMeshes);
+          if (!hit) continue;
+
+          const n =
+            hit.face && hit.face.normal
+              ? hit.face.normal.clone().normalize()
+              : new THREE.Vector3(0, 1, 0);
+          const q = new THREE.Quaternion().setFromUnitVectors(
+            new THREE.Vector3(0, 1, 0),
+            n
+          );
+
+          const petal = new THREE.Mesh(petalGeo, baseMat.clone());
+          petal.material.color.offsetHSL(0, 0, rand(-0.08, 0.08));
+          petal.position.copy(hit.point).addScaledVector(n, 0.012);
+          petal.quaternion.copy(q);
+          petal.rotateOnAxis(n, rand(0, Math.PI * 2));
+          petal.renderOrder = 999;
+          scene.add(petal);
+        }
+      })();
+
+      // --- HOUSE ---
       loader.load("/assets/house.glb", (hgltf) => {
         const house = hgltf.scene;
         house.traverse((o) => {
@@ -130,7 +182,6 @@ export default function HomePage() {
           alignToSlope: true,
         });
 
-        // Face house toward island center
         const center = new THREE.Box3()
           .setFromObject(islandRoot)
           .getCenter(new THREE.Vector3());
@@ -145,9 +196,6 @@ export default function HomePage() {
           });
           tree.scale.set(0.75, 0.75, 0.75);
 
-          const rightOffset = 1.05;
-          const forwardOffset = 0.3;
-
           const right = new THREE.Vector3(1, 0, 0).applyQuaternion(
             house.quaternion
           );
@@ -156,14 +204,13 @@ export default function HomePage() {
           );
           const target = house.position
             .clone()
-            .addScaledVector(right, rightOffset)
-            .addScaledVector(fwd, forwardOffset);
+            .addScaledVector(right, 1.05) // sideways from the house
+            .addScaledVector(fwd, 0.3); // slight forward
 
           placeOnIsland(tree, target.x, target.z, {
             sinkDepth: 0.05,
             alignToSlope: true,
           });
-
           tree.lookAt(
             new THREE.Vector3(
               house.position.x,
@@ -171,8 +218,43 @@ export default function HomePage() {
               house.position.z
             )
           );
-
           scene.add(tree);
+        });
+
+        loader.load("/assets/tree2.glb", (t2gltf) => {
+          const tree2 = t2gltf.scene;
+          tree2.traverse((o) => {
+            if (o.isMesh) o.castShadow = true;
+          });
+
+          tree2.scale.set(0.98, 0.98, 0.98);
+
+          const right = new THREE.Vector3(1, 0, 0).applyQuaternion(
+            house.quaternion
+          );
+          const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(
+            house.quaternion
+          );
+
+          const target2 = house.position
+            .clone()
+            .addScaledVector(right, -1.05) // left side (negative)
+            .addScaledVector(fwd, 0.15);
+
+          placeOnIsland(tree2, target2.x, target2.z, {
+            sinkDepth: 0.05,
+            alignToSlope: true,
+          });
+
+          tree2.lookAt(
+            new THREE.Vector3(
+              house.position.x,
+              tree2.position.y,
+              house.position.z
+            )
+          );
+
+          scene.add(tree2);
         });
       });
     });
