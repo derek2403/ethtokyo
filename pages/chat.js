@@ -57,13 +57,104 @@ function createPlaceholderFace(app, PIXI) {
   return face;
 }
 
-// Live2D parameter control
-function setModelParameter(paramName, value, model) {
+// Live2D parameter control with weight (updated API)
+function setModelParameter(paramName, value, model, weight = 1) {
   if (model?.internalModel?.coreModel) {
     try {
-      model.internalModel.coreModel.setParameterValueById(paramName, value);
+      model.internalModel.coreModel.setParameterValueById(paramName, value, weight);
     } catch (e) {
       console.warn(`Parameter ${paramName} not found`);
+    }
+  }
+}
+
+// Animation state management
+const animationState = {
+  // Eye blink
+  eyeBlinkTimer: 0,
+  eyeBlinkTarget: 1,
+  eyeBlinkCurrent: 1,
+  
+  // Mouth animation
+  mouthTarget: 0,
+  mouthCurrent: 0,
+  mouthEnvelope: { attack: 70, hold: 50, release: 100 },
+  
+  // Head sway
+  headSwayTime: 0,
+  headAngleX: 0,
+  headAngleY: 0,
+  headAngleZ: 0,
+  
+  // Expression states
+  expressionTarget: 'neutral',
+  expressionTimer: 0
+};
+
+// Linear interpolation helper
+function lerp(a, b, t) {
+  return a + (b - a) * t;
+}
+
+// Simple throttle helper for resize events
+function throttle(func, delay) {
+  let timeoutId;
+  let lastExecTime = 0;
+  return function (...args) {
+    const currentTime = Date.now();
+    
+    if (currentTime - lastExecTime > delay) {
+      func.apply(this, args);
+      lastExecTime = currentTime;
+    } else {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        func.apply(this, args);
+        lastExecTime = Date.now();
+      }, delay - (currentTime - lastExecTime));
+    }
+  };
+}
+
+// Idle behaviors - eye blinking and head sway
+function updateIdleBehaviors(deltaMS, state) {
+  // Random eye blink every 2-4 seconds
+  state.eyeBlinkTimer += deltaMS;
+  if (state.eyeBlinkTimer > (2000 + Math.random() * 2000)) {
+    state.eyeBlinkTimer = 0;
+    // Trigger blink animation
+    state.eyeBlinkTarget = 0;
+    setTimeout(() => { state.eyeBlinkTarget = 1; }, 120);
+  }
+  
+  // Head sway - very gentle movement to prevent disappearing
+  state.headSwayTime += deltaMS * 0.001;
+  state.headAngleX = Math.sin(state.headSwayTime * 0.5) * 2; // ±2 degrees (reduced)
+  state.headAngleY = Math.cos(state.headSwayTime * 0.3) * 1; // ±1 degree (reduced) 
+  state.headAngleZ = Math.sin(state.headSwayTime * 0.7) * 1; // ±1 degree (reduced)
+}
+
+// Expression system
+function triggerExpression(expressionName, model) {
+  animationState.expressionTarget = expressionName;
+  animationState.expressionTimer = 1000; // Hold for 1 second
+  
+  // Available motions from hiyori_pro_jp.model3.json: "Idle", "Flick", "FlickDown", "FlickUp", "Tap", "Tap@Body", "Flick@Body"
+  if (model?.motion) {
+    try {
+      // Map emotes to actual motion group names (must match model3.json exactly)
+      const motionMap = {
+        'smile': 'Tap',
+        'surprised': 'FlickUp', 
+        'relaxed': 'Idle',
+        'excited': 'Flick',
+        'body_tap': 'Tap@Body'
+      };
+      const motion = motionMap[expressionName] || expressionName;
+      model.motion(motion);
+      console.log(`Triggered motion: ${motion}`);
+    } catch (e) {
+      console.warn(`Motion ${expressionName} not available`);
     }
   }
 }
@@ -99,6 +190,7 @@ function ChatPage() {
   const [placeholderFace, setPlaceholderFace] = useState(null);
   const [cubismLoaded, setCubismLoaded] = useState(false);
   const [debugInfo, setDebugInfo] = useState('Initializing...');
+  const [animationsEnabled, setAnimationsEnabled] = useState(false);
 
   // Scroll to bottom function
   const scrollToBottom = () => {
@@ -169,6 +261,10 @@ function ChatPage() {
           window.PIXI = PIXI;
           console.log('PIXI exposed to window for Live2D auto-update');
         }
+
+        // Don't register auto-ticker initially to prevent conflicts
+        // Live2DModel.registerTicker(PIXI.Ticker);
+        console.log('Live2D auto-ticker disabled to prevent conflicts');
         
         setDebugInfo('Libraries loaded, creating PixiJS application...');
 
@@ -227,28 +323,70 @@ function ChatPage() {
           pixiModel = await Live2DModel.from('/model/Hiyori/hiyori_pro_jp.model3.json');
           
           console.log('Live2D model loaded, setting up display...');
+          console.log('Model details:', {
+            width: pixiModel.width,
+            height: pixiModel.height,
+            textures: pixiModel.textures?.length || 'unknown',
+            anchor: { x: pixiModel.anchor.x, y: pixiModel.anchor.y },
+            position: { x: pixiModel.x, y: pixiModel.y }
+          });
           setDebugInfo('Live2D model loaded successfully!');
 
-          // Scale and position model
-          const scale = Math.min(
-            pixiApp.screen.width / pixiModel.width,
-            pixiApp.screen.height / pixiModel.height
-          ) * 0.8;
+          // Get model bounds for proper positioning
+          const modelBounds = pixiModel.getBounds();
+          console.log('Model bounds:', modelBounds);
+          console.log('Model original size:', pixiModel.width, 'x', pixiModel.height);
           
+          // Scale model to fit screen with padding
+          const scaleX = (pixiApp.screen.width * 0.7) / modelBounds.width;
+          const scaleY = (pixiApp.screen.height * 0.9) / modelBounds.height;
+          const scale = Math.min(scaleX, scaleY);
+          
+          console.log('Calculated scale:', scale);
           pixiModel.scale.set(scale);
-          pixiModel.anchor.set(0.5, 0.5);
           
-          // Center the model in the screen
+          // Center the model properly
           const centerX = pixiApp.screen.width / 2;
           const centerY = pixiApp.screen.height / 2;
+          
+          // Keep anchor at center and position at true center first
+          pixiModel.anchor.set(0.5, 0.5);
           pixiModel.position.set(centerX, centerY);
           
+          // Log positioning for debugging
+          console.log(`Screen size: ${pixiApp.screen.width}x${pixiApp.screen.height}`);
+          console.log(`Model positioned at center: ${centerX}, ${centerY}`);
+          
           console.log(`Model positioned at: ${centerX}, ${centerY} (screen: ${pixiApp.screen.width}x${pixiApp.screen.height})`);
+          
+          // Ensure all textures are loaded before adding to stage
+          await new Promise(resolve => {
+            if (pixiModel.textures && pixiModel.textures.length > 0) {
+              Promise.all(pixiModel.textures.map(tex => tex.baseTexture.resource.load()))
+                .then(() => resolve())
+                .catch(() => resolve()); // Continue even if some textures fail
+            } else {
+              resolve();
+            }
+          });
           
           pixiApp.stage.addChild(pixiModel);
           setModel(pixiModel);
           
           console.log('Live2D model added to stage successfully');
+          console.log('Final model state:', {
+            position: { x: pixiModel.x, y: pixiModel.y },
+            scale: { x: pixiModel.scale.x, y: pixiModel.scale.y },
+            bounds: pixiModel.getBounds(),
+            visible: pixiModel.visible,
+            alpha: pixiModel.alpha
+          });
+          
+          // Force a render update to ensure model displays properly
+          pixiApp.render();
+          
+          // Don't trigger motions initially - let model display naturally
+          console.log('Model loaded and displayed - animations will start after 2s delay');
         } catch (error) {
           console.warn('Live2D model failed to load, using placeholder:', error);
           setDebugInfo('Live2D model failed, showing placeholder face');
@@ -260,9 +398,62 @@ function ChatPage() {
           console.log('Placeholder face created and added to stage');
         }
 
+        // Set up animation loop with delay to let model stabilize
+        let animationStarted = false;
+        let startDelay = 0;
+        
+        pixiApp.ticker.add((ticker) => {
+          const deltaMS = ticker.deltaMS;
+          
+          // Only run animations if manually enabled
+          if (!animationsEnabled) {
+            return; // Don't run animations until manually enabled
+          }
+          
+          // Initialize animation start after enabling
+          if (!animationStarted) {
+            animationStarted = true;
+            console.log('Starting Live2D parameter animations');
+          }
+          
+          // Update idle behaviors with more conservative values
+          updateIdleBehaviors(deltaMS, animationState);
+          
+          // Smooth parameter transitions
+          animationState.eyeBlinkCurrent = lerp(
+            animationState.eyeBlinkCurrent, 
+            animationState.eyeBlinkTarget, 
+            deltaMS * 0.01
+          );
+          
+          animationState.mouthCurrent = lerp(
+            animationState.mouthCurrent,
+            animationState.mouthTarget,
+            deltaMS * 0.008
+          );
+          
+          // Apply to model or placeholder - be gentle with head parameters
+          if (pixiModel) {
+            setModelParameter('ParamEyeLOpen', animationState.eyeBlinkCurrent, pixiModel);
+            setModelParameter('ParamEyeROpen', animationState.eyeBlinkCurrent, pixiModel);
+            setModelParameter('ParamMouthOpenY', animationState.mouthCurrent, pixiModel);
+            
+            // Use much smaller head movements to prevent disappearing
+            setModelParameter('ParamAngleX', animationState.headAngleX * 0.3, pixiModel);
+            setModelParameter('ParamAngleY', animationState.headAngleY * 0.3, pixiModel);
+            setModelParameter('ParamAngleZ', animationState.headAngleZ * 0.2, pixiModel);
+          } else if (pixiPlaceholder) {
+            animatePlaceholder(pixiPlaceholder, {
+              eyeBlink: animationState.eyeBlinkCurrent,
+              mouthOpen: animationState.mouthCurrent,
+              headAngle: animationState.headAngleX
+            });
+          }
+        });
+
         // Start the application
         pixiApp.start();
-        console.log('PixiJS application started');
+        console.log('PixiJS application started with animation loop');
 
       } catch (error) {
         console.error('PixiJS initialization failed:', error);
@@ -281,6 +472,41 @@ function ChatPage() {
     };
   }, [cubismLoaded]);
 
+  // Resize handling for responsive canvas
+  useEffect(() => {
+    if (!app) return;
+    
+    const handleResize = throttle(() => {
+      if (app && canvasContainerRef.current) {
+        const container = canvasContainerRef.current;
+        app.renderer.resize(container.clientWidth, container.clientHeight);
+        
+        // Reposition and rescale model/placeholder
+        if (model) {
+          // Recalculate scale for new screen size
+          const modelBounds = model.getBounds();
+          const scaleX = (app.screen.width * 0.7) / (modelBounds.width / model.scale.x);
+          const scaleY = (app.screen.height * 0.9) / (modelBounds.height / model.scale.y);
+          const newScale = Math.min(scaleX, scaleY);
+          
+          model.scale.set(newScale);
+          
+          const centerX = app.screen.width / 2;
+          const centerY = app.screen.height / 2;
+          model.position.set(centerX, centerY);
+          console.log(`Model repositioned to: ${centerX}, ${centerY + 100} with scale: ${newScale}`);
+        } else if (placeholderFace) {
+          const centerX = app.screen.width / 2;
+          const centerY = app.screen.height / 2;
+          placeholderFace.position.set(centerX, centerY);
+        }
+      }
+    }, 100);
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [app, model, placeholderFace]);
+
   // Handle send message
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
@@ -294,10 +520,58 @@ function ChatPage() {
     }, 500);
   };
 
-  // Demo stream function placeholder
+  // Demo stream function - test animations
   const startDemoStream = () => {
     addMessage("Demo stream starting...", false);
-    // This will be implemented in Phase 5
+    
+    // Test mouth movement
+    const testPhrase = "Hello! This is a test of mouth sync animation.";
+    let index = 0;
+    
+    const animateText = setInterval(() => {
+      if (index >= testPhrase.length) {
+        clearInterval(animateText);
+        animationState.mouthTarget = 0; // Close mouth at end
+        addMessage("Demo animation complete!", false);
+        return;
+      }
+      
+      const char = testPhrase[index];
+      
+      // Animate mouth based on character type
+      if (/[aeiouAEIOU]/.test(char)) {
+        // Vowel - wider mouth
+        animationState.mouthTarget = 0.8;
+      } else if (/[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]/.test(char)) {
+        // Consonant - smaller mouth
+        animationState.mouthTarget = 0.4;
+      } else if (/[.,!?;:]/.test(char)) {
+        // Punctuation - pause
+        animationState.mouthTarget = 0;
+        
+        // Quick expressions
+        if (char === '!' && model) {
+          triggerExpression('excited', model);
+        } else if (char === '?' && model) {
+          triggerExpression('surprised', model);
+        }
+      } else {
+        // Space or other - neutral
+        animationState.mouthTarget = 0;
+      }
+      
+      index++;
+    }, 100); // 100ms per character
+  };
+  
+  // Test expression functions
+  const testExpression = (expression) => {
+    if (model) {
+      triggerExpression(expression, model);
+      addMessage(`Testing ${expression} expression!`, false);
+    } else {
+      addMessage(`Model not loaded - expression test skipped`, false);
+    }
   };
 
   return (
@@ -332,6 +606,7 @@ function ChatPage() {
             <div>App: {app ? '✅' : '❌'}</div>
             <div>Model: {model ? '✅' : '❌'}</div>
             <div>Placeholder: {placeholderFace ? '✅' : '❌'}</div>
+            <div>Animations: {animationsEnabled ? '✅' : '❌'}</div>
           </div>
         </div>
       
@@ -356,13 +631,44 @@ function ChatPage() {
           <div className="px-4 py-2 border-b border-border">
             <div className="flex justify-between items-center">
               <h3 className="font-semibold text-sm">Chat History</h3>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <Button 
                   variant="outline" 
                   size="sm"
                   onClick={startDemoStream}
                 >
                   Demo Stream
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => testExpression('smile')}
+                >
+                  😊
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => testExpression('surprised')}
+                >
+                  😲
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => testExpression('relaxed')}
+                >
+                  😌
+                </Button>
+                <Button 
+                  variant={animationsEnabled ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => {
+                    setAnimationsEnabled(!animationsEnabled);
+                    addMessage(`Animations ${!animationsEnabled ? 'enabled' : 'disabled'}`, false);
+                  }}
+                >
+                  {animationsEnabled ? 'Stop' : 'Animate'}
                 </Button>
                 <Button 
                   variant="ghost" 
