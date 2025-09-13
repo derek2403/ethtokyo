@@ -237,7 +237,13 @@ function ChatPage() {
           
           pixiModel.scale.set(scale);
           pixiModel.anchor.set(0.5, 0.5);
-          pixiModel.position.set(pixiApp.screen.width / 2, pixiApp.screen.height / 2);
+          
+          // Center the model in the screen
+          const centerX = pixiApp.screen.width / 2;
+          const centerY = pixiApp.screen.height / 2;
+          pixiModel.position.set(centerX, centerY);
+          
+          console.log(`Model positioned at: ${centerX}, ${centerY} (screen: ${pixiApp.screen.width}x${pixiApp.screen.height})`);
           
           pixiApp.stage.addChild(pixiModel);
           setModel(pixiModel);
