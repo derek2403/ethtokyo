@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import FeelingTodayModal from './FeelingTodayModal';
+import FeelingBetterModal from './FeelingBetterModal';
 
 export default function MultiAIChat() {
   const [userQuestion, setUserQuestion] = useState('');
@@ -7,6 +9,10 @@ export default function MultiAIChat() {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [finalRecommendation, setFinalRecommendation] = useState(null);
+  const [showFeelingTodayModal, setShowFeelingTodayModal] = useState(false);
+  const [showFeelingBetterModal, setShowFeelingBetterModal] = useState(false);
+  const [feelingTodayRating, setFeelingTodayRating] = useState(null);
+  const [feelingBetterRating, setFeelingBetterRating] = useState(null);
 
   const aiConfig = {
     ai1: { name: 'AI1 - Clinical Psychologist', color: 'bg-purple-500', endpoint: '/api/ai1' },
@@ -278,6 +284,18 @@ export default function MultiAIChat() {
     setRound(0);
     setUserQuestion('');
     setFinalRecommendation(null);
+    setFeelingTodayRating(null);
+    setFeelingBetterRating(null);
+  };
+
+  const handleFeelingTodayRating = (rating) => {
+    setFeelingTodayRating(rating);
+    console.log('Feeling today rating:', rating);
+  };
+
+  const handleFeelingBetterRating = (rating) => {
+    setFeelingBetterRating(rating);
+    console.log('Feeling better rating:', rating);
   };
 
   return (
@@ -295,6 +313,13 @@ export default function MultiAIChat() {
               </p>
             </div>
             <div className="flex gap-2">
+              <Button 
+                onClick={() => setShowFeelingTodayModal(true)} 
+                variant="outline"
+                className="text-sm"
+              >
+                How are you feeling?
+              </Button>
               <Button onClick={clearChat} variant="ghost">
                 Clear
               </Button>
@@ -445,8 +470,18 @@ export default function MultiAIChat() {
                 {finalRecommendation.content}
               </div>
             </div>
-            <div className="mt-3 text-sm text-green-700 dark:text-green-300">
-              Consultation completed at {finalRecommendation.timestamp}
+            <div className="mt-3 flex justify-between items-center">
+              <div className="text-sm text-green-700 dark:text-green-300">
+                Consultation completed at {finalRecommendation.timestamp}
+              </div>
+              <Button 
+                onClick={() => setShowFeelingBetterModal(true)} 
+                variant="outline"
+                size="sm"
+                className="text-green-700 border-green-300 hover:bg-green-50"
+              >
+                How are you feeling now?
+              </Button>
             </div>
           </div>
         )}
@@ -458,8 +493,37 @@ export default function MultiAIChat() {
             <span>Current Round: {round === 0 ? 'Waiting' : round === 1 ? 'Initial Assessment' : round === 2 ? 'Discussion' : 'Recommendation'}</span>
             <span>Status: {isLoading ? 'Mental Health Specialists Consulting...' : 'Ready'}</span>
           </div>
+          {(feelingTodayRating || feelingBetterRating) && (
+            <div className="mt-2 pt-2 border-t border-gray-300 dark:border-gray-600">
+              <div className="flex justify-center gap-4 text-xs">
+                {feelingTodayRating && (
+                  <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                    Initial Feeling: {feelingTodayRating}/5
+                  </span>
+                )}
+                {feelingBetterRating && (
+                  <span className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                    After Consultation: {feelingBetterRating}/5
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Rating Modals */}
+      <FeelingTodayModal
+        isOpen={showFeelingTodayModal}
+        onClose={() => setShowFeelingTodayModal(false)}
+        onRatingSubmit={handleFeelingTodayRating}
+      />
+      
+      <FeelingBetterModal
+        isOpen={showFeelingBetterModal}
+        onClose={() => setShowFeelingBetterModal(false)}
+        onRatingSubmit={handleFeelingBetterRating}
+      />
     </div>
   );
 }
