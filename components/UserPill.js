@@ -7,9 +7,8 @@ export default function PrivyUserPill({ action, label, size = 32, className = ""
       action={action}
       label={label}
       size={size}
-      className={className}
+      className={`rovo-privy-pill ${className}`}
       ui={{ background: "secondary" }}
-      style={{ background: "#ffffff", color: "#000000", border: "1px solid #000000", ...(style || {}) }}
     />
   );
 }

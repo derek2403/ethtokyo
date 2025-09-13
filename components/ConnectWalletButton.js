@@ -15,7 +15,7 @@ export default function ConnectWalletButton({ className = "" }) {
       <button
         type="button"
         onClick={login}
-        className={`bg-white text-black border border-black rounded px-4 py-2 hover:bg-black/5 transition ${className}`}
+        className={`rovo-privy-btn ${className}`}
       >
         Connect Wallet
       </button>
