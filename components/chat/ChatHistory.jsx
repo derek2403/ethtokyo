@@ -132,6 +132,21 @@ const ChatHistory = ({
                   </Button>
                 )}
                 
+                {/* Stop Streaming Button (emergency stop) */}
+                <Button 
+                  variant="destructive" 
+                  size="sm"
+                  onClick={() => {
+                    if (typeof window !== 'undefined' && window.stopStreaming) {
+                      window.stopStreaming();
+                      console.log('🛑 Emergency stop triggered');
+                    }
+                  }}
+                  title="Stop all streaming/animation"
+                >
+                  🛑 Stop
+                </Button>
+                
                 {/* Close Button */}
                 <Button 
                   variant="ghost" 

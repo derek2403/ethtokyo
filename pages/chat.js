@@ -152,8 +152,11 @@ function ChatPage() {
           animationState.headAngleY = 0;
           animationState.headAngleZ = 0;
 
-          // Keep a small baseline for mouth so it doesn't collapse to 0
-          if (animationState.mouthTarget < 0.15) {
+          // Only maintain mouth baseline when actively streaming/speaking
+          // During idle, let mouth rest naturally at 0
+          const isCurrentlyStreaming = isStreaming();
+          
+          if (isCurrentlyStreaming && animationState.mouthTarget < 0.15) {
             animationState.mouthTarget = 0.15;
           }
           
@@ -170,23 +173,28 @@ function ChatPage() {
           }
         };
         
-        // Strategy 2: Post-update parameter forcing function
+        // Strategy 2: Post-update parameter forcing function (only when actively speaking)
         const forceParametersAfterUpdate = (ticker) => {
           // Only run when animations are enabled and model exists
           if (!animationsEnabledRef.current || !pixiModel?.internalModel?.coreModel) return;
+          
+          // Only force parameters when actively speaking/streaming
+          const currentTarget = animationState.mouthTarget || 0;
+          const isActiveMouth = currentTarget > 0.2;
+          
+          if (!isActiveMouth) return; // Don't interfere during idle
           
           // Force mouth visibility parameters AFTER Live2D internal processing
           try {
             const core = pixiModel.internalModel.coreModel;
             
-            // Force ParamMouthForm to ensure mouth shape is always visible
+            // Force ParamMouthForm to ensure mouth shape is visible during active speech
             const forceMouthForm = 0.65;
             if (typeof core.setParameterValueById === 'function') {
               core.setParameterValueById('ParamMouthForm', forceMouthForm, 1.0);
             }
             
             // Also force a minimum mouth opening if we're supposed to be talking
-            const currentTarget = animationState.mouthTarget || 0;
             if (currentTarget > 0.2) {
               const forceMinMouth = Math.max(0.3, currentTarget);
               if (typeof core.setParameterValueById === 'function') {
@@ -205,13 +213,16 @@ function ChatPage() {
         // Add emergency parameter forcing at LOW priority (after everything else)
         pixiApp.ticker.add(forceParametersAfterUpdate, undefined, PIXI.UPDATE_PRIORITY.LOW);
         
-        // Strategy 3: Try to hook into model's frame event if available
+        // Strategy 3: Try to hook into model's frame event if available (only when active)
         if (pixiModel?.on) {
           try {
             pixiModel.on('frame', () => {
               if (animationsEnabledRef.current) {
-                console.log('🎯 Model frame event - applying parameters post-update');
-                applyAnimationParametersAdditive(animationState, pixiModel);
+                const isActiveMouth = (animationState.mouthTarget || 0) > 0.2;
+                if (isActiveMouth) {
+                  console.log('🎯 Model frame event - applying parameters post-update');
+                  applyAnimationParametersAdditive(animationState, pixiModel);
+                }
               }
             });
             console.log('✅ Successfully hooked into model frame events');
