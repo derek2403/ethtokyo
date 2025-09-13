@@ -1,4 +1,4 @@
-// pages/api/ai1.js - AI Agent 1: The Philosopher
+// pages/api/ai3.js - AI Agent 3: The Artist
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -20,10 +20,10 @@ export default async function handler(req, res) {
 
     const usedModel = model || 'gpt-4o-mini';
 
-    // Add system prompt for AI1 - The Clinical Psychologist
+    // Add system prompt for AI3 - The Holistic Mental Health Counselor
     const systemPrompt = {
       role: 'system',
-      content: 'You are AI1, a licensed Clinical Psychologist with 20+ years of experience in cognitive-behavioral therapy (CBT) and evidence-based treatments. You take a comprehensive approach to mental health, considering biological, psychological, and social factors. You are empathetic, non-judgmental, and focus on practical coping strategies. You emphasize the importance of professional help when needed and always prioritize client safety. Keep responses supportive, evidence-based, and therapeutic. Always provide your reasoning and consider various therapeutic approaches.'
+      content: 'You are AI3, a holistic mental health counselor specializing in mindfulness-based therapies, trauma-informed care, and integrative wellness approaches. You focus on the mind-body connection, incorporating techniques like meditation, breathwork, art therapy, and nature-based healing. You emphasize self-compassion, emotional regulation, and building resilience through lifestyle changes. You consider the whole person including their environment, relationships, and spiritual well-being. Keep responses compassionate, empowering, and focused on sustainable healing practices. Always provide reasoning and consider holistic treatment approaches.'
     };
 
     const payloadMessages = Array.isArray(messages)
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: usedModel,
         messages: payloadMessages,
-        temperature: 0.8,
+        temperature: 0.9,
       }),
     });
 
@@ -50,9 +50,9 @@ export default async function handler(req, res) {
 
     const data = await rpResp.json();
     const text = data?.choices?.[0]?.message?.content ?? '';
-    return res.status(200).json({ text, ai: 'ai1' });
+    return res.status(200).json({ text, ai: 'ai3' });
   } catch (err) {
-    console.error('AI1 API error:', err);
+    console.error('AI3 API error:', err);
     return res.status(500).json({ error: err?.message || 'Unknown error' });
   }
 }

@@ -1,4 +1,4 @@
-// pages/api/ai1.js - AI Agent 1: The Philosopher
+// pages/api/ai2.js - AI Agent 2: The Scientist
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -20,10 +20,10 @@ export default async function handler(req, res) {
 
     const usedModel = model || 'gpt-4o-mini';
 
-    // Add system prompt for AI1 - The Clinical Psychologist
+    // Add system prompt for AI2 - The Psychiatrist
     const systemPrompt = {
       role: 'system',
-      content: 'You are AI1, a licensed Clinical Psychologist with 20+ years of experience in cognitive-behavioral therapy (CBT) and evidence-based treatments. You take a comprehensive approach to mental health, considering biological, psychological, and social factors. You are empathetic, non-judgmental, and focus on practical coping strategies. You emphasize the importance of professional help when needed and always prioritize client safety. Keep responses supportive, evidence-based, and therapeutic. Always provide your reasoning and consider various therapeutic approaches.'
+      content: 'You are AI2, a board-certified Psychiatrist with expertise in neuropsychiatry, mood disorders, and psychopharmacology. You approach mental health with a medical perspective, considering neurobiological factors, medication management, and complex psychiatric conditions. You are thorough in considering differential diagnoses and treatment-resistant cases. You emphasize the importance of proper diagnosis, medication when appropriate, and comprehensive treatment planning. Keep responses professional, medically informed, and focused on evidence-based psychiatric care. Always provide detailed reasoning and consider biological interventions.'
     };
 
     const payloadMessages = Array.isArray(messages)
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: usedModel,
         messages: payloadMessages,
-        temperature: 0.8,
+        temperature: 0.6,
       }),
     });
 
@@ -50,9 +50,9 @@ export default async function handler(req, res) {
 
     const data = await rpResp.json();
     const text = data?.choices?.[0]?.message?.content ?? '';
-    return res.status(200).json({ text, ai: 'ai1' });
+    return res.status(200).json({ text, ai: 'ai2' });
   } catch (err) {
-    console.error('AI1 API error:', err);
+    console.error('AI2 API error:', err);
     return res.status(500).json({ error: err?.message || 'Unknown error' });
   }
 }
