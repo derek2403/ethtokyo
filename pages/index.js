@@ -77,7 +77,6 @@ export default function HomePage() {
       }
 
       const hit = hits[0];
-
       const pos = hit.point
         .clone()
         .addScaledVector(hit.face.normal, -sinkDepth);
@@ -102,6 +101,8 @@ export default function HomePage() {
     loader.load("/assets/island.glb", (gltf) => {
       islandRoot = gltf.scene;
 
+      islandRoot.scale.set(2.0, 2.0, 2.0);
+
       islandRoot.traverse((o) => {
         if (o.isMesh) {
           o.castShadow = true;
@@ -113,21 +114,66 @@ export default function HomePage() {
       scene.add(islandRoot);
       frameObject(islandRoot);
 
-      loader.load("/assets/base_basic_shaded.glb", (tgltf) => {
-        const tree = tgltf.scene;
-        tree.traverse((o) => {
-          if (o.isMesh) o.castShadow = true;
+      // --- Load HOUSE first (keep your existing house code) ---
+      loader.load("/assets/house.glb", (hgltf) => {
+        const house = hgltf.scene;
+        house.traverse((o) => {
+          if (o.isMesh) {
+            o.castShadow = true;
+            o.receiveShadow = true;
+          }
         });
+        house.scale.set(0.7, 0.7, 0.7);
 
-        tree.scale.set(0.6, 0.6, 0.6);
-
-        placeOnIsland(tree, -0.6, -0.6, {
-          sinkDepth: 0.05,
+        placeOnIsland(house, -1.0, 0.9, {
+          sinkDepth: 0.03,
           alignToSlope: true,
         });
-        scene.add(tree);
 
-        scene.add(tree);
+        // Face house toward island center
+        const center = new THREE.Box3()
+          .setFromObject(islandRoot)
+          .getCenter(new THREE.Vector3());
+        const pos = house.position.clone();
+        house.lookAt(new THREE.Vector3(center.x, pos.y, center.z));
+        scene.add(house);
+
+        loader.load("/assets/tree.glb", (tgltf) => {
+          const tree = tgltf.scene;
+          tree.traverse((o) => {
+            if (o.isMesh) o.castShadow = true;
+          });
+          tree.scale.set(0.75, 0.75, 0.75);
+
+          const rightOffset = 1.05;
+          const forwardOffset = 0.3;
+
+          const right = new THREE.Vector3(1, 0, 0).applyQuaternion(
+            house.quaternion
+          );
+          const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(
+            house.quaternion
+          );
+          const target = house.position
+            .clone()
+            .addScaledVector(right, rightOffset)
+            .addScaledVector(fwd, forwardOffset);
+
+          placeOnIsland(tree, target.x, target.z, {
+            sinkDepth: 0.05,
+            alignToSlope: true,
+          });
+
+          tree.lookAt(
+            new THREE.Vector3(
+              house.position.x,
+              tree.position.y,
+              house.position.z
+            )
+          );
+
+          scene.add(tree);
+        });
       });
     });
 
