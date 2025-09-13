@@ -18,15 +18,16 @@ Create a single-page Next.js application (`pages/chat.js`) that renders a Live2D
 npm install pixi.js pixi-live2d-display
 ```
 
-### 1.2 Live2D Model Setup
-- Create `/public/model/` directory structure
-- Place Live2D Cubism 4 model files:
-  - `Hiyori.model3.json` (main model file)
-  - `Hiyori.moc3` (model data)
-  - `Hiyori.physics3.json` (physics settings)
-  - Texture files (.png)
-  - Motion files (.motion3.json)
-- **Fallback**: If model unavailable, system creates placeholder graphics
+### 1.2 Live2D Model Setup ✅ ALREADY COMPLETE
+Your Hiyori model is already set up correctly at `/public/model/Hiyori/`:
+- `hiyori_pro_jp.model3.json` (main model file)
+- `hiyori_pro_jp.moc3` (model data)  
+- `hiyori_pro_jp.physics3.json` (physics settings)
+- `hiyori_pro_jp.2048/texture_00.png`, `texture_01.png` (textures)
+- `motion/` directory with 10 motion files
+- **Available motions**: Idle, Flick, FlickDown, FlickUp, Tap, Tap@Body, Flick@Body
+- **Available parameters**: ParamMouthOpenY, ParamEyeLOpen, ParamEyeROpen, ParamAngleX/Y/Z, etc.
+- **Fallback**: If model loading fails, system creates placeholder graphics
 
 ### 1.3 File Structure Verification
 ```
@@ -117,7 +118,7 @@ let model = null;
 let placeholderFace = null;
 
 try {
-  model = await Live2DModel.from('/model/Hiyori.model3.json');
+  model = await Live2DModel.from('/model/Hiyori/hiyori_pro_jp.model3.json');
   
   // Scale and position model
   const scale = Math.min(
@@ -299,11 +300,19 @@ function triggerExpression(expressionName) {
   animationState.expressionTarget = expressionName;
   animationState.expressionTimer = 1000; // Hold for 1 second
   
-  if (model?.expression) {
+  // Available motions for Hiyori model: Idle, Flick, FlickDown, FlickUp, Tap, Tap@Body, Flick@Body
+  if (model?.motion) {
     try {
-      model.expression(expressionName);
+      // Map emotes to actual motions
+      const motionMap = {
+        'smile': 'Tap',
+        'surprised': 'FlickUp', 
+        'relaxed': 'Idle'
+      };
+      const motion = motionMap[expressionName] || expressionName;
+      model.motion(motion);
     } catch (e) {
-      console.warn(`Expression ${expressionName} not available`);
+      console.warn(`Motion ${expressionName} not available`);
     }
   }
 }
@@ -527,12 +536,9 @@ npm install pixi.js pixi-live2d-display
 # 2. Create model directory
 mkdir -p public/model
 
-# 3. Download Live2D sample model (Hiyori)
-# Place files in public/model/ directory:
-# - Hiyori.model3.json
-# - Hiyori.moc3  
-# - textures/*.png
-# - motions/*.motion3.json
+# 3. Live2D model already available at:
+# /public/model/Hiyori/hiyori_pro_jp.model3.json
+# (Model files already present - skip this step)
 
 # 4. Start development server
 npm run dev
