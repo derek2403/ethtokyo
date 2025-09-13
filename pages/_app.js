@@ -1,5 +1,6 @@
 import "@/styles/globals.css";
 import { PrivyProvider } from "@privy-io/react-auth";
+import { jscKaiganTestnet } from "@/lib/chains";
 
 const PRIVY_APP_ID = (process.env.NEXT_PUBLIC_PRIVY_APP_ID || "").trim();
 const PRIVY_CLIENT_ID =
@@ -29,6 +30,10 @@ export default function App({ Component, pageProps }) {
       appId={PRIVY_APP_ID}
       clientId={PRIVY_CLIENT_ID}
       config={{
+        // Chains
+        defaultChain: jscKaiganTestnet,
+        supportedChains: [jscKaiganTestnet],
+
         appearance: {
           accentColor: "#6A6FF5",
           theme: "#FFFFFF",
