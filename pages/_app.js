@@ -28,12 +28,45 @@ export default function App({ Component, pageProps }) {
       appId={PRIVY_APP_ID}
       clientId={PRIVY_CLIENT_ID}
       config={{
-        // Create embedded wallets for users who don't have a wallet
-        embeddedWallets: {
-          ethereum: {
-            createOnLogin: "users-without-wallets",
-          },
+        appearance: {
+          accentColor: "#6A6FF5",
+          theme: "#FFFFFF",
+          showWalletLoginFirst: false,
+          logo: "https://auth.privy.io/logos/privy-logo.png",
+          walletChainType: "ethereum",
+          walletList: [
+            "detected_wallets",
+            "metamask",
+            "coinbase_wallet",
+            "base_account",
+            "rainbow",
+            "okx_wallet",
+            "wallet_connect"
+          ]
         },
+        loginMethods: [
+          "email",
+          "google",
+          "apple",
+          "github",
+          "discord"
+        ],
+        fundingMethodConfig: {
+          moonpay: {
+            useSandbox: true
+          }
+        },
+        embeddedWallets: {
+          requireUserPasswordOnCreate: false,
+          showWalletUIs: true,
+          ethereum: {
+            createOnLogin: "users-without-wallets"
+          }
+        },
+        mfa: {
+          noPromptOnMfaRequired: false
+        },
+        externalWallets: {}
       }}
     >
       <Component {...pageProps} />
