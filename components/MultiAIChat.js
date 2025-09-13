@@ -145,31 +145,62 @@ export default function MultiAIChat() {
     ]);
     
     if (ai1Vote && ai2Vote && ai3Vote) {
+      // Pass the responses directly to avoid timing issues with state updates
       setTimeout(() => {
-        generateFinalRecommendation();
+        generateFinalRecommendation(ai1Vote, ai2Vote, ai3Vote);
       }, 1000);
     }
   };
 
-  const generateFinalRecommendation = async () => {
+  const generateFinalRecommendation = async (ai1Response = null, ai2Response = null, ai3Response = null) => {
     setIsLoading(true);
     
-    const round3Messages = messages.filter(m => m.round === 'round3');
     const userQuestionFromMessages = messages.find(m => m.speaker === 'user')?.content || '';
     
     // Use the state userQuestion as fallback
     const finalUserQuestion = userQuestionFromMessages || userQuestion;
     
-    // Prepare round 3 responses for judge
-    const round3Responses = {
-      ai1: round3Messages.find(m => m.speaker === 'ai1')?.content || '',
-      ai2: round3Messages.find(m => m.speaker === 'ai2')?.content || '',
-      ai3: round3Messages.find(m => m.speaker === 'ai3')?.content || ''
+    // Prepare round 3 responses for judge - use passed parameters first, then fallback to state
+    let round3Responses = {
+      ai1: ai1Response || '',
+      ai2: ai2Response || '',
+      ai3: ai3Response || ''
     };
     
+    // If no responses were passed, try to get from state
+    if (!round3Responses.ai1 && !round3Responses.ai2 && !round3Responses.ai3) {
+      const round3Messages = messages.filter(m => m.round === 'round3');
+      round3Responses = {
+        ai1: round3Messages.find(m => m.speaker === 'ai1')?.content || '',
+        ai2: round3Messages.find(m => m.speaker === 'ai2')?.content || '',
+        ai3: round3Messages.find(m => m.speaker === 'ai3')?.content || ''
+      };
+    }
+    
     console.log('Sending to judge:', { round3Responses, userQuestion: finalUserQuestion });
-    console.log('Round 3 messages:', round3Messages);
-    console.log('All messages:', messages);
+    console.log('Round 3 responses check:', {
+      ai1: round3Responses.ai1 ? 'Found' : 'Missing',
+      ai2: round3Responses.ai2 ? 'Found' : 'Missing', 
+      ai3: round3Responses.ai3 ? 'Found' : 'Missing'
+    });
+    
+    // If still no responses, try to get the latest responses from each AI
+    if (!round3Responses.ai1 && !round3Responses.ai2 && !round3Responses.ai3) {
+      console.log('Round 3 responses empty, trying to get latest AI responses...');
+      const latestAi1 = messages.filter(m => m.speaker === 'ai1').pop()?.content || '';
+      const latestAi2 = messages.filter(m => m.speaker === 'ai2').pop()?.content || '';
+      const latestAi3 = messages.filter(m => m.speaker === 'ai3').pop()?.content || '';
+      
+      round3Responses.ai1 = latestAi1;
+      round3Responses.ai2 = latestAi2;
+      round3Responses.ai3 = latestAi3;
+      
+      console.log('Using latest AI responses:', {
+        ai1: latestAi1 ? 'Found' : 'Missing',
+        ai2: latestAi2 ? 'Found' : 'Missing',
+        ai3: latestAi3 ? 'Found' : 'Missing'
+      });
+    }
     
     // Validate we have the required data
     if (!finalUserQuestion.trim()) {
@@ -187,7 +218,7 @@ export default function MultiAIChat() {
     }
     
     if (!round3Responses.ai1 && !round3Responses.ai2 && !round3Responses.ai3) {
-      console.error('No round 3 responses found');
+      console.error('No AI responses found at all');
       const recommendation = {
         summary: "🏆 Final Mental Health Recommendation",
         content: "Unable to generate final recommendation - no specialist responses found. Please try the consultation again.",
