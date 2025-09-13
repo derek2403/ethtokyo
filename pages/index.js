@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Button } from "@/components/ui/button";
+import Chat from "@/components/Chat";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -62,6 +63,11 @@ export default function Home() {
           >
             Read our docs
           </a>
+        </div>
+
+        {/* Chat Component */}
+        <div className="w-full">
+          <Chat />
         </div>
 
         {/* shadcn/ui Button Examples */}
