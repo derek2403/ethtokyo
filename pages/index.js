@@ -355,7 +355,7 @@ export default function HomePage() {
             hit.face && hit.face.normal
               ? hit.face.normal.clone().normalize()
               : up.clone();
-          torii.position.copy(hit.point).addScaledVector(n, 0.05);
+          torii.position.copy(hit.point).addScaledVector(n, 0);
           const q = new THREE.Quaternion().setFromUnitVectors(up, n);
           torii.quaternion.copy(q);
 
