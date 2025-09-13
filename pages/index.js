@@ -194,7 +194,7 @@ export default function HomePage() {
           tree.traverse((o) => {
             if (o.isMesh) o.castShadow = true;
           });
-          tree.scale.set(0.75, 0.75, 0.75);
+          tree.scale.set(0.9, 0.9, 0.9);
 
           const right = new THREE.Vector3(1, 0, 0).applyQuaternion(
             house.quaternion
@@ -204,8 +204,8 @@ export default function HomePage() {
           );
           const target = house.position
             .clone()
-            .addScaledVector(right, 1.05) // sideways from the house
-            .addScaledVector(fwd, 0.3); // slight forward
+            .addScaledVector(right, 1.05)
+            .addScaledVector(fwd, 0.3);
 
           placeOnIsland(tree, target.x, target.z, {
             sinkDepth: 0.05,
@@ -227,7 +227,7 @@ export default function HomePage() {
             if (o.isMesh) o.castShadow = true;
           });
 
-          tree2.scale.set(0.98, 0.98, 0.98);
+          tree2.scale.set(1.0, 1.0, 1.0);
 
           const right = new THREE.Vector3(1, 0, 0).applyQuaternion(
             house.quaternion
@@ -238,13 +238,15 @@ export default function HomePage() {
 
           const target2 = house.position
             .clone()
-            .addScaledVector(right, -1.05) // left side (negative)
-            .addScaledVector(fwd, 0.15);
+            .addScaledVector(right, -0.85)
+            .addScaledVector(fwd, 0.25);
 
           placeOnIsland(tree2, target2.x, target2.z, {
             sinkDepth: 0.05,
             alignToSlope: true,
           });
+
+          tree2.rotation.y += THREE.MathUtils.degToRad(-90);
 
           tree2.lookAt(
             new THREE.Vector3(
@@ -255,6 +257,42 @@ export default function HomePage() {
           );
 
           scene.add(tree2);
+        });
+
+        loader.load("/assets/tree2.glb", (tgltf) => {
+          const tree = tgltf.scene;
+          tree.traverse((o) => {
+            if (o.isMesh) o.castShadow = true;
+          });
+          tree.scale.set(0.65, 0.65, 0.65);
+
+          const right = new THREE.Vector3(1, 0, 0).applyQuaternion(
+            house.quaternion
+          );
+          const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(
+            house.quaternion
+          );
+          const target = house.position
+            .clone()
+            .addScaledVector(right, 1.25) // sideways from the house
+            .addScaledVector(fwd, 0.6);
+
+          placeOnIsland(tree, target.x, target.z, {
+            sinkDepth: 0.05,
+            alignToSlope: true,
+          });
+
+          tree.rotation.z += THREE.MathUtils.degToRad(90);
+          tree.rotation.y += THREE.MathUtils.degToRad(30);
+
+          tree.lookAt(
+            new THREE.Vector3(
+              house.position.x,
+              tree.position.y,
+              house.position.z
+            )
+          );
+          scene.add(tree);
         });
       });
     });
