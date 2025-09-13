@@ -3,7 +3,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import subscriptionAbi from "@/lib/subscription-abi.json";
 import ConnectWalletButton from "@/components/ConnectWalletButton";
 
-const RPC_URL = "https://rpc.kaigan.jsc.dev/rpc?token=8O6QnGw0yT6Nxjp-wskWZ1FX7PBPVjJ65aarF_ebDNo";
+const RPC_URL = `https://rpc.kaigan.jsc.dev/rpc?token=${process.env.NEXT_PUBLIC_KAIGAN_RPC_TOKEN}`;
 const SUBSCRIPTION_CONTRACT_ADDRESS = "0xf3DeB1959A25f3C1ae9e1a561A1ED6DA2Ca34EaF";
 
 export default function SubscriptionPage() {
