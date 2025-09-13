@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { walletId, method, contractAddress, abi } = req.body;
+    const { walletId, method, contractAddress, abi, args = [], value = "0" } = req.body;
 
     // Validate request body
     if (!walletId) return res.status(400).json({ error: 'walletId is required' });
@@ -31,7 +31,8 @@ export default async function handler(req, res) {
     // Encode the function call using viem
     const data = encodeFunctionData({
       abi,
-      functionName: method
+      functionName: method,
+      args: args
     });
 
     // Send transaction using Privy server client
@@ -41,6 +42,7 @@ export default async function handler(req, res) {
       transaction: {
         to: contractAddress,
         data,
+        value: value,
         chainId: 5278000
       }
     });
