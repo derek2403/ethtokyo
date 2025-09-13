@@ -327,8 +327,8 @@ export default function HomePage() {
 
           const targetXZ = ctr
             .clone()
-            .addScaledVector(front, dist * 0)
-            .addScaledVector(left, dist * 0.2);
+            .addScaledVector(front, dist * 0.95)
+            .addScaledVector(left, dist * 0.15);
 
           const drop = (x, z) => {
             const rc = new THREE.Raycaster(
