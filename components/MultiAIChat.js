@@ -193,10 +193,18 @@ export default function MultiAIChat({ showOnlyJudge = true } = {}) {
   const generateFinalRecommendation = async (ai1Response = null, ai2Response = null, ai3Response = null) => {
     setIsLoading(true);
     
-    const userQuestionFromMessages = messages.find(m => m.speaker === 'user')?.content || '';
+    // Look for user question in messages (from startConsultation)
+    const userQuestionFromMessages = messages.find(m => m.speaker === 'user' && m.round === 'question')?.content || '';
     
     // Use the state userQuestion as fallback
     const finalUserQuestion = userQuestionFromMessages || userQuestion;
+    
+    console.log('🔍 MultiAIChat Debug - User question sources:', {
+      fromMessages: userQuestionFromMessages,
+      fromState: userQuestion,
+      finalQuestion: finalUserQuestion,
+      allMessages: messages.map(m => ({ speaker: m.speaker, round: m.round, content: m.content?.substring(0, 50) + '...' }))
+    });
     
     // Prepare round 3 responses for judge - use passed parameters first, then fallback to state
     let round3Responses = {
