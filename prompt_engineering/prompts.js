@@ -27,7 +27,6 @@ export function buildRound1Prompt(userQuestion) {
     '3. Recommended coping strategies or interventions\n' +
     '4. Any safety concerns or red flags\n' +
     '5. Suggestions for professional support if needed\n\n' +
-    'answer only 5 words maximum for the whole response.' +
     'Please be empathetic, supportive, and evidence-based in your response.'
   );
 }

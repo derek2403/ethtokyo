@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import { usePrivy } from '@privy-io/react-auth';
 
 export default function LandingPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const { ready, authenticated, login } = usePrivy();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -12,6 +14,20 @@ export default function LandingPage() {
     }
     router.push('/world');
   };
+
+  async function handleGetStarted() {
+    try {
+      if (!ready) return; // wait until Privy initialized
+      if (authenticated) {
+        router.push('/world');
+        return;
+      }
+      await login();
+      router.push('/world');
+    } catch (e) {
+      // User may cancel the login modal; do nothing
+    }
+  }
 
   return (
     <div className="landingpage-root">
@@ -69,13 +85,13 @@ export default function LandingPage() {
           {/* Description */}
           <div className="landingpage-description" style={{ marginBottom: '16px' }}>
             <p>
-              Private AI therapist with privacy by design. It runs inside a Trusted Execution Environment (TEE), so your conversations stay encrypted and confidential even from us. Get gentle, evidence‑based support whenever you need it.
+            Trusted AI therapy with built-in privacy
             </p>
           </div>
 
           {/* Manifesto Button */}
           <div className="manifesto-container">
-            <button className="manifesto-button" onClick={() => router.push('/world')}>
+            <button className="manifesto-button" onClick={handleGetStarted}>
               Get started
             </button>
           </div>
@@ -190,18 +206,18 @@ export default function LandingPage() {
           position: relative;
           display: flex;
           align-items: center;
-          background: rgba(255, 255, 255, 0.15);
+          background: rgba(255, 255, 255, 0.25);
           backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.4);
           border-radius: 50px;
           padding: 4px;
           transition: all 0.3s ease;
         }
 
         .input-container:focus-within {
-          background: rgba(255, 255, 255, 0.2);
-          border-color: rgba(255, 255, 255, 0.6);
-          box-shadow: 0 0 24px rgba(255, 255, 255, 0.18);
+          background: rgba(255, 255, 255, 0.35);
+          border-color: rgba(255, 255, 255, 0.7);
+          box-shadow: 0 0 24px rgba(255, 255, 255, 0.25);
         }
 
         .email-input {
@@ -216,12 +232,12 @@ export default function LandingPage() {
         }
 
         .email-input::placeholder {
-          color: rgba(255, 255, 255, 0.7);
+          color: rgba(255, 255, 255, 0.85);
         }
 
         .submit-button {
-          background: rgba(255, 255, 255, 0.2);
-          border: none;
+          background: rgba(255, 255, 255, 0.35);
+          border: 1px solid rgba(255, 255, 255, 0.3);
           border-radius: 50%;
           width: 48px;
           height: 48px;
@@ -235,7 +251,8 @@ export default function LandingPage() {
         }
 
         .submit-button:hover {
-          background: rgba(255, 255, 255, 0.3);
+          background: rgba(255, 255, 255, 0.5);
+          border-color: rgba(255, 255, 255, 0.5);
           transform: scale(1.05);
         }
 
@@ -269,9 +286,9 @@ export default function LandingPage() {
 
         .manifesto-button {
           font-weight: 600;
-          background: rgba(255, 255, 255, 0.15);
+          background: rgba(255, 255, 255, 0.25);
           backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.4);
           border-radius: 30px;
           padding: 14px 32px;
           color: white;
@@ -282,10 +299,10 @@ export default function LandingPage() {
         }
 
         .manifesto-button:hover {
-          border-color: rgba(255, 255, 255, 0.6);
-          background: rgba(255, 255, 255, 0.2);
+          border-color: rgba(255, 255, 255, 0.7);
+          background: rgba(255, 255, 255, 0.35);
           transform: translateY(-2px);
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
         }
 
         .landingpage-footer {

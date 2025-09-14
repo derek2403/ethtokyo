@@ -15,7 +15,7 @@ export default function ConnectWalletButton({ className = "" }) {
       <button
         type="button"
         onClick={login}
-        className={`rovo-privy-btn ${className}`}
+        className={className || 'rovo-privy-btn'}
       >
         Connect Wallet
       </button>

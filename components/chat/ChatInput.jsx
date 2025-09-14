@@ -32,27 +32,129 @@ const ChatInput = ({
   };
   
   return (
-    <div className="absolute bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-t border-border">
-      <div className="p-4">
-        <div className="flex gap-2 items-end">
-          <Textarea
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={placeholder}
-            className="flex-1 min-h-[2.5rem] max-h-20 resize-none"
-            onKeyDown={handleKeyDown}
-            disabled={disabled}
-          />
-          <Button 
-            onClick={handleSend} 
-            disabled={!value.trim() || disabled}
-            className="min-w-[60px]"
-          >
-            Send
-          </Button>
+    <>
+      <div className="chat-input-container">
+        <div className="input-wrapper">
+          <div className="input-container">
+            <Textarea
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder={placeholder}
+              className="text-input"
+              onKeyDown={handleKeyDown}
+              disabled={disabled}
+            />
+            <Button 
+              onClick={handleSend} 
+              disabled={!value.trim() || disabled}
+              className="submit-button"
+              aria-label={disabled ? 'Waiting for reply' : 'Send message'}
+              title={disabled ? 'Waiting for reply' : 'Send'}
+            >
+              {disabled ? (
+                // Loading spinner while waiting for reply
+                <svg className="spinner" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="3" opacity="0.25" />
+                  <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                </svg>
+              ) : (
+                // Send arrow icon
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
+
+      <style jsx>{`
+        .chat-input-container {
+          position: absolute;
+          bottom: 32px;
+          left: 0;
+          right: 0;
+          z-index: 50;
+          display: flex;
+          justify-content: center;
+          padding: 0 16px;
+        }
+
+        .input-wrapper {
+          width: 100%;
+          max-width: 500px;
+        }
+
+        .input-container {
+          position: relative;
+          display: flex;
+          align-items: center;
+          background: rgba(255, 255, 255, 0.15);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 50px;
+          padding: 4px;
+          transition: all 0.3s ease;
+        }
+
+        .input-container:focus-within {
+          background: rgba(255, 255, 255, 0.2);
+          border-color: rgba(255, 255, 255, 0.6);
+          box-shadow: 0 0 24px rgba(255, 255, 255, 0.18);
+        }
+
+        :global(.text-input) {
+          flex: 1;
+          background: transparent;
+          border: none;
+          outline: none;
+          padding: 16px 24px;
+          font-size: 16px;
+          color: white;
+          min-height: 48px;
+          max-height: 80px;
+          resize: none;
+        }
+
+        :global(.text-input::placeholder) {
+          color: rgba(255, 255, 255, 0.7);
+        }
+
+        :global(.submit-button) {
+          background: rgba(255, 255, 255, 0.2);
+          border: none;
+          border-radius: 50%;
+          width: 48px;
+          height: 48px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          margin-right: 4px;
+        }
+
+        :global(.submit-button:hover) {
+          background: rgba(255, 255, 255, 0.3);
+          transform: scale(1.05);
+        }
+
+        :global(.submit-button:disabled) {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        /* Loading spinner animation */
+        .spinner {
+          display: inline-block;
+          animation: spin 0.9s linear infinite;
+        }
+        @keyframes spin {
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+    </>
   );
 };
 
