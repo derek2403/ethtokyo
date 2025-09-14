@@ -52,8 +52,8 @@ export default function FeelingTodayModal({ isOpen, onClose, onRatingSubmit }) {
                     <Image
                       src={rating.image}
                       alt={rating.label}
-                      width={120}
-                      height={120}
+                      width={220}
+                      height={220}
                       className="face-image"
                     />
                   </div>
@@ -100,9 +100,11 @@ export default function FeelingTodayModal({ isOpen, onClose, onRatingSubmit }) {
           backdrop-filter: blur(10px);
           border: 1px solid rgba(255, 255, 255, 0.2);
           border-radius: 20px;
-          padding: 32px;
-          max-width: 700px;
-          width: 90%;
+          /* Increase overall padding slightly (top/bottom, left/right) */
+          padding: 36px 40px;
+          /* Make the glass modal wider */
+          max-width: 1100px;
+          width: 95%;
           margin: 20px;
           box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
         }
@@ -130,9 +132,13 @@ export default function FeelingTodayModal({ isOpen, onClose, onRatingSubmit }) {
         .ratings-container {
           display: flex;
           flex-direction: row;
-          gap: 20px;
+          /* Add a bit more spacing and slight side padding */
+          gap: 40px;
+          padding: 0 8px;
           margin-bottom: 32px;
-          justify-content: space-between;
+          /* Center the row so images don't skew to the sides */
+          justify-content: center;
+          flex-wrap: wrap;
           width: 100%;
         }
 
@@ -142,9 +148,10 @@ export default function FeelingTodayModal({ isOpen, onClose, onRatingSubmit }) {
           padding: 16px 8px;
           cursor: pointer;
           transition: all 0.3s ease;
-          flex: 1;
-          min-width: 100px;
-          max-width: 120px;
+          /* Fixed-sized items to maintain centering and spacing */
+          flex: 0 0 auto;
+          min-width: 120px;
+          max-width: 130px;
         }
 
         .rating-button:hover {
@@ -167,21 +174,27 @@ export default function FeelingTodayModal({ isOpen, onClose, onRatingSubmit }) {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 160px;
-          height: 160px;
+          /* Circle reduced by ~20% from 120px -> 96px */
+          width: 96px;
+          height: 96px;
           background: rgba(255, 255, 255, 0.2);
           backdrop-filter: blur(10px);
-          border: 2px solid rgba(255, 255, 255, 0.3);
+          /* Thinner single ring */
+          border: 3px solid rgba(255, 255, 255, 0.55);
           border-radius: 50%;
           transition: all 0.3s ease;
           overflow: hidden;
+          box-sizing: border-box;
         }
 
         .face-image {
-          width: 140px;
-          height: 140px;
+          /* Enlarge image without changing 96px circle size */
+          width: 220px;
+          height: 220px;
           object-fit: cover;
-          border-radius: 50%;
+          object-position: center;
+          border-radius: 0;
+          border: none;
           transition: all 0.3s ease;
         }
 

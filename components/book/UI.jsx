@@ -60,9 +60,10 @@ const Modal = ({ open, onClose, children }) => {
       <div className="relative z-10 w-full h-full bg-transparent flex flex-col items-center justify-center">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 rounded-full bg-white/20 hover:bg-white/30 text-white px-3 py-1 font-medium transition-colors backdrop-blur-sm"
+          className="absolute top-4 left-4 z-20 rounded-full bg-white/20 hover:bg-white/30 text-white px-3 py-1 font-medium transition-colors backdrop-blur-sm"
+          aria-label="Close"
         >
-          ✕ Close
+          ✕
         </button>
         <div className="flex-shrink-0">
           {children}
@@ -179,7 +180,7 @@ export const UI = () => {
       />
       
       {/* Main UI overlay */}
-      <main className="pointer-events-none select-none z-10 fixed inset-0 flex flex-col justify-end">
+      <main className="pointer-events-none select-none z-10 fixed inset-0">
         {/* Modal for page content */}
         <Modal open={modalPage !== null} onClose={() => setModalPage(null)}>
             {modalPage !== null && (
@@ -198,13 +199,15 @@ export const UI = () => {
             </div>
           )}
         </Modal>
-        
-        {/* Large navigation arrows on sides */}
-        <div className="pointer-events-auto fixed inset-0 flex items-center justify-between px-12 z-20">
+
+        {/* Glass arrows for previous/next navigation */}
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-between px-6">
           {/* Previous/Back Arrow */}
           <div
-            className={`transition-all duration-300 hover:scale-110 ${
-              page <= 0 ? 'opacity-30 cursor-not-allowed' : 'opacity-90 hover:opacity-100 cursor-pointer'
+            className={`pointer-events-auto transition-all duration-300 hover:scale-110 ${
+              page <= 0
+                ? 'opacity-30 cursor-not-allowed'
+                : 'opacity-90 hover:opacity-100 cursor-pointer'
             }`}
             style={{
               background: 'rgba(255, 255, 255, 0.15)',
@@ -217,7 +220,7 @@ export const UI = () => {
               alignItems: 'center',
               justifyContent: 'center'
             }}
-            onClick={() => page > 0 && setPage(page - 1)}
+            onClick={() => page > 0 && setPage(Math.max(0, page - 1))}
           >
             <div
               style={{
@@ -228,14 +231,15 @@ export const UI = () => {
                 width: '80px',
                 height: '80px'
               }}
-            >
-            </div>
+            />
           </div>
 
           {/* Next/Forward Arrow */}
           <div
-            className={`transition-all duration-300 hover:scale-110 ${
-              page >= pages.length ? 'opacity-30 cursor-not-allowed' : 'opacity-90 hover:opacity-100 cursor-pointer'
+            className={`pointer-events-auto transition-all duration-300 hover:scale-110 ${
+              page >= pages.length
+                ? 'opacity-30 cursor-not-allowed'
+                : 'opacity-90 hover:opacity-100 cursor-pointer'
             }`}
             style={{
               background: 'rgba(255, 255, 255, 0.15)',
@@ -248,7 +252,7 @@ export const UI = () => {
               alignItems: 'center',
               justifyContent: 'center'
             }}
-            onClick={() => page < pages.length && setPage(page + 1)}
+            onClick={() => page < pages.length && setPage(Math.min(pages.length, page + 1))}
           >
             <div
               style={{
@@ -259,8 +263,7 @@ export const UI = () => {
                 width: '80px',
                 height: '80px'
               }}
-            >
-            </div>
+            />
           </div>
         </div>
       </main>
