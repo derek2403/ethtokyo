@@ -140,50 +140,25 @@ function fadeTo(name, duration = TRANSITION_DURATION) {
   // Global mixer speed should always be 1.0 for consistent timing
   if (boyMixer) boyMixer.timeScale = 1.0;
 
-  // Smooth crossfade if we have a current action
-  if (
-    boyActiveAction &&
-    boyActiveAction !== next &&
-    boyActiveAction.isRunning()
-  ) {
-    // Crossfade to new animation for smoother transitions
-    next.enabled = true;
-    next.paused = false;
-    next.setLoop(THREE.LoopRepeat, Infinity);
-
-    // Set consistent speed based on animation type
-    const speed =
-      name === "walk"
-        ? ANIMATION_SPEED * WALK_SPEED_MULTIPLIER
-        : ANIMATION_SPEED;
-    next.timeScale = speed;
-
-    next.setEffectiveWeight?.(0);
-    if ("weight" in next) next.weight = 0;
-
-    next.reset().play();
-
-    // Crossfade
-    boyActiveAction.crossFadeTo(next, duration, true);
-  } else {
-    // Direct play for first animation or when no current action
-    next.enabled = true;
-    next.paused = false;
-    next.setLoop(THREE.LoopRepeat, Infinity);
-
-    // Set consistent speed
-    const speed =
-      name === "walk"
-        ? ANIMATION_SPEED * WALK_SPEED_MULTIPLIER
-        : ANIMATION_SPEED;
-    next.timeScale = speed;
-
-    next.setEffectiveWeight?.(1);
-    if ("weight" in next) next.weight = 1;
-
-    next.reset().play();
+  // Stop current action first
+  if (boyActiveAction && boyActiveAction.isRunning()) {
+    boyActiveAction.stop();
   }
 
+  // Start new action
+  next.enabled = true;
+  next.paused = false;
+  next.setLoop(THREE.LoopRepeat, Infinity);
+
+  // Set consistent speed based on animation type
+  const speed =
+    name === "walk" ? ANIMATION_SPEED * WALK_SPEED_MULTIPLIER : ANIMATION_SPEED;
+  next.timeScale = speed;
+
+  next.setEffectiveWeight?.(1);
+  if ("weight" in next) next.weight = 1;
+
+  next.reset().play();
   boyActiveAction = next;
 }
 
@@ -199,14 +174,15 @@ export async function spawnBoy(scene, opts = {}) {
     return { model: boyModel, mixer: boyMixer, actions: boyActions };
   }
 
-  console.log("[boy] loading idle model (as base)...");
-  let base = await loadFBX("/model/boy/Idle.fbx");
+  console.log("[boy] loading idle model...");
+  const base = await loadFBX("/model/boy/Idle.fbx");
+
   if (!hasAnyMesh(base)) {
-    console.warn(
-      "[boy] Idle.fbx contains no meshes; falling back to base_basic_shaded.fbx"
+    throw new Error(
+      "[boy] Idle.fbx contains no meshes - cannot proceed without base model"
     );
-    base = await loadFBX("/model/boy/base_basic_shaded.fbx");
   }
+
   boyModel = base;
   setShadowAndSkinning(boyModel);
   applyBoyMaterials(boyModel);
@@ -224,7 +200,6 @@ export async function spawnBoy(scene, opts = {}) {
   boyMixer = new THREE.AnimationMixer(boyModel);
   boyMixer.timeScale = 1.0;
 
-  // Idle (if embedded)
   if (boyModel.animations && boyModel.animations.length) {
     const idleClip = boyModel.animations[0];
     boyActions.idle = boyMixer.clipAction(idleClip, boyModel);
@@ -233,6 +208,9 @@ export async function spawnBoy(scene, opts = {}) {
     boyActions.idle.setEffectiveWeight?.(1);
     if ("weight" in boyActions.idle) boyActions.idle.weight = 1;
     console.log("[boy] idle animation loaded from Idle.fbx");
+  } else {
+    // If no embedded animation, load it separately
+    await loadAnim("idle", "/model/boy/Idle.fbx");
   }
 
   await loadAnim("walk", "/model/boy/Walking.fbx");
@@ -296,54 +274,20 @@ export function updateBoy(deltaSeconds) {
 }
 
 export function playBoy(name, forceRestart = false) {
+  if (!boyModel || !boyMixer) {
+    console.warn(
+      `[boy] model or mixer not ready, cannot play animation: ${name}`
+    );
+    return;
+  }
+
   const a = boyActions[name];
   if (!a) {
     console.warn(`[boy] action not found: ${name}`);
     return;
   }
 
-  if (name === "startWalking") {
-    // If already in startWalking and running, do nothing unless forced
-    if (!forceRestart && boyActiveAction === a && a.isRunning && a.isRunning())
-      return;
-
-    // Stop everything else, play once, then switch to walk
-    if (boyMixer) boyMixer.timeScale = 1.0;
-    if (boyActiveAction && boyActiveAction !== a) {
-      boyActiveAction.fadeOut(0.1); // Quick fade out for smoother transition
-    }
-
-    a.enabled = true;
-    a.timeScale = ANIMATION_SPEED;
-    a.setLoop(THREE.LoopOnce, 1);
-    a.clampWhenFinished = true;
-    a.setEffectiveWeight?.(1);
-    if ("weight" in a) a.weight = 1;
-
-    a.reset().fadeIn(0.1).play(); // Quick fade in
-    boyActiveAction = a;
-
-    // Clean up previous handler
-    if (startWalkFinishedHandler && boyMixer) {
-      boyMixer.removeEventListener("finished", startWalkFinishedHandler);
-      startWalkFinishedHandler = null;
-    }
-
-    startWalkFinishedHandler = (e) => {
-      if (e.action === a) {
-        boyMixer.removeEventListener("finished", startWalkFinishedHandler);
-        startWalkFinishedHandler = null;
-        if (boyActions.walk) {
-          // Smooth transition to walk with no gap
-          fadeTo("walk", 0.1);
-        }
-      }
-    };
-    a.getMixer().addEventListener("finished", startWalkFinishedHandler);
-    return;
-  }
-
-  // Default path: smooth transition
+  // Simple direct animation switching
   fadeTo(name);
 }
 
@@ -393,6 +337,32 @@ export function getCurrentAnimation() {
   return boyActiveAction
     ? Object.keys(boyActions).find((key) => boyActions[key] === boyActiveAction)
     : null;
+}
+
+// Force reset to idle state - useful when model gets corrupted
+export function resetBoyToIdle() {
+  if (!boyModel || !boyMixer || !boyActions.idle) {
+    console.warn(
+      "[boy] cannot reset to idle - model not ready or idle animation missing"
+    );
+    return;
+  }
+
+  // Stop all animations
+  Object.values(boyActions).forEach((action) => {
+    if (action && action.isRunning && action.isRunning()) {
+      action.stop();
+    }
+  });
+
+  // Clear mixer
+  boyMixer.stopAllAction();
+
+  // Reset to idle
+  boyActiveAction = null;
+  fadeTo("idle");
+
+  console.log("[boy] reset to idle state");
 }
 
 // Convenience loader mirroring sample-model style

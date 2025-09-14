@@ -51,7 +51,6 @@ export default function HomePage() {
     let boy = null;
     let isWalking = false;
     let wasWalking = false; // track animation state transitions
-    let animationState = "idle"; // track current animation state
     const targetPos = new THREE.Vector3();
     const WALK_SPEED = 0.5;
     const ARRIVE_RADIUS = 0.05; // tolerance to consider arrival
@@ -435,11 +434,12 @@ export default function HomePage() {
         return;
 
       targetPos.copy(hit.point);
-      // Start walking animation only on transition from idle
+
+      // Only start walking if not already walking
       if (!isWalking) {
         isWalking = true;
-        animationState = "startWalking";
-        playBoy("startWalking");
+        // Play walk animation directly - no startWalking animation
+        playBoy("walk");
       }
     }
     renderer.domElement.addEventListener("pointerdown", onPointerDown);
@@ -463,7 +463,6 @@ export default function HomePage() {
           const hit = groundHitAt(targetPos.x, targetPos.z, islandMeshes);
           if (hit) boy.position.copy(hit.point);
           isWalking = false;
-          animationState = "stopping";
         } else {
           dir.normalize();
           // Clamp step to avoid large hitch-induced overshoot
@@ -482,16 +481,10 @@ export default function HomePage() {
           }
         }
 
-        // Handle animation state transitions more smoothly
-        if (wasWalking && !isWalking && animationState === "stopping") {
-          animationState = "idle";
+        // Handle animation state transitions
+        if (wasWalking && !isWalking) {
+          // Just stopped walking, go to idle
           playBoy("idle");
-        } else if (isWalking && animationState === "startWalking") {
-          // The startWalking animation will automatically transition to walk
-          // via the event handler in boy.js, so we just update our state
-          setTimeout(() => {
-            if (isWalking) animationState = "walking";
-          }, 100); // Small delay to let startWalking finish
         }
 
         wasWalking = isWalking;
