@@ -1,20 +1,16 @@
 import { useState } from 'react';
+import { useRouter } from 'next/router';
 
 export default function LandingPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (email) {
-      // Here you would typically send the email to your backend
-      console.log('Email submitted:', email);
-      setIsSubmitted(true);
-      setTimeout(() => {
-        setIsSubmitted(false);
-        setEmail('');
-      }, 3000);
     }
+    router.push('/world');
   };
 
   return (
@@ -79,7 +75,7 @@ export default function LandingPage() {
 
           {/* Manifesto Button */}
           <div className="manifesto-container">
-            <button className="manifesto-button">
+            <button className="manifesto-button" onClick={() => router.push('/world')}>
               Get started
             </button>
           </div>
