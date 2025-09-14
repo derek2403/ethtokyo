@@ -96,7 +96,7 @@ export default function HomePage() {
 
     // Position the sun low in the sky, similar to planets in the diagram
     const SUN_ELEVATION_DEG = 8; // low near the horizon
-    const SUN_AZIMUTH_DEG = 260; // further to the left from the default view
+    const SUN_AZIMUTH_DEG = 330; // moved further to the left, facing the island
     const sunDir = new THREE.Vector3();
     const phi = THREE.MathUtils.degToRad(90 - SUN_ELEVATION_DEG);
     const theta = THREE.MathUtils.degToRad(SUN_AZIMUTH_DEG);
@@ -141,7 +141,7 @@ export default function HomePage() {
     const ARRIVE_RADIUS = 0.05; // tolerance to consider arrival
 
     // Helpers
-    function frameObject(obj, { pad = 0.4 } = {}) {
+    function frameObject(obj, { pad = 0.35 } = {}) {  // Reduced pad from 0.4 to 0.15 for closer view
       const box = new THREE.Box3().setFromObject(obj);
       const size = box.getSize(new THREE.Vector3()).length();
       const center = box.getCenter(new THREE.Vector3());
@@ -149,9 +149,15 @@ export default function HomePage() {
       controls.target.copy(center);
       const fitDist = (size * pad) / Math.tan((Math.PI * camera.fov) / 360);
 
+      // Position camera closer and at a better angle for the island view
+      const offsetVector = new THREE.Vector3(fitDist * 1.2, fitDist * 1.1, fitDist * 0.4);  // Raised Y from 1.1 to 1.4 for higher angle
+      // Rotate the offset vector 25 degrees to the right around Y axis
+      offsetVector.applyAxisAngle(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(40));
       camera.position
         .copy(center)
-        .add(new THREE.Vector3(fitDist, fitDist, fitDist));
+        .add(offsetVector);
+      // Raise camera vertically by additional amount
+      camera.position.y += 1.0;
       camera.near = size / 100;
       camera.far = size * 100;
       camera.updateProjectionMatrix();
