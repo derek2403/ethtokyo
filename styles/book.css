@@ -77,8 +77,18 @@
 }
 
 /* Canvas container styling */
-canvas {
+#book-canvas-root,
+#book-canvas-root > canvas {
+  position: fixed;
+  inset: 0;
+}
+
+#book-canvas-root > canvas {
+  width: 100vw !important;
+  height: 100vh !important;
+  display: block;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  z-index: 0;
 }
 
 /* Button hover effects */

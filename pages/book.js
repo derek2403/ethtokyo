@@ -13,20 +13,23 @@ export default function BookPage() {
       {/* Three.js loader for showing loading state */}
       <Loader />
       
-      {/* Main 3D canvas */}
-      <Canvas 
-        shadows 
-        camera={{
-          position: [-0.5, -0.5, typeof window !== 'undefined' && window.innerWidth > 800 ? 4 : 9],
-          fov: 45,
-        }}
-      >
+      {/* Main 3D canvas - use a fixed full-screen container to guarantee full height */}
+      <div id="book-canvas-root" className="fixed inset-0">
+        <Canvas 
+          style={{ width: '100%', height: '100%' }}
+          shadows 
+          camera={{
+            position: [-0.5, -0.5, typeof window !== 'undefined' && window.innerWidth > 800 ? 4 : 9],
+            fov: 45,
+          }}
+        >
         <group position-y={-1.2}>
           <Suspense fallback={null}>
             <Experience />
           </Suspense>
         </group>
-      </Canvas>
+        </Canvas>
+      </div>
     </>
   );
 }

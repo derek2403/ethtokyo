@@ -17,7 +17,7 @@ export const Experience = () => {
       
       {/* Interactive camera controls */}
       <OrbitControls 
-        target={[0, 0, 0]}
+        target={[0, -0.7, 0]}
         enablePan={true}
         enableZoom={true}
         enableRotate={true}
