@@ -67,7 +67,7 @@ export default function Home() {
 
         {/* Multi-AI Chat Component */}
         <div className="w-full">
-          <MultiAIChat />
+          <MultiAIChat showOnlyJudge />
         </div>
 
         {/* shadcn/ui Button Examples */}

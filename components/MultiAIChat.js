@@ -6,7 +6,7 @@ import FeelingBetterModal from './FeelingBetterModal';
 // Simple session id generator for grouping logs
 const genSessionId = () => `s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
-export default function MultiAIChat() {
+export default function MultiAIChat({ showOnlyJudge = false } = {}) {
   const [userQuestion, setUserQuestion] = useState('');
   
   // Client-side logger to central API so all events go to a single text file
@@ -69,7 +69,9 @@ export default function MultiAIChat() {
         round: roundType
       };
       
-      setMessages(prev => [...prev, newMessage]);
+      if (!showOnlyJudge) {
+        setMessages(prev => [...prev, newMessage]);
+      }
       return data.text;
     } catch (error) {
       console.error(`Error sending message to ${speaker}:`, error);
@@ -80,7 +82,9 @@ export default function MultiAIChat() {
         timestamp: new Date().toLocaleTimeString(),
         round: roundType
       };
-      setMessages(prev => [...prev, errorMessage]);
+      if (!showOnlyJudge || speaker === 'user' || speaker === 'judge') {
+        setMessages(prev => [...prev, errorMessage]);
+      }
       return null;
     } finally {
       setIsLoading(false);
@@ -281,6 +285,18 @@ export default function MultiAIChat() {
       };
       
       setFinalRecommendation(recommendation);
+      if (showOnlyJudge) {
+        setMessages(prev => [
+          ...prev,
+          {
+            id: Date.now(),
+            speaker: 'judge',
+            content: recommendation.content,
+            timestamp: new Date().toLocaleTimeString(),
+            round: 'final'
+          }
+        ]);
+      }
     } catch (error) {
       console.error('Error getting judge recommendation:', error);
       const recommendation = {
@@ -523,7 +539,7 @@ export default function MultiAIChat() {
         </div>
 
         {/* Final Recommendation */}
-        {finalRecommendation && (
+        {finalRecommendation && !showOnlyJudge && (
           <div className="p-4 bg-green-50 dark:bg-green-900 border-t border-gray-200 dark:border-gray-600">
             <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-3">
               {finalRecommendation.summary}
