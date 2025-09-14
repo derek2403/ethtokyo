@@ -17,7 +17,7 @@ import {
   Vector3,
 } from "three";
 import { degToRad } from "three/src/math/MathUtils.js";
-import { pageAtom, pages } from "./UI";
+import { pageAtom, pages, modalPageAtom } from "./UI";
 
 // Animation and curve parameters
 const easingFactor = 0.5; // Controls the speed of the easing
@@ -283,6 +283,7 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
   });
 
   const [_, setPage] = useAtom(pageAtom);
+  const [__, setModalPage] = useAtom(modalPageAtom);
   const [highlighted, setHighlighted] = useState(false);
   useCursor(highlighted);
 
@@ -300,7 +301,8 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
       }}
       onClick={(e) => {
         e.stopPropagation();
-        setPage(opened ? number : number + 1);
+        // Open modal with the clicked page number instead of flipping
+        setModalPage(number);
         setHighlighted(false);
       }}
     >
