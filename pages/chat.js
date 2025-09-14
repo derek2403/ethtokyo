@@ -9,6 +9,7 @@ import ChatHistory from '@/components/chat/ChatHistory';
 import ChatInput from '@/components/chat/ChatInput';
 import DebugOverlay from '@/components/chat/DebugOverlay';
 import StreamingText from '@/components/chat/StreamingText';
+import FeelingTodayModal from '@/components/FeelingTodayModal';
 
 // Animation System
 import { animationState, resetAnimationState } from '@/lib/animation/animationState';
@@ -38,6 +39,12 @@ function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [isChatOpen, setIsChatOpen] = useState(false);
+  
+  // AI Chat state (from MultiAIChat)
+  const [isLoading, setIsLoading] = useState(false);
+  const [showFeelingTodayModal, setShowFeelingTodayModal] = useState(false);
+  const [feelingTodayRating, setFeelingTodayRating] = useState(null);
+  const [sessionId, setSessionId] = useState(`s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
   
   // Streaming state
   const [streamingText, setStreamingText] = useState('');
@@ -286,19 +293,130 @@ function ChatPage() {
     return () => window.removeEventListener('resize', handleResize);
   }, [app, model, placeholderFace]);
 
-  // Event handlers
-  const handleSendMessage = () => {
-    if (!inputValue.trim()) return;
-    
-    addMessage(inputValue, true);
-    
-    // Use streaming engine for response animation
-    const responseText = `You said: "${inputValue}"`;
-    
-    setTimeout(() => {
-      addMessage(responseText, false);
+  // AI Chat configuration
+  const aiConfig = {
+    ai1: { name: 'AI1 - Clinical Psychologist', color: 'bg-purple-500', endpoint: '/api/ai1' },
+    ai2: { name: 'AI2 - Psychiatrist', color: 'bg-blue-500', endpoint: '/api/ai2' },
+    ai3: { name: 'AI3 - Holistic Counselor', color: 'bg-green-500', endpoint: '/api/ai3' },
+    judge: { name: 'AI Judge - Final Synthesis', color: 'bg-yellow-500', endpoint: '/api/judge' }
+  };
+
+  // Chat storage function
+  const storeChatHistory = async (messagesToStore = null) => {
+    try {
+      const currentMessages = messagesToStore || messages;
+      console.log('Storing chat history with messages:', currentMessages.length);
       
-      // Stream the response with mouth sync
+      await fetch('/api/store_chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId,
+          messages: currentMessages,
+          feelingRating: feelingTodayRating
+        }),
+      });
+      console.log('Chat history stored successfully with', currentMessages.length, 'messages');
+    } catch (error) {
+      console.error('Failed to store chat history:', error);
+    }
+  };
+
+  // AI Chat functions
+  const sendMessage = async (speaker, message, roundType = 'answer') => {
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch(aiConfig[speaker].endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: message }],
+          model: 'gpt-4o-mini',
+          sessionId,
+          round: roundType
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const newMessage = {
+        id: Date.now(),
+        speaker: speaker,
+        content: data.text,
+        timestamp: new Date().toLocaleTimeString(),
+        round: roundType
+      };
+      
+      setMessages(prev => [...prev, newMessage]);
+      return data.text;
+    } catch (error) {
+      console.error(`Error sending message to ${speaker}:`, error);
+      const errorMessage = {
+        id: Date.now(),
+        speaker: speaker,
+        content: `Sorry, there was an error processing the message.`,
+        timestamp: new Date().toLocaleTimeString(),
+        round: roundType
+      };
+      setMessages(prev => [...prev, errorMessage]);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Event handlers
+  const handleSendMessage = async () => {
+    if (!inputValue.trim() || isLoading) return;
+    
+    const currentInput = inputValue;
+    setInputValue(''); // Clear input immediately
+    
+    // Add user message
+    const userMessage = {
+      id: Date.now(),
+      text: currentInput,
+      isUser: true,
+      timestamp: new Date().toLocaleTimeString()
+    };
+    
+    // Update messages state with user message
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
+    
+    // Get AI response from the first AI (Clinical Psychologist)
+    const { buildRound1Prompt } = await import('@/prompt_engineering/prompts');
+    const question = buildRound1Prompt(currentInput);
+    
+    const aiResponse = await sendMessage('ai1', question, 'round1');
+    
+    if (aiResponse) {
+      // Create AI message
+      const aiMessage = {
+        id: Date.now() + 1,
+        text: aiResponse,
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString()
+      };
+      
+      // Build complete messages array with both user and AI messages
+      const completeMessages = [...updatedMessages, aiMessage];
+      
+      // Add AI response to chat history
+      addMessage(aiResponse, false);
+      
+      // Display and stream the response through StreamingText component
+      setStreamingText(aiResponse);
+      setIsStreamingActive(true);
+      
       if (animationsEnabled) {
         // Stop any current idle motions before starting stream
         if (model?.internalModel?.motionManager) {
@@ -306,24 +424,32 @@ function ChatPage() {
             const motionManager = model.internalModel.motionManager;
             if (motionManager.stopAllMotions) {
               motionManager.stopAllMotions();
-              console.log('🛑 Stopped all motions before response stream');
+              console.log('🛑 Stopped all motions before AI response stream');
             }
           } catch (e) {
             console.warn('Could not stop motions before streaming:', e);
           }
         }
         
-        streamTextWithTiming(responseText, {
+        // Use streamTextWithTiming for mouth sync animation
+        streamTextWithTiming(aiResponse, {
           baseSpeed: 15,
           onComplete: () => {
-            console.log('Response streaming completed');
+            console.log('AI response streaming completed');
+            setIsStreamingActive(false);
+            
+            // Store chat history with complete messages array
+            storeChatHistory(completeMessages);
+            
+            // Clear streaming text after a delay
+            setTimeout(() => setStreamingText(''), 3000);
             
             // Re-enable idle motions after streaming is complete
             setTimeout(() => {
               if (model?.motion) {
                 try {
                   model.motion('Idle');
-                  console.log('♻️ Restarted idle motion after response stream');
+                  console.log('♻️ Restarted idle motion after AI response stream');
                 } catch (e) {
                   console.warn('Could not restart idle motion:', e);
                 }
@@ -331,11 +457,33 @@ function ChatPage() {
             }, 500);
           }
         });
+      } else {
+        // If animations disabled, just show the text without mouth sync
+        setTimeout(() => {
+          setIsStreamingActive(false);
+          
+          // Store chat history with complete messages array
+          storeChatHistory(completeMessages);
+          
+          setTimeout(() => setStreamingText(''), 3000);
+        }, aiResponse.length * 50); // Simulate streaming time
       }
-    }, 500);
-    
-    setInputValue('');
+    }
   };
+
+  const handleFeelingTodayRating = (rating) => {
+    setFeelingTodayRating(rating);
+    console.log('Feeling today rating:', rating);
+  };
+
+  // Show feeling modal on page load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowFeelingTodayModal(true);
+    }, 2000); // Show after 2 seconds
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleDemoStream = () => {
     addMessage("Demo stream starting...", false);
@@ -518,11 +666,18 @@ function ChatPage() {
         
         {/* Chat Input */}
         <ChatInput
-              value={inputValue}
+          value={inputValue}
           onChange={setInputValue}
           onSend={handleSendMessage}
-              placeholder="Chat with your VTuber..."
-          disabled={isStreaming()}
+          placeholder="Share your mental health concern..."
+          disabled={isLoading}
+        />
+        
+        {/* Feeling Today Modal */}
+        <FeelingTodayModal
+          isOpen={showFeelingTodayModal}
+          onClose={() => setShowFeelingTodayModal(false)}
+          onRatingSubmit={handleFeelingTodayRating}
         />
       </div>
     </>
