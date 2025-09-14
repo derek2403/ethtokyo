@@ -1,6 +1,6 @@
 import { Loader } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSetAtom } from "jotai";
 import { Experience } from "../components/book/Experience";
 import { UI } from "../components/book/UI";
@@ -98,14 +98,16 @@ function summarizeSessions(sessions) {
 
 export default function BookPage() {
   const setSummaryTexture = useSetAtom(summaryTextureAtom);
+  const [saving, setSaving] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const resp = await fetch('/api/chat_history');
+        // Ask the server to summarize via RedPill LLM
+        const resp = await fetch('/api/book_summary');
         const data = await resp.json();
-        const summary = summarizeSessions(data.sessions || []);
+        const summary = data?.summary;
         if (!summary) return;
         const url = createSummaryTexture(summary);
         if (!cancelled) setSummaryTexture(url);
@@ -113,11 +115,20 @@ export default function BookPage() {
         // Ignore errors and keep fallback texture
         console.warn('Failed to generate summary texture:', e?.message);
       }
+      if (!cancelled) setSaving(false);
     })();
     return () => { cancelled = true; };
   }, [setSummaryTexture]);
   return (
     <>
+      {/* Blocking overlay until the AI summary is ready */}
+      {saving && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center" style={{background:'rgba(0,0,0,0.35)', backdropFilter:'blur(6px)'}}>
+          <button disabled className="px-5 py-3 rounded-full text-white border border-white/40 bg-white/20 backdrop-blur-md shadow-lg">
+            Saving your memories, please wait…
+          </button>
+        </div>
+      )}
       {/* UI overlay with controls and background animation */}
       <UI />
       
@@ -125,7 +136,7 @@ export default function BookPage() {
       <Loader />
       
       {/* Main 3D canvas - use a fixed full-screen container to guarantee full height */}
-      <div id="book-canvas-root" className="fixed inset-0">
+      <div id="book-canvas-root" className="fixed inset-0 pointer-events-auto">
         <Canvas 
           style={{ width: '100%', height: '100%' }}
           shadows 

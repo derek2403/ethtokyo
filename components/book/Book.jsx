@@ -136,7 +136,14 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
   const frontTexture = number === 0
     ? coverTexture
     : (number === 1 ? dynamicSummaryTexture : continuedTexture);
-  const backTexture = number === 0 ? page1Texture : (number === pages.length - 1 ? backCoverTexture : continuedTexture);
+  const backTexture =
+    number === 0
+      ? page1Texture
+      : number === pages.length - 1
+        ? backCoverTexture
+        : number === 1
+          ? dynamicSummaryTexture
+          : continuedTexture;
   const pictureRoughness = null;
   
   const group = useRef();
