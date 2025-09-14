@@ -609,7 +609,7 @@ function ChatPage() {
           .chat-history-container {
             position: fixed;
             top: 20px;
-            right: 20px;
+            left: 20px;
             z-index: 50;
           }
 
@@ -637,7 +637,7 @@ function ChatPage() {
           .history-panel {
             position: absolute;
             top: 60px;
-            right: 0;
+            left: 0;
             width: 360px;
             background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(10px);
@@ -661,7 +661,7 @@ function ChatPage() {
           @keyframes slideIn {
             from {
               opacity: 0;
-              transform: translateX(20px);
+              transform: translateX(-20px);
             }
             to {
               opacity: 1;
