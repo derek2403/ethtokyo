@@ -105,17 +105,18 @@ export default function BookPage() {
     (async () => {
       try {
         // Ask the server to summarize via RedPill LLM
-        const resp = await fetch('/api/book_summary');
+        const resp = await fetch('/api/book_summary', { cache: 'no-store' });
         const data = await resp.json();
-        const summary = data?.summary;
-        if (!summary) return;
+        const summary = (data?.summary || '').toString().trim() ||
+          'A calm day with gentle reflections and small steps forward.';
         const url = createSummaryTexture(summary);
         if (!cancelled) setSummaryTexture(url);
       } catch (e) {
         // Ignore errors and keep fallback texture
         console.warn('Failed to generate summary texture:', e?.message);
+      } finally {
+        if (!cancelled) setSaving(false);
       }
-      if (!cancelled) setSaving(false);
     })();
     return () => { cancelled = true; };
   }, [setSummaryTexture]);
@@ -123,10 +124,20 @@ export default function BookPage() {
     <>
       {/* Blocking overlay until the AI summary is ready */}
       {saving && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center" style={{background:'rgba(0,0,0,0.35)', backdropFilter:'blur(6px)'}}>
-          <button disabled className="px-5 py-3 rounded-full text-white border border-white/40 bg-white/20 backdrop-blur-md shadow-lg">
-            Saving your memories, please wait…
-          </button>
+        <div
+          className="fixed inset-0 z-[1000] flex items-center justify-center"
+          style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(6px)' }}
+        >
+          <img
+            src="/loading/loading.gif"
+            alt="Saving your memories, please wait"
+            style={{
+              width: '220px',
+              height: '220px',
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 6px 16px rgba(0,0,0,0.35))'
+            }}
+          />
         </div>
       )}
       {/* UI overlay with controls and background animation */}
