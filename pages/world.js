@@ -15,11 +15,14 @@ export default function HomePage() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.7;
+    renderer.toneMappingExposure = 0.9; // slightly brighter overall
     renderer.shadowMap.enabled = true;
     containerElement.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
+    // Flat pastel background with no fog
+    scene.background = new THREE.Color(0xbfe6ff);
+    scene.fog = null;
     const camera = new THREE.PerspectiveCamera(
       60,
       window.innerWidth / window.innerHeight,
@@ -44,7 +47,49 @@ export default function HomePage() {
     scene.add(sun);
     scene.add(new THREE.AmbientLight(0xffffff, 0.15));
 
+    // Position the sun low in the sky, similar to planets in the diagram
+    const SUN_ELEVATION_DEG = 8; // even lower elevation -> nearer to horizon
+    const SUN_AZIMUTH_DEG = 160; // rotate around island (left/right)
+    const sunDir = new THREE.Vector3();
+    const phi = THREE.MathUtils.degToRad(90 - SUN_ELEVATION_DEG);
+    const theta = THREE.MathUtils.degToRad(SUN_AZIMUTH_DEG);
+    sunDir.setFromSphericalCoords(1, phi, theta);
+    // Place the light along that direction (a bit closer)
+    sun.position.copy(sunDir.clone().multiplyScalar(45));
+    sun.intensity = 1.25;
+
+    // No mountains or other background geometry
+
     const loader = new GLTFLoader();
+    let sunModel = null;
+    // Load a large visible sun model high in the sky
+    loader.load("/assets/sun.glb", (sgltf) => {
+      sunModel = sgltf.scene;
+      sunModel.traverse((o) => {
+        if (o.isMesh) {
+          o.castShadow = false;
+          o.receiveShadow = false;
+          if (o.material) {
+            if (o.material.emissive) o.material.emissive.set(0xffb84d);
+            if ("emissiveIntensity" in o.material)
+              o.material.emissiveIntensity = 4.0; // brighter so color reads
+            if (o.material.color) o.material.color.set(0xffd36b);
+            if ("toneMapped" in o.material) o.material.toneMapped = false; // keep vivid color
+            o.material.fog = false; // keep crisp through fog
+          }
+        }
+      });
+      // Position along the sun direction even closer and lower
+      const sunDistance = 38;
+      const pos = sunDir.clone().multiplyScalar(sunDistance);
+      // Keep very low so it's clearly to the side of the island
+      pos.y = Math.max(pos.y, 4);
+      sunModel.position.copy(pos);
+      sunModel.scale.setScalar(10.0);
+      // Look toward the world origin until island center is known
+      sunModel.lookAt(new THREE.Vector3(0, 0, 0));
+      scene.add(sunModel);
+    });
     let islandRoot = null;
     const islandMeshes = [];
 
@@ -204,6 +249,16 @@ export default function HomePage() {
       scene.add(islandRoot);
       frameObject(islandRoot);
 
+      // Aim the directional light and sun model at the island center
+      const islandCenter = new THREE.Box3()
+        .setFromObject(islandRoot)
+        .getCenter(new THREE.Vector3());
+      sun.target.position.copy(islandCenter);
+      if (!scene.children.includes(sun.target)) scene.add(sun.target);
+      if (typeof sunModel !== "undefined" && sunModel) {
+        sunModel.lookAt(islandCenter);
+      }
+
       // Petals
       (function addPetals() {
         const { minX, maxX, minZ, maxZ } = boundsXZ(islandRoot);
@@ -214,7 +269,7 @@ export default function HomePage() {
           depthTest: true,
           depthWrite: true,
         });
-        const PETALS = 10;
+        const PETALS = 15;
         for (let i = 0; i < PETALS; i++) {
           const x = rand(minX + 0.22, maxX - 0.22);
           const z = rand(minZ + 0.22, maxZ - 0.22);
@@ -281,7 +336,7 @@ export default function HomePage() {
             .addScaledVector(fwd, 0.6);
 
           placeOnIsland(tree, target.x, target.z, {
-            sinkDepth: 0.05,
+            sinkDepth: 0.1,
             alignToSlope: true,
           });
           tree.lookAt(
