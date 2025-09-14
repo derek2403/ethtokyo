@@ -743,7 +743,6 @@ function ChatPage() {
           }
 
           .memories-button {
-            /* Keep same centering as .history-button */
             display: flex;
             align-items: center;
             justify-content: center;

@@ -1,14 +1,78 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment";
 import { loadBoy, updateBoy, playBoy } from "../components/boy.js";
+import { usePrivy } from "@privy-io/react-auth";
+import subscriptionAbi from "@/lib/subscription-abi.json";
+import ConnectWalletButton from "@/components/ConnectWalletButton";
+
+const RPC_URL = `https://rpc.kaigan.jsc.dev/rpc?token=${process.env.NEXT_PUBLIC_KAIGAN_RPC_TOKEN}`;
+const SUBSCRIPTION_CONTRACT_ADDRESS = "0xAb8281Eb535238eA29fC10cbc67959e0FBdb6626";
+const chain = {
+  id: 5278000,
+  name: "JSC Kaigan Testnet",
+  nativeCurrency: { name: "JSC Testnet Ether", symbol: "JETH", decimals: 18 },
+  rpcUrls: { default: { http: [RPC_URL] } }
+};
 
 export default function HomePage() {
   const containerRef = useRef(null);
   const router = useRouter();
+  const { ready, authenticated, user } = usePrivy();
+  const [showSubscribePrompt, setShowSubscribePrompt] = useState(false);
+  const [plans, setPlans] = useState([]);
+  const [subLoading, setSubLoading] = useState(false);
+  const [subError, setSubError] = useState("");
+
+  async function createPublicClient() {
+    const { createPublicClient, http } = await import("viem");
+    return createPublicClient({ chain, transport: http(RPC_URL) });
+  }
+
+  async function getContract(client) {
+    const { getContract } = await import("viem");
+    return getContract({ address: SUBSCRIPTION_CONTRACT_ADDRESS, abi: subscriptionAbi, client });
+  }
+
+  // On load, check if the connected wallet is verified + subscribed
+  useEffect(() => {
+    if (!ready) return;
+    if (!authenticated || !user?.wallet?.address) {
+      setShowSubscribePrompt(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const client = await createPublicClient();
+        const ok = await client.readContract({
+          address: SUBSCRIPTION_CONTRACT_ADDRESS,
+          abi: subscriptionAbi,
+          functionName: 'isCallerVerifiedAndSubscribed',
+          account: user.wallet.address,
+        });
+        if (!cancelled) setShowSubscribePrompt(!Boolean(ok));
+
+        // Also load available plans for the modal
+        const contract = await getContract(client);
+        const nextId = await contract.read.nextPlanId();
+        const fetched = [];
+        for (let i = 1; i < Number(nextId); i++) {
+          try {
+            const plan = await contract.read.getPlan([BigInt(i)]);
+            if (plan.active) fetched.push({ id: i, ...plan });
+          } catch {}
+        }
+        if (!cancelled) setPlans(fetched);
+      } catch (_) {
+        if (!cancelled) setShowSubscribePrompt(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [ready, authenticated, user?.wallet?.address]);
 
   useEffect(() => {
     const containerElement = containerRef.current;
@@ -820,5 +884,106 @@ export default function HomePage() {
     };
   }, []);
 
-  return <div ref={containerRef} style={{ width: "100vw", height: "100vh" }} />;
+  // Transaction helpers and subscribe action (outside JSX)
+  async function txWrite(method, args = [], value = 0n) {
+    if (!ready) throw new Error("Privy not ready");
+    if (!authenticated || !user?.wallet?.address) throw new Error("Please connect your wallet");
+
+    if (user.wallet.id) {
+      const resp = await fetch('/api/transaction', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ walletId: user.wallet.id, method, args, value: value.toString(), contractAddress: SUBSCRIPTION_CONTRACT_ADDRESS, abi: subscriptionAbi })
+      });
+      if (!resp.ok) {
+        const e = await resp.json().catch(() => ({}));
+        throw new Error(e.error || 'Transaction failed');
+      }
+      return (await resp.json()).hash;
+    }
+
+    const { createWalletClient, custom, encodeFunctionData } = await import('viem');
+    if (!window.ethereum) throw new Error('No ethereum provider');
+    const hexChainId = '0x' + chain.id.toString(16);
+    try {
+      await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: hexChainId }] });
+    } catch (switchErr) {
+      if (switchErr?.code === 4902) {
+        await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [{ chainId: hexChainId, chainName: chain.name, nativeCurrency: chain.nativeCurrency, rpcUrls: chain.rpcUrls.default.http }] });
+        await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: hexChainId }] });
+      } else {
+        throw new Error(`Please switch your wallet to ${chain.name}`);
+      }
+    }
+    const walletClient = createWalletClient({ chain, transport: custom(window.ethereum), account: user.wallet.address });
+    const data = encodeFunctionData({ abi: subscriptionAbi, functionName: method, args });
+    return walletClient.sendTransaction({ to: SUBSCRIPTION_CONTRACT_ADDRESS, data, value, chain });
+  }
+
+  async function subscribeToPlan(plan) {
+    setSubError("");
+    setSubLoading(true);
+    try {
+      await txWrite('subscribe', [BigInt(plan.id)], plan.price);
+      const client = await createPublicClient();
+      const ok = await client.readContract({ address: SUBSCRIPTION_CONTRACT_ADDRESS, abi: subscriptionAbi, functionName: 'isCallerVerifiedAndSubscribed', account: user.wallet.address });
+      setShowSubscribePrompt(!Boolean(ok));
+    } catch (e) {
+      setSubError(e?.message || 'Failed to subscribe');
+    } finally {
+      setSubLoading(false);
+    }
+  }
+
+  return (
+    <>
+      <div ref={containerRef} style={{ width: "100vw", height: "100vh" }} />
+      {showSubscribePrompt && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)' }}>
+          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-3xl w-[92%]">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h2 className="text-2xl font-semibold">Subscription Required</h2>
+                <p className="text-gray-600">Choose a plan to continue exploring. Transactions occur on JSC Kaigan Testnet.</p>
+              </div>
+              <button onClick={() => setShowSubscribePrompt(false)} className="text-gray-500 hover:text-gray-700">✕</button>
+            </div>
+
+            {!authenticated && (
+              <div className="mb-4 p-3 rounded bg-yellow-50 text-yellow-800 text-sm">
+                Please connect your wallet to subscribe.
+              </div>
+            )}
+
+            {subError && (
+              <div className="mb-4 p-3 rounded bg-red-50 text-red-700 text-sm">{subError}</div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {plans.length ? plans.map((plan) => (
+                <div key={plan.id} className="border border-gray-200 rounded-xl p-5">
+                  <div className="text-sm text-gray-500 mb-1">Plan #{plan.id}</div>
+                  <div className="text-2xl font-bold mb-1">{(Number(plan.price) / 1e18).toString()} JETH</div>
+                  <div className="text-gray-600 mb-4">Duration: {Math.round(Number(plan.duration) / (24*60*60))} days</div>
+                  <button
+                    disabled={subLoading || !authenticated}
+                    onClick={() => subscribeToPlan(plan)}
+                    className="w-full px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-60"
+                  >
+                    {subLoading ? 'Processing…' : 'Get started'}
+                  </button>
+                </div>
+              )) : (
+                <div className="col-span-2 text-center text-gray-500">No active plans configured.</div>
+              )}
+            </div>
+            {!authenticated && (
+              <div className="mt-4 flex justify-center">
+                <ConnectWalletButton className="cta-primary" />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
 }
