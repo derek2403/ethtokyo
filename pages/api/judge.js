@@ -16,33 +16,19 @@ export default async function handler(req, res) {
   try {
     const { round3Responses, userQuestion, sessionId, feelingToday, feelingBetter } = req.body || {};
 
-    console.log('Judge API received:', { round3Responses, userQuestion });
-
     if (!round3Responses || !userQuestion) {
-      console.log('Missing required fields:', { 
-        hasRound3Responses: !!round3Responses, 
-        hasUserQuestion: !!userQuestion,
-        round3ResponsesKeys: round3Responses ? Object.keys(round3Responses) : 'none',
-        userQuestionLength: userQuestion ? userQuestion.length : 'none'
-      });
       return res.status(400).json({ error: 'round3Responses and userQuestion are required' });
     }
-
-    // Check if round3Responses has the expected structure
     if (!round3Responses.ai1 || !round3Responses.ai2 || !round3Responses.ai3) {
-      console.log('Invalid round3Responses structure:', round3Responses);
       return res.status(400).json({ error: 'round3Responses must contain ai1, ai2, and ai3 fields' });
     }
 
     const usedModel = 'gpt-4o-mini';
 
-    // Judge AI system prompt
-    const systemPrompt = {
-      role: 'system',
-      content: 'You are an AI Judge specializing in mental health consultation synthesis. Your role is to review the final recommendations from three mental health specialists and provide a clear, actionable, and comprehensive summary for the user. You should:\n\n1. Synthesize the key insights from all three specialists\n2. Identify common themes and areas of agreement\n3. Highlight important differences in approaches\n4. Provide a clear, actionable recommendation\n5. Include specific next steps and resources\n6. Maintain a supportive, empathetic tone\n7. Prioritize the user\'s safety and well-being\n\nBe concise but comprehensive, focusing on practical guidance that the user can implement.'
-    };
-
-    const judgePrompt = `Please review the following mental health consultation and provide a final summary recommendation:\n\n**User's Original Concern:**\n${userQuestion}\n\n**Final Recommendations from Specialists:**\n\nAI1 (Clinical Psychologist): ${round3Responses.ai1}\n\nAI2 (Psychiatrist): ${round3Responses.ai2}\n\nAI3 (Holistic Counselor): ${round3Responses.ai3}\n\nPlease provide a comprehensive final recommendation that synthesizes these perspectives and gives the user clear, actionable guidance.`;
+    // Centralized judge prompts
+    const { JUDGE_SYSTEM_PROMPT, buildJudgePrompt } = await import('@/prompt_engineering/prompts');
+    const systemPrompt = JUDGE_SYSTEM_PROMPT;
+    const judgePrompt = buildJudgePrompt(userQuestion, round3Responses);
 
     const payloadMessages = [systemPrompt, { role: 'user', content: judgePrompt }];
 

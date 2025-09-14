@@ -108,7 +108,8 @@ export default function MultiAIChat() {
     logEvent('session_start', { feelingTodayRating, question: userQuestion });
     
     // Round 1: All AIs provide initial assessment
-    const question = `Mental Health Consultation: ${userQuestion}\n\nPlease provide your professional mental health assessment, including:\n1. Your understanding of the concern and emotional state\n2. Potential mental health considerations\n3. Recommended coping strategies or interventions\n4. Any safety concerns or red flags\n5. Suggestions for professional support if needed\n\nPlease be empathetic, supportive, and evidence-based in your response.`;
+    const { buildRound1Prompt } = await import('@/prompt_engineering/prompts');
+    const question = buildRound1Prompt(userQuestion);
     
     // Run all Round 1 responses concurrently
     const [ai1Response, ai2Response, ai3Response] = await Promise.all([
@@ -118,30 +119,24 @@ export default function MultiAIChat() {
     ]);
     
     if (ai1Response && ai2Response && ai3Response) {
-      setTimeout(() => {
-        setRound(2);
-        startCriticismRound();
-      }, 1000);
+      setRound(2);
+      await startCriticismRound(ai1Response, ai2Response, ai3Response);
     }
   };
 
-  const startCriticismRound = async () => {
+  const startCriticismRound = async (ai1AnswerFromR1, ai2AnswerFromR1, ai3AnswerFromR1) => {
     setIsLoading(true);
     
     // Get the latest responses from each AI
-    const round1Messages = messages.filter(m => m.round === 'round1');
-    const ai1Answer = round1Messages.find(m => m.speaker === 'ai1')?.content || '';
-    const ai2Answer = round1Messages.find(m => m.speaker === 'ai2')?.content || '';
-    const ai3Answer = round1Messages.find(m => m.speaker === 'ai3')?.content || '';
+    const ai1Answer = (ai1AnswerFromR1 ?? messages.filter(m => m.round === 'round1').find(m => m.speaker === 'ai1')?.content) ?? '';
+    const ai2Answer = (ai2AnswerFromR1 ?? messages.filter(m => m.round === 'round1').find(m => m.speaker === 'ai2')?.content) ?? '';
+    const ai3Answer = (ai3AnswerFromR1 ?? messages.filter(m => m.round === 'round1').find(m => m.speaker === 'ai3')?.content) ?? '';
     
     // Each AI discusses the other two's approaches
-    const ai1Critique = `Please review and discuss the following mental health approaches from your colleagues:\n\nAI2 (Psychiatrist): ${ai2Answer}\n\nAI3 (Holistic Counselor): ${ai3Answer}\n\nProvide thoughtful discussion, share your perspective on their approaches, and explain how you might integrate or differ from their recommendations. Be respectful and collaborative.`;
+    const { buildRound2Critiques } = await import('@/prompt_engineering/prompts');
+    const { ai1: ai1Critique, ai2: ai2Critique, ai3: ai3Critique } = buildRound2Critiques(ai1Answer, ai2Answer, ai3Answer);
     
-    const ai2Critique = `Please review and discuss the following mental health approaches from your colleagues:\n\nAI1 (Clinical Psychologist): ${ai1Answer}\n\nAI3 (Holistic Counselor): ${ai3Answer}\n\nProvide thoughtful discussion, share your perspective on their approaches, and explain how you might integrate or differ from their recommendations. Be respectful and collaborative.`;
-    
-    const ai3Critique = `Please review and discuss the following mental health approaches from your colleagues:\n\nAI1 (Clinical Psychologist): ${ai1Answer}\n\nAI2 (Psychiatrist): ${ai2Answer}\n\nProvide thoughtful discussion, share your perspective on their approaches, and explain how you might integrate or differ from their recommendations. Be respectful and collaborative.`;
-    
-    // Run all Round 2 responses concurrently
+    // Run all Round 2 responses concurrently, then immediately move to Round 3 when done
     const [ai1CritiqueResponse, ai2CritiqueResponse, ai3CritiqueResponse] = await Promise.all([
       sendMessage('ai1', ai1Critique, 'round2'),
       sendMessage('ai2', ai2Critique, 'round2'),
@@ -149,21 +144,20 @@ export default function MultiAIChat() {
     ]);
     
     if (ai1CritiqueResponse && ai2CritiqueResponse && ai3CritiqueResponse) {
-      setTimeout(() => {
-        setRound(3);
-        startVotingRound();
-      }, 1000);
+      setRound(3);
+      await startVotingRound(ai1CritiqueResponse, ai2CritiqueResponse, ai3CritiqueResponse);
     }
   };
 
-  const startVotingRound = async () => {
+  const startVotingRound = async (ai1R2, ai2R2, ai3R2) => {
     setIsLoading(true);
     
-    // Get all responses for voting
+    // Get all responses for voting (kept for display/state integrity; not required for prompt building)
     const round1Messages = messages.filter(m => m.round === 'round1');
     const round2Messages = messages.filter(m => m.round === 'round2');
     
-    const votingPrompt = `Based on the initial assessments and discussions, please:\n\n1. Share which approach you think would be most helpful overall\n2. Provide your final integrated recommendation\n3. Explain your reasoning and how you've incorporated insights from your colleagues\n\nConsider all perspectives and provide a comprehensive, supportive final recommendation that prioritizes the person's well-being.`;
+    const { buildRound3VotingPrompt } = await import('@/prompt_engineering/prompts');
+    const votingPrompt = buildRound3VotingPrompt();
     
     // Run all Round 3 responses concurrently
     const [ai1Vote, ai2Vote, ai3Vote] = await Promise.all([
@@ -174,9 +168,7 @@ export default function MultiAIChat() {
     
     if (ai1Vote && ai2Vote && ai3Vote) {
       // Pass the responses directly to avoid timing issues with state updates
-      setTimeout(() => {
-        generateFinalRecommendation(ai1Vote, ai2Vote, ai3Vote);
-      }, 1000);
+      await generateFinalRecommendation(ai1Vote, ai2Vote, ai3Vote);
     }
   };
 
