@@ -199,32 +199,68 @@ export const UI = () => {
           )}
         </Modal>
         
-        {/* Page navigation buttons */}
-        <div className="w-full overflow-auto pointer-events-auto flex justify-center">
-          <div className="overflow-auto flex items-center gap-4 max-w-full p-10">
-            {[...pages].map((_, index) => (
-              <button
-                key={index}
-                className={`border-transparent hover:border-white transition-all duration-300 px-4 py-3 rounded-full text-lg uppercase shrink-0 border ${
-                  index === page
-                    ? "bg-white/90 text-black"
-                    : "bg-black/30 text-white"
-                }`}
-                onClick={() => setPage(index)}
-              >
-                {index === 0 ? "Cover" : `Page ${index}`}
-              </button>
-            ))}
-            <button
-              className={`border-transparent hover:border-white transition-all duration-300 px-4 py-3 rounded-full text-lg uppercase shrink-0 border ${
-                page === pages.length
-                  ? "bg-white/90 text-black"
-                  : "bg-black/30 text-white"
-              }`}
-              onClick={() => setPage(pages.length)}
+        {/* Large navigation arrows on sides */}
+        <div className="pointer-events-auto fixed inset-0 flex items-center justify-between px-12 z-20">
+          {/* Previous/Back Arrow */}
+          <div
+            className={`transition-all duration-300 hover:scale-110 ${
+              page <= 0 ? 'opacity-30 cursor-not-allowed' : 'opacity-90 hover:opacity-100 cursor-pointer'
+            }`}
+            style={{
+              background: 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '50%',
+              width: '120px',
+              height: '120px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onClick={() => page > 0 && setPage(page - 1)}
+          >
+            <div
+              style={{
+                background: 'rgba(255, 255, 255, 0.15)',
+                backdropFilter: 'blur(10px)',
+                border: '2px solid black',
+                clipPath: 'polygon(70% 20%, 30% 50%, 70% 80%)',
+                width: '80px',
+                height: '80px'
+              }}
             >
-              Back Cover
-            </button>
+            </div>
+          </div>
+
+          {/* Next/Forward Arrow */}
+          <div
+            className={`transition-all duration-300 hover:scale-110 ${
+              page >= pages.length ? 'opacity-30 cursor-not-allowed' : 'opacity-90 hover:opacity-100 cursor-pointer'
+            }`}
+            style={{
+              background: 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '50%',
+              width: '120px',
+              height: '120px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onClick={() => page < pages.length && setPage(page + 1)}
+          >
+            <div
+              style={{
+                background: 'rgba(255, 255, 255, 0.15)',
+                backdropFilter: 'blur(10px)',
+                border: '2px solid black',
+                clipPath: 'polygon(30% 20%, 70% 50%, 30% 80%)',
+                width: '80px',
+                height: '80px'
+              }}
+            >
+            </div>
           </div>
         </div>
       </main>
