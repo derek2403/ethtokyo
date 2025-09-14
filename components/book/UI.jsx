@@ -124,6 +124,8 @@ function textureUrlsForPage(index) {
 
 // Global state for current page
 export const pageAtom = atom(0);
+// Data URL for the dynamic summary texture (right page of first spread)
+export const summaryTextureAtom = atom(null);
 // Modal state for showing page content popup
 // Holds { page: number, side: 'front'|'back', half: 'left'|'right' } or null
 export const modalPageAtom = atom(null);
