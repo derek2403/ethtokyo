@@ -923,10 +923,19 @@ export default function HomePage() {
     setSubError("");
     setSubLoading(true);
     try {
-      await txWrite('subscribe', [BigInt(plan.id)], plan.price);
+      const hash = await txWrite('subscribe', [BigInt(plan.id)], plan.price);
       const client = await createPublicClient();
+      try {
+        if (hash) {
+          await client.waitForTransactionReceipt({ hash });
+        }
+      } catch (_) {}
       const ok = await client.readContract({ address: SUBSCRIPTION_CONTRACT_ADDRESS, abi: subscriptionAbi, functionName: 'isCallerVerifiedAndSubscribed', account: user.wallet.address });
       setShowSubscribePrompt(!Boolean(ok));
+      if (ok) {
+        // Ensure UI reflects new permissions/state
+        if (typeof window !== 'undefined') window.location.reload();
+      }
     } catch (e) {
       setSubError(e?.message || 'Failed to subscribe');
     } finally {
@@ -938,49 +947,53 @@ export default function HomePage() {
     <>
       <div ref={containerRef} style={{ width: "100vw", height: "100vh" }} />
       {showSubscribePrompt && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)' }}>
-          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-3xl w-[92%]">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h2 className="text-2xl font-semibold">Subscription Required</h2>
-                <p className="text-gray-600">Choose a plan to continue exploring. Transactions occur on JSC Kaigan Testnet.</p>
-              </div>
-              <button onClick={() => setShowSubscribePrompt(false)} className="text-gray-500 hover:text-gray-700">✕</button>
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)' }}>
+          <div
+            className="w-full max-w-md"
+            style={{
+              background: 'rgba(255,255,255,0.25)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255,255,255,0.4)',
+              borderRadius: 20,
+              boxShadow: '0 10px 30px rgba(0,0,0,0.35)'
+            }}
+          >
+            <div className="flex items-center justify-between" style={{ padding: '12px 16px' }}>
+              <h3 style={{ color: '#fff', fontWeight: 600 }}>Subscribe</h3>
+              <button onClick={() => setShowSubscribePrompt(false)} style={{ color: 'rgba(255,255,255,0.9)' }}>✕</button>
             </div>
-
+            {subError && <div className="text-sm" style={{ color: '#fecaca', padding: '0 16px 8px' }}>{subError}</div>}
             {!authenticated && (
-              <div className="mb-4 p-3 rounded bg-yellow-50 text-yellow-800 text-sm">
-                Please connect your wallet to subscribe.
-              </div>
-            )}
-
-            {subError && (
-              <div className="mb-4 p-3 rounded bg-red-50 text-red-700 text-sm">{subError}</div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {plans.length ? plans.map((plan) => (
-                <div key={plan.id} className="border border-gray-200 rounded-xl p-5">
-                  <div className="text-sm text-gray-500 mb-1">Plan #{plan.id}</div>
-                  <div className="text-2xl font-bold mb-1">{(Number(plan.price) / 1e18).toString()} JETH</div>
-                  <div className="text-gray-600 mb-4">Duration: {Math.round(Number(plan.duration) / (24*60*60))} days</div>
-                  <button
-                    disabled={subLoading || !authenticated}
-                    onClick={() => subscribeToPlan(plan)}
-                    className="w-full px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-60"
-                  >
-                    {subLoading ? 'Processing…' : 'Get started'}
-                  </button>
-                </div>
-              )) : (
-                <div className="col-span-2 text-center text-gray-500">No active plans configured.</div>
-              )}
-            </div>
-            {!authenticated && (
-              <div className="mt-4 flex justify-center">
+              <div className="flex justify-center" style={{ padding: '0 16px 12px' }}>
                 <ConnectWalletButton className="cta-primary" />
               </div>
             )}
+            <div style={{ padding: '8px 12px 16px' }}>
+              {plans.length ? plans.map((plan) => (
+                <div key={plan.id} className="flex items-center justify-between" style={{
+                  margin: '8px 4px',
+                  padding: '12px 14px',
+                  background: 'rgba(255,255,255,0.35)',
+                  border: '1px solid rgba(255,255,255,0.4)',
+                  borderRadius: 16
+                }}>
+                  <div>
+                    <div style={{ color: '#111', fontWeight: 700, fontSize: 18 }}>{(Number(plan.price) / 1e18).toString()} JETH</div>
+                    <div style={{ color: '#374151', fontSize: 14 }}>{Math.round(Number(plan.duration)/(24*60*60))} days</div>
+                  </div>
+                  <button
+                    disabled={subLoading || !authenticated}
+                    onClick={() => subscribeToPlan(plan)}
+                    className="manifesto-button"
+                    style={{ padding: '10px 18px', fontSize: 14 }}
+                  >
+                    {subLoading ? 'Processing…' : 'Subscribe'}
+                  </button>
+                </div>
+              )) : (
+                <div className="text-center text-sm" style={{ color: 'rgba(255,255,255,0.9)', padding: '8px 12px 16px' }}>No active plans configured.</div>
+              )}
+            </div>
           </div>
         </div>
       )}
