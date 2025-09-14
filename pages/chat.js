@@ -11,6 +11,9 @@ import DebugOverlay from '@/components/chat/DebugOverlay';
 import StreamingText from '@/components/chat/StreamingText';
 import FeelingTodayModal from '@/components/FeelingTodayModal';
 
+// Multi-AI Chat logic (shared with MultiAIChat component)
+import { useMultiAIChat } from '@/lib/chat/useMultiAIChat';
+
 // Animation System
 import { animationState, resetAnimationState } from '@/lib/animation/animationState';
 import { updateIdleBehaviors, updateAnimationTransitions } from '@/lib/animation/idleBehaviors';
@@ -36,15 +39,117 @@ import { listModelParameters, testParameter, findMouthParameters, createDebugCon
 
 function ChatPage() {
   // State management
-  const [messages, setMessages] = useState([]);
-  const [inputValue, setInputValue] = useState('');
+  const [uiMessages, setUiMessages] = useState([]);
+  
   const [isChatOpen, setIsChatOpen] = useState(false);
   
-  // AI Chat state (from MultiAIChat)
-  const [isLoading, setIsLoading] = useState(false);
+  // AI Chat state (hooked from MultiAIChat logic)
+  const {
+    userQuestion,
+    setUserQuestion,
+    round,
+    messages,
+    isLoading,
+    finalRecommendation,
+    feelingTodayRating,
+    setFeelingTodayRating,
+    feelingBetterRating,
+    setFeelingBetterRating,
+    aiConfig,
+    sendMessage,
+    startConsultation,
+    startCriticismRound,
+    startVotingRound,
+    generateFinalRecommendation,
+    clearChat,
+  } = useMultiAIChat({ showOnlyJudge: true });
+
+  // Transform hook messages to ChatHistory format, include both user and judge
+  const chatMessagesLive = messages
+    .filter(m => m.speaker === 'user' || m.speaker === 'judge')
+    .map(m => ({
+      id: m.id,
+      text: m.content,
+      isUser: m.speaker === 'user',
+      timestamp: m.timestamp,
+      speaker: m.speaker,
+      round: m.round,
+    }));
+
+  // Persisted chat history (loaded from file)
+  const [historyMessages, setHistoryMessages] = useState([]);
+  const [historyLoadedAt, setHistoryLoadedAt] = useState(0);
+
   const [showFeelingTodayModal, setShowFeelingTodayModal] = useState(false);
-  const [feelingTodayRating, setFeelingTodayRating] = useState(null);
-  const [sessionId, setSessionId] = useState(`s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
+  const [sessionId] = useState(`s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
+  const [storedThisSession, setStoredThisSession] = useState(false);
+  // Reset store flag when a new session starts (detect a fresh user question message)
+  useEffect(() => {
+    const hasFreshQuestion = messages.some(m => m.speaker === 'user' && m.round === 'question');
+    if (hasFreshQuestion && storedThisSession) {
+      setStoredThisSession(false);
+    }
+  }, [messages, storedThisSession]);
+
+  // Load history from file on mount and whenever a new session is stored
+  useEffect(() => {
+    async function loadHistory() {
+      try {
+        const resp = await fetch('/api/chat_history');
+        if (!resp.ok) return;
+        const data = await resp.json();
+        const sessions = Array.isArray(data.sessions) ? data.sessions : [];
+        const last = sessions[sessions.length - 1];
+        if (last?.messages) {
+          setHistoryMessages(
+            last.messages.map(m => ({
+              id: m.id,
+              text: m.text,
+              isUser: Boolean(m.isUser),
+              timestamp: m.timestamp,
+              speaker: m.speaker,
+              round: m.round,
+            }))
+          );
+        } else {
+          setHistoryMessages([]);
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+    loadHistory();
+  }, [historyLoadedAt]);
+
+  // Store the current conversation once we have both a user question and a judge response
+  useEffect(() => {
+    const hasUser = chatMessagesLive.some(m => m.isUser);
+    const hasJudge = chatMessagesLive.some(m => !m.isUser && m.speaker === 'judge');
+    if (!hasUser || !hasJudge || storedThisSession) return;
+
+    const messagesToStore = chatMessagesLive.map(m => ({
+      id: m.id,
+      text: m.text,
+      isUser: m.isUser,
+      timestamp: m.timestamp,
+      speaker: m.speaker,
+      round: m.round,
+    }));
+
+    (async () => {
+      try {
+        const resp = await fetch('/api/store_chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId, messages: messagesToStore }),
+        });
+        if (resp.ok) {
+          setStoredThisSession(true);
+          setHistoryLoadedAt(Date.now());
+        }
+      } catch (_) {}
+    })();
+  }, [chatMessagesLive, sessionId, storedThisSession]);
   
   // Streaming state
   const [streamingText, setStreamingText] = useState('');
@@ -59,10 +164,33 @@ function ChatPage() {
   const [animationsEnabled, setAnimationsEnabled] = useState(false);
   const animationsEnabledRef = useRef(false);
 
+  // Watch for new judge messages and trigger streaming
+  useEffect(() => {
+    const judgeMessages = messages.filter(m => m.speaker === 'judge');
+    const latestJudgeMessage = judgeMessages[judgeMessages.length - 1];
+    
+    if (latestJudgeMessage && latestJudgeMessage.content) {
+      // Set streaming text
+      setStreamingText(latestJudgeMessage.content);
+      setIsStreamingActive(true);
+      
+      // Use streamTextWithTiming for text animation
+      streamTextWithTiming(latestJudgeMessage.content, {
+        baseSpeed: 15,
+        onComplete: () => {
+          setIsStreamingActive(false);
+          
+          // Keep the message visible for a while before fading
+          setTimeout(() => setStreamingText(''), 6000);
+        }
+      });
+    }
+  }, [messages]); // Watch for changes in messages
+
   // References
   const canvasContainerRef = useRef(null);
 
-  // Add message function
+  // Add UI-only message (for demo/debug overlay)
   const addMessage = (text, isUser = false) => {
     const newMessage = {
       id: Date.now(),
@@ -70,9 +198,7 @@ function ChatPage() {
       isUser,
       timestamp: new Date().toLocaleTimeString()
     };
-    setMessages(prev => [...prev, newMessage]);
-    
-    // Auto-open chat on new messages
+    setUiMessages(prev => [...prev, newMessage]);
     if (!isChatOpen) setIsChatOpen(true);
   };
 
@@ -293,183 +419,15 @@ function ChatPage() {
     return () => window.removeEventListener('resize', handleResize);
   }, [app, model, placeholderFace]);
 
-  // AI Chat configuration
-  const aiConfig = {
-    ai1: { name: 'AI1 - Clinical Psychologist', color: 'bg-purple-500', endpoint: '/api/ai1' },
-    ai2: { name: 'AI2 - Psychiatrist', color: 'bg-blue-500', endpoint: '/api/ai2' },
-    ai3: { name: 'AI3 - Holistic Counselor', color: 'bg-green-500', endpoint: '/api/ai3' },
-    judge: { name: 'AI Judge - Final Synthesis', color: 'bg-yellow-500', endpoint: '/api/judge' }
-  };
-
-  // Chat storage function
-  const storeChatHistory = async (messagesToStore = null) => {
-    try {
-      const currentMessages = messagesToStore || messages;
-      console.log('Storing chat history with messages:', currentMessages.length);
-      
-      await fetch('/api/store_chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          sessionId,
-          messages: currentMessages,
-          feelingRating: feelingTodayRating
-        }),
-      });
-      console.log('Chat history stored successfully with', currentMessages.length, 'messages');
-    } catch (error) {
-      console.error('Failed to store chat history:', error);
-    }
-  };
-
-  // AI Chat functions
-  const sendMessage = async (speaker, message, roundType = 'answer') => {
-    setIsLoading(true);
-    
-    try {
-      const response = await fetch(aiConfig[speaker].endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages: [{ role: 'user', content: message }],
-          model: 'gpt-4o-mini',
-          sessionId,
-          round: roundType
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const newMessage = {
-        id: Date.now(),
-        speaker: speaker,
-        content: data.text,
-        timestamp: new Date().toLocaleTimeString(),
-        round: roundType
-      };
-      
-      setMessages(prev => [...prev, newMessage]);
-      return data.text;
-    } catch (error) {
-      console.error(`Error sending message to ${speaker}:`, error);
-      const errorMessage = {
-        id: Date.now(),
-        speaker: speaker,
-        content: `Sorry, there was an error processing the message.`,
-        timestamp: new Date().toLocaleTimeString(),
-        round: roundType
-      };
-      setMessages(prev => [...prev, errorMessage]);
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Event handlers
-  const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
-    
-    const currentInput = inputValue;
-    setInputValue(''); // Clear input immediately
-    
-    // Add user message
-    const userMessage = {
-      id: Date.now(),
-      text: currentInput,
-      isUser: true,
-      timestamp: new Date().toLocaleTimeString()
+    const handleSendMessage = async (value) => {
+      const input = (value ?? userQuestion ?? '').trim();
+      if (!input || isLoading) return;
+      // Use MultiAIChat orchestration logic
+      await startConsultation(input);
+      setUserQuestion('');
+      return;
     };
-    
-    // Update messages state with user message
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
-    
-    // Get AI response from the first AI (Clinical Psychologist)
-    const { buildRound1Prompt } = await import('@/prompt_engineering/prompts');
-    const question = buildRound1Prompt(currentInput);
-    
-    const aiResponse = await sendMessage('ai1', question, 'round1');
-    
-    if (aiResponse) {
-      // Create AI message
-      const aiMessage = {
-        id: Date.now() + 1,
-        text: aiResponse,
-        isUser: false,
-        timestamp: new Date().toLocaleTimeString()
-      };
-      
-      // Build complete messages array with both user and AI messages
-      const completeMessages = [...updatedMessages, aiMessage];
-      
-      // Add AI response to chat history
-      addMessage(aiResponse, false);
-      
-      // Display and stream the response through StreamingText component
-      setStreamingText(aiResponse);
-      setIsStreamingActive(true);
-      
-      if (animationsEnabled) {
-        // Stop any current idle motions before starting stream
-        if (model?.internalModel?.motionManager) {
-          try {
-            const motionManager = model.internalModel.motionManager;
-            if (motionManager.stopAllMotions) {
-              motionManager.stopAllMotions();
-              console.log('🛑 Stopped all motions before AI response stream');
-            }
-          } catch (e) {
-            console.warn('Could not stop motions before streaming:', e);
-          }
-        }
-        
-        // Use streamTextWithTiming for mouth sync animation
-        streamTextWithTiming(aiResponse, {
-          baseSpeed: 15,
-          onComplete: () => {
-            console.log('AI response streaming completed');
-            setIsStreamingActive(false);
-            
-            // Store chat history with complete messages array
-            storeChatHistory(completeMessages);
-            
-            // Clear streaming text after a delay
-            setTimeout(() => setStreamingText(''), 3000);
-            
-            // Re-enable idle motions after streaming is complete
-            setTimeout(() => {
-              if (model?.motion) {
-                try {
-                  model.motion('Idle');
-                  console.log('♻️ Restarted idle motion after AI response stream');
-                } catch (e) {
-                  console.warn('Could not restart idle motion:', e);
-                }
-              }
-            }, 500);
-          }
-        });
-      } else {
-        // If animations disabled, just show the text without mouth sync
-        setTimeout(() => {
-          setIsStreamingActive(false);
-          
-          // Store chat history with complete messages array
-          storeChatHistory(completeMessages);
-          
-          setTimeout(() => setStreamingText(''), 3000);
-        }, aiResponse.length * 50); // Simulate streaming time
-      }
-    }
-  };
 
   const handleFeelingTodayRating = (rating) => {
     setFeelingTodayRating(rating);
@@ -628,46 +586,168 @@ function ChatPage() {
             }}
           />
           
-          {/* Debug Overlay */}
-          <DebugOverlay
-            debugInfo={debugInfo}
-            cubismLoaded={cubismLoaded}
-            app={app}
-            model={model}
-            placeholderFace={placeholderFace}
-            animationsEnabled={animationsEnabled}
-            visible={true}
-          />
-          
-          {/* Streaming Text Display */}
-          {streamingText && (
-            <div className="absolute bottom-4 left-4 right-4 z-30">
+          {/* AI Response Streaming Display */}
+          <div className="streaming-container">
+            {streamingText && (
               <StreamingText
                 text={streamingText}
                 speed={18}
                 isStreaming={isStreamingActive}
-                className="max-w-md mx-auto"
+                className="streaming-text"
+              />
+            )}
+          </div>
+        </div>
+      
+        {/* Chat History Button & Panel */}
+        <div className="chat-history-container">
+          <button 
+            onClick={() => setIsChatOpen(!isChatOpen)} 
+            className="history-button"
+          >
+            {isChatOpen ? '✕' : '💬'}
+          </button>
+          
+          {isChatOpen && (
+            <div className="history-panel">
+              <ChatHistory
+                isOpen={isChatOpen}
+                onToggle={() => setIsChatOpen(!isChatOpen)}
+                messages={(historyMessages.length ? historyMessages : chatMessagesLive)}
               />
             </div>
           )}
         </div>
-      
-        {/* Chat History Panel */}
-        <ChatHistory
-          isOpen={isChatOpen}
-          onToggle={() => setIsChatOpen(!isChatOpen)}
-          messages={messages}
-          onDemoStream={handleDemoStream}
-          onExpression={handleExpressionTest}
-          animationsEnabled={animationsEnabled}
-          onToggleAnimations={handleToggleAnimations}
-          onMouthTest={handleMouthTest}
+
+        {/* Chat Input */}
+        <ChatInput
+          value={userQuestion}
+          onChange={setUserQuestion}
+          onSend={handleSendMessage}
+          placeholder="Share your mental health concern..."
+          disabled={isLoading}
         />
+
+        {/* Feeling Today Modal */}
+        <FeelingTodayModal
+          isOpen={showFeelingTodayModal}
+          onClose={() => setShowFeelingTodayModal(false)}
+          onRatingSubmit={handleFeelingTodayRating}
+        />
+
+        <style jsx global>{`
+          .streaming-container {
+            position: fixed;
+            bottom: 160px;
+            left: 0;
+            right: 0;
+            z-index: 30;
+            display: flex;
+            justify-content: center;
+            padding: 0 16px;
+            pointer-events: none;
+          }
+
+          .streaming-text {
+            width: 100%;
+            max-width: 50vw;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            padding: 20px 32px;
+            color: white;
+            font-size: 18px;
+            line-height: 1.6;
+            animation: fadeIn 0.3s ease;
+            transition: all 0.3s ease;
+          }
+
+          .streaming-text:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 0 24px rgba(255, 255, 255, 0.18);
+          }
+
+          .cursor {
+            display: inline-block;
+            margin-left: 2px;
+            animation: blink 1s infinite;
+          }
+
+          @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+          }
+
+          .chat-history-container {
+            position: fixed;
+            top: 20px;
+            left: 20px; /* moved to top-left */
+            z-index: 50;
+          }
+
+          .history-button {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+          }
+
+          .history-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+          }
+
+          .history-panel {
+            position: absolute;
+            top: 60px;
+            left: 0; /* open under the button on the left */
+            width: 360px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            animation: slideIn 0.3s ease forwards;
+          }
+
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          @keyframes slideIn {
+            from {
+              opacity: 0;
+              transform: translateX(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(0);
+            }
+          }
+        `}</style>
         
         {/* Chat Input */}
         <ChatInput
-          value={inputValue}
-          onChange={setInputValue}
+          value={userQuestion}
+          onChange={setUserQuestion}
           onSend={handleSendMessage}
           placeholder="Share your mental health concern..."
           disabled={isLoading}

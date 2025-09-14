@@ -1,13 +1,17 @@
 import "@/styles/globals.css";
+import "../styles/manga.css"; // ✅ keep your manga.css
 import { PrivyProvider } from "@privy-io/react-auth";
+import { useRouter } from "next/router";
 import { jscKaiganTestnet } from "@/lib/chains";
 import "../styles/manga.css";
+import ConnectWalletButton from "@/components/ConnectWalletButton";
 
 const PRIVY_APP_ID = (process.env.NEXT_PUBLIC_PRIVY_APP_ID || "").trim();
 const PRIVY_CLIENT_ID =
   (process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID || "").trim() || undefined;
 
 export default function App({ Component, pageProps }) {
+  const router = useRouter();
   if (!PRIVY_APP_ID) {
     if (typeof window !== "undefined") {
       console.error(
@@ -15,7 +19,11 @@ export default function App({ Component, pageProps }) {
       );
     }
     // Render without PrivyProvider to avoid initialization error
-    return <Component {...pageProps} />;
+    return (
+      <div className="dark">
+        <Component {...pageProps} />
+      </div>
+    );
   }
 
   if (!PRIVY_APP_ID.startsWith("app_")) {
@@ -77,7 +85,15 @@ export default function App({ Component, pageProps }) {
         }
       }}
     >
-      <Component {...pageProps} />
+      <div className="dark">
+        {/* Floating connect wallet button in the corner (hidden on landing page) */}
+        {router.pathname !== "/" && (
+          <div className="fixed top-4 right-4 z-[900]">
+            <ConnectWalletButton className="cta-primary" />
+          </div>
+        )}
+        <Component {...pageProps} />
+      </div>
     </PrivyProvider>
   );
 }
