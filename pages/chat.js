@@ -542,16 +542,7 @@ function ChatPage() {
             }}
           />
           
-          {/* Debug Overlay */}
-          <DebugOverlay
-            debugInfo={debugInfo}
-            cubismLoaded={cubismLoaded}
-            app={app}
-            model={model}
-            placeholderFace={placeholderFace}
-            animationsEnabled={animationsEnabled}
-            visible={true}
-          />
+          {/* Debug Overlay removed */}
           
           {/* Streaming Text Display */}
           {streamingText && (
@@ -566,17 +557,79 @@ function ChatPage() {
           )}
         </div>
       
-        {/* Chat History Panel */}
-        <ChatHistory
-          isOpen={isChatOpen}
-          onToggle={() => setIsChatOpen(!isChatOpen)}
-          messages={chatMessages}
-          onDemoStream={handleDemoStream}
-          onExpression={handleExpressionTest}
-          animationsEnabled={animationsEnabled}
-          onToggleAnimations={handleToggleAnimations}
-          onMouthTest={handleMouthTest}
-        />
+        {/* Chat History Button & Panel */}
+        <div className="chat-history-container">
+          <button 
+            onClick={() => setIsChatOpen(!isChatOpen)} 
+            className="history-button"
+          >
+            {isChatOpen ? '✕' : '💬'}
+          </button>
+          
+          {isChatOpen && (
+            <div className="history-panel">
+              <ChatHistory
+                isOpen={isChatOpen}
+                onToggle={() => setIsChatOpen(!isChatOpen)}
+                messages={chatMessages}
+              />
+            </div>
+          )}
+        </div>
+
+        <style jsx>{`
+          .chat-history-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 50;
+          }
+
+          .history-button {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+          }
+
+          .history-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+          }
+
+          .history-panel {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            width: 360px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            animation: slideIn 0.3s ease forwards;
+          }
+
+          @keyframes slideIn {
+            from {
+              opacity: 0;
+              transform: translateX(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(0);
+            }
+          }
+        `}</style>
         
         {/* Chat Input */}
         <ChatInput
