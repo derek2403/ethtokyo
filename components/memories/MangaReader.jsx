@@ -161,7 +161,7 @@ export default function MangaReader({ memory, onEdit, onNext, onPrev, onClose })
       <style jsx>{`
         .manga-reader {
           width: 100%;
-          height: 80vh;
+          height: 100%;
           display: flex;
           flex-direction: column;
         }
@@ -202,7 +202,7 @@ export default function MangaReader({ memory, onEdit, onNext, onPrev, onClose })
         }
 
         .manga-reader-page {
-          min-height: 400px;
+          min-height: 300px;
         }
 
         .manga-summary-panel,
@@ -255,11 +255,11 @@ export default function MangaReader({ memory, onEdit, onNext, onPrev, onClose })
 
         .manga-panel-container {
           position: relative;
-          min-height: 400px;
+          min-height: 300px;
         }
 
         .manga-panel-art {
-          height: 300px;
+          height: 200px;
           border-bottom: 3px solid black;
           background: rgba(0,0,0,0.05);
         }

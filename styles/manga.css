@@ -5,7 +5,11 @@
 
 /* Base manga page styling */
 .manga-memories-page {
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   background: #ffffff;
   background-image: 
     radial-gradient(circle at 25% 25%, #000 1px, transparent 1px),
@@ -19,10 +23,10 @@
 /* Manga header with dramatic title */
 .manga-header {
   position: relative;
-  padding: 2rem;
+  padding: 1rem 2rem;
   background: white;
   border-bottom: 5px solid black;
-  margin-bottom: 2rem;
+  flex-shrink: 0;
 }
 
 .manga-title-panel {
@@ -67,10 +71,17 @@
   pointer-events: none;
 }
 
+/* Main content area */
+.manga-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 0;
+}
+
 /* Search panel styling */
 .manga-search-panel {
   max-width: 1200px;
-  margin: 0 auto 2rem;
+  margin: 0 auto 1rem;
   padding: 0 1rem;
 }
 
@@ -198,7 +209,7 @@
 .manga-grid-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1rem;
+  padding: 0 1rem 2rem;
 }
 
 .manga-month-section {
@@ -488,6 +499,27 @@
   border: 4px solid black !important;
   background: white !important;
   box-shadow: 8px 8px 0 rgba(0,0,0,0.3) !important;
+  max-height: 90vh !important;
+  height: 90vh !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.manga-reader-dialog .manga-reader {
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.manga-reader-dialog .manga-reader-content {
+  flex: 1 !important;
+  overflow-y: auto !important;
+}
+
+/* Ensure dialog content fits properly */
+.manga-reader-dialog > * {
+  min-height: 0 !important;
 }
 
 /* Error states */
@@ -515,12 +547,26 @@
 
 /* Responsive design */
 @media (max-width: 768px) {
+  .manga-memories-page {
+    height: 100vh;
+    height: 100dvh; /* Use dynamic viewport height on mobile */
+  }
+  
+  .manga-header {
+    padding: 0.5rem 1rem;
+  }
+  
   .manga-title {
     font-size: 2.5rem;
   }
   
+  .manga-title-panel {
+    padding: 1rem;
+  }
+  
   .manga-panels-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
   
   .manga-panel-large,
@@ -536,6 +582,25 @@
   .manga-generate-button {
     padding: 0.8rem 1.5rem !important;
     font-size: 1rem !important;
+  }
+  
+  .manga-search-panel,
+  .manga-grid-container {
+    padding: 0 0.5rem 1rem;
+  }
+  
+  .manga-month-section {
+    margin-bottom: 2rem;
+  }
+  
+  /* Dialog responsive adjustments */
+  .manga-reader-dialog,
+  .manga-editor-dialog {
+    max-height: 95vh !important;
+    height: 95vh !important;
+    max-width: 95vw !important;
+    width: 95vw !important;
+    margin: 0 !important;
   }
 }
 

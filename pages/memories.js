@@ -255,30 +255,33 @@ export default function MemoriesPage() {
           </div>
         </div>
 
-        {/* Search and filter controls */}
-        <FilterBar
-          searchQuery={searchQuery}
-          onSearchChange={handleSearchChange}
-          filters={filters}
-          onFiltersChange={handleFiltersChange}
-          showFilters={showFilters}
-          onToggleFilters={() => setShowFilters(!showFilters)}
-          memoriesCount={memories.length}
-        />
+        {/* Main content area with proper scrolling */}
+        <div className="manga-content">
+          {/* Search and filter controls */}
+          <FilterBar
+            searchQuery={searchQuery}
+            onSearchChange={handleSearchChange}
+            filters={filters}
+            onFiltersChange={handleFiltersChange}
+            showFilters={showFilters}
+            onToggleFilters={() => setShowFilters(!showFilters)}
+            memoriesCount={memories.length}
+          />
 
-        {/* Loading state */}
-        {isLoading && <LoadingState />}
+          {/* Loading state */}
+          {isLoading && <LoadingState />}
 
-        {/* Error state */}
-        {error && <ErrorState error={error} onRetry={() => window.location.reload()} />}
+          {/* Error state */}
+          {error && <ErrorState error={error} onRetry={() => window.location.reload()} />}
 
-        {/* Empty state */}
-        {!isLoading && !error && memories.length === 0 && <EmptyState />}
+          {/* Empty state */}
+          {!isLoading && !error && memories.length === 0 && <EmptyState />}
 
-        {/* Memory grid */}
-        {!isLoading && !error && memories.length > 0 && (
-          <MemoryGrid memories={memories} onMemoryClick={openMemory} />
-        )}
+          {/* Memory grid */}
+          {!isLoading && !error && memories.length > 0 && (
+            <MemoryGrid memories={memories} onMemoryClick={openMemory} />
+          )}
+        </div>
 
         {/* Floating generate button */}
         <GenerateButton onGenerate={generateTodaysMemory} isGenerating={isGenerating} />
@@ -295,7 +298,7 @@ export default function MemoriesPage() {
 
         {/* Manga Reader Dialog */}
         <Dialog open={isReaderOpen} onOpenChange={closeReader}>
-          <DialogContent className="manga-reader-dialog max-w-6xl">
+          <DialogContent className="manga-reader-dialog max-w-6xl" showCloseButton={false}>
             {currentMemory && (
               <MangaReader 
                 memory={currentMemory}
