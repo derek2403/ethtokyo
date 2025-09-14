@@ -258,9 +258,9 @@ export default function CollectionPage() {
 
           {/* Polaroid Collection */}
           {!isLoading && !error && memories.length > 0 && (
-            <DraggableCardContainer className="relative flex min-h-screen w-full items-center justify-center overflow-clip bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-900 dark:to-neutral-800">
+            <DraggableCardContainer className="polaroid-collection-background relative flex min-h-screen w-full items-center justify-center overflow-clip">
               {/* Background text for atmosphere */}
-              <p className="absolute top-1/2 mx-auto max-w-2xl -translate-y-3/4 text-center text-3xl font-black text-neutral-300 md:text-5xl dark:text-neutral-700 select-none pointer-events-none">
+              <p className="absolute top-1/2 mx-auto max-w-2xl -translate-y-3/4 text-center text-3xl font-black text-amber-800 md:text-5xl opacity-20 select-none pointer-events-none">
                 Your memories scattered like polaroids...
               </p>
               
@@ -359,6 +359,29 @@ export default function CollectionPage() {
 
       {/* Custom styles for polaroid effect */}
       <style jsx>{`
+        .polaroid-collection-background {
+          background: 
+            /* Cork board texture */
+            radial-gradient(circle at 20% 30%, rgba(139, 119, 101, 0.1) 2px, transparent 2px),
+            radial-gradient(circle at 80% 70%, rgba(139, 119, 101, 0.1) 2px, transparent 2px),
+            radial-gradient(circle at 40% 80%, rgba(139, 119, 101, 0.1) 1px, transparent 1px),
+            radial-gradient(circle at 60% 20%, rgba(139, 119, 101, 0.1) 1px, transparent 1px),
+            /* Base cork color */
+            linear-gradient(45deg, #d2b48c 0%, #deb887 25%, #d2b48c 50%, #cd853f 75%, #d2b48c 100%);
+          background-size: 
+            150px 150px,
+            200px 200px, 
+            100px 100px,
+            120px 120px,
+            100% 100%;
+          background-position:
+            0 0,
+            50px 50px,
+            25px 75px,
+            75px 25px,
+            0 0;
+        }
+        
         .polaroid-card {
           background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
           border: 1px solid rgba(0, 0, 0, 0.1);
