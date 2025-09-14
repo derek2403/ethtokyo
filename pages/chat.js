@@ -370,10 +370,13 @@ function ChatPage() {
     const aiResponse = await sendMessage('ai1', question, 'round1');
     
     if (aiResponse) {
-      // Add AI response to chat
+      // Add AI response to chat history
       addMessage(aiResponse, false);
       
-      // Stream the response with mouth sync if animations enabled
+      // Display and stream the response through StreamingText component
+      setStreamingText(aiResponse);
+      setIsStreamingActive(true);
+      
       if (animationsEnabled) {
         // Stop any current idle motions before starting stream
         if (model?.internalModel?.motionManager) {
@@ -388,10 +391,15 @@ function ChatPage() {
           }
         }
         
+        // Use streamTextWithTiming for mouth sync animation
         streamTextWithTiming(aiResponse, {
           baseSpeed: 15,
           onComplete: () => {
             console.log('AI response streaming completed');
+            setIsStreamingActive(false);
+            
+            // Clear streaming text after a delay
+            setTimeout(() => setStreamingText(''), 3000);
             
             // Re-enable idle motions after streaming is complete
             setTimeout(() => {
@@ -406,6 +414,12 @@ function ChatPage() {
             }, 500);
           }
         });
+      } else {
+        // If animations disabled, just show the text without mouth sync
+        setTimeout(() => {
+          setIsStreamingActive(false);
+          setTimeout(() => setStreamingText(''), 3000);
+        }, aiResponse.length * 50); // Simulate streaming time
       }
     }
     
