@@ -52,8 +52,9 @@ export default function FeelingTodayModal({ isOpen, onClose, onRatingSubmit }) {
                     <Image
                       src={rating.image}
                       alt={rating.label}
-                      width={220}
-                      height={220}
+                      fill
+                      sizes="160px"
+                      quality={100}
                       className="face-image"
                     />
                   </div>
@@ -150,8 +151,8 @@ export default function FeelingTodayModal({ isOpen, onClose, onRatingSubmit }) {
           transition: all 0.3s ease;
           /* Fixed-sized items to maintain centering and spacing */
           flex: 0 0 auto;
-          min-width: 120px;
-          max-width: 130px;
+          min-width: 140px;
+          max-width: 150px;
         }
 
         .rating-button:hover {
@@ -174,12 +175,13 @@ export default function FeelingTodayModal({ isOpen, onClose, onRatingSubmit }) {
           display: flex;
           align-items: center;
           justify-content: center;
-          /* Circle reduced by ~20% from 120px -> 96px */
-          width: 96px;
-          height: 96px;
+          /* Smaller circle to emphasize zoomed image */
+          width: 88px;
+          height: 88px;
+          position: relative; /* needed for next/image fill */
           background: rgba(255, 255, 255, 0.2);
           backdrop-filter: blur(10px);
-          /* Thinner single ring */
+          /* Restore ring thickness */
           border: 3px solid rgba(255, 255, 255, 0.55);
           border-radius: 50%;
           transition: all 0.3s ease;
@@ -188,11 +190,13 @@ export default function FeelingTodayModal({ isOpen, onClose, onRatingSubmit }) {
         }
 
         .face-image {
-          /* Enlarge image without changing 96px circle size */
-          width: 220px;
-          height: 220px;
+          /* Keep natural proportions; no squeeze */
           object-fit: cover;
           object-position: center;
+          transform: none;
+          width: 100%;
+          height: 100%;
+          image-rendering: auto;
           border-radius: 0;
           border: none;
           transition: all 0.3s ease;
@@ -203,7 +207,7 @@ export default function FeelingTodayModal({ isOpen, onClose, onRatingSubmit }) {
         }
 
         .rating-label {
-          font-size: 12px;
+          font-size: 14px;
           font-weight: 500;
           color: white;
           text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
