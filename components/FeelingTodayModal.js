@@ -1,15 +1,15 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 
 export default function FeelingTodayModal({ isOpen, onClose, onRatingSubmit }) {
   const [selectedRating, setSelectedRating] = useState(null);
 
   const ratings = [
-    { value: 1, label: 'Very Sad', emoji: '😢', color: 'bg-red-100 hover:bg-red-200 border-red-300' },
-    { value: 2, label: 'Sad', emoji: '😔', color: 'bg-orange-100 hover:bg-orange-200 border-orange-300' },
-    { value: 3, label: 'Normal', emoji: '😐', color: 'bg-yellow-100 hover:bg-yellow-200 border-yellow-300' },
-    { value: 4, label: 'Happy', emoji: '😊', color: 'bg-green-100 hover:bg-green-200 border-green-300' },
-    { value: 5, label: 'Very Happy', emoji: '😄', color: 'bg-blue-100 hover:bg-blue-200 border-blue-300' }
+    { value: 1, label: 'Very Sad', image: '/faces/very_sad.png' },
+    { value: 2, label: 'Sad', image: '/faces/sad.png' },
+    { value: 3, label: 'Normal', image: '/faces/normal.png' },
+    { value: 4, label: 'Happy', image: '/faces/happy.png' },
+    { value: 5, label: 'Very Happy', image: '/faces/very_happy.png' }
   ];
 
   const handleSubmit = () => {
@@ -28,55 +28,223 @@ export default function FeelingTodayModal({ isOpen, onClose, onRatingSubmit }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
-        <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            How are you feeling today?
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400">
-            Please rate your current emotional state
-          </p>
-        </div>
+    <>
+      <div className="modal-overlay">
+        <div className="modal-container">
+          <div className="modal-header">
+            <h2 className="modal-title">
+              How are you feeling today?
+            </h2>
+            <p className="modal-subtitle">
+              Please rate your current emotional state
+            </p>
+          </div>
 
-        <div className="space-y-3 mb-6">
-          {ratings.map((rating) => (
+          <div className="ratings-container">
+            {ratings.map((rating) => (
+              <button
+                key={rating.value}
+                onClick={() => setSelectedRating(rating.value)}
+                className={`rating-button ${selectedRating === rating.value ? 'selected' : ''}`}
+              >
+                <div className="rating-content">
+                  <div className="image-container">
+                    <Image
+                      src={rating.image}
+                      alt={rating.label}
+                      width={120}
+                      height={120}
+                      className="face-image"
+                    />
+                  </div>
+                  <span className="rating-label">
+                    {rating.label}
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          <div className="button-container">
             <button
-              key={rating.value}
-              onClick={() => setSelectedRating(rating.value)}
-              className={`w-full p-4 rounded-lg border-2 transition-all duration-200 ${
-                selectedRating === rating.value
-                  ? `${rating.color} border-2 ring-2 ring-offset-2 ring-blue-500`
-                  : `${rating.color} border`
-              }`}
+              onClick={handleClose}
+              className="cancel-button"
             >
-              <div className="flex items-center justify-center space-x-3">
-                <span className="text-3xl">{rating.emoji}</span>
-                <span className="text-lg font-medium text-gray-900 dark:text-white">
-                  {rating.label}
-                </span>
-              </div>
+              Cancel
             </button>
-          ))}
-        </div>
-
-        <div className="flex space-x-3">
-          <Button
-            onClick={handleClose}
-            variant="outline"
-            className="flex-1"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={!selectedRating}
-            className="flex-1"
-          >
-            Submit Rating
-          </Button>
+            <button
+              onClick={handleSubmit}
+              disabled={!selectedRating}
+              className="submit-button"
+            >
+              Submit Rating
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+
+      <style jsx>{`
+        .modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.3);
+          backdrop-filter: blur(1px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 50;
+        }
+
+        .modal-container {
+          background: rgba(255, 255, 255, 0.15);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 20px;
+          padding: 32px;
+          max-width: 700px;
+          width: 90%;
+          margin: 20px;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+        }
+
+        .modal-header {
+          text-align: center;
+          margin-bottom: 32px;
+        }
+
+        .modal-title {
+          font-size: 24px;
+          font-weight: 700;
+          color: white;
+          margin: 0 0 8px 0;
+          text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-subtitle {
+          font-size: 16px;
+          color: rgba(255, 255, 255, 0.8);
+          margin: 0;
+          text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+        }
+
+        .ratings-container {
+          display: flex;
+          flex-direction: row;
+          gap: 20px;
+          margin-bottom: 32px;
+          justify-content: space-between;
+          width: 100%;
+        }
+
+        .rating-button {
+          background: transparent;
+          border: none;
+          padding: 16px 8px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          flex: 1;
+          min-width: 100px;
+          max-width: 120px;
+        }
+
+        .rating-button:hover {
+          transform: translateY(-4px);
+        }
+
+        .rating-button.selected {
+          transform: scale(1.1);
+        }
+
+        .rating-content {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+        }
+
+        .image-container {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 160px;
+          height: 160px;
+          background: rgba(255, 255, 255, 0.2);
+          backdrop-filter: blur(10px);
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-radius: 50%;
+          transition: all 0.3s ease;
+          overflow: hidden;
+        }
+
+        .face-image {
+          width: 140px;
+          height: 140px;
+          object-fit: cover;
+          border-radius: 50%;
+          transition: all 0.3s ease;
+        }
+
+        .rating-button:hover .face-image {
+          transform: scale(1.1);
+        }
+
+        .rating-label {
+          font-size: 12px;
+          font-weight: 500;
+          color: white;
+          text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+          text-align: center;
+          line-height: 1.2;
+        }
+
+        .button-container {
+          display: flex;
+          gap: 16px;
+        }
+
+        .cancel-button,
+        .submit-button {
+          flex: 1;
+          padding: 12px 24px;
+          border-radius: 25px;
+          font-size: 16px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .cancel-button {
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: white;
+        }
+
+        .cancel-button:hover {
+          background: rgba(255, 255, 255, 0.15);
+          border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .submit-button {
+          background: rgba(255, 255, 255, 0.2);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          color: white;
+        }
+
+        .submit-button:hover:not(:disabled) {
+          background: rgba(255, 255, 255, 0.3);
+          border-color: rgba(255, 255, 255, 0.5);
+          transform: translateY(-1px);
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .submit-button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      `}</style>
+    </>
   );
 }
