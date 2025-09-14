@@ -2,6 +2,7 @@ import { atom, useAtom } from "jotai";
 import { useEffect } from "react";
 
 // Sample pictures - you can replace these with your own images
+// Configured for exactly 9 pages: Cover + 5 content pages + Back cover
 const pictures = [
   "book-page-1",
   "book-page-2", 
@@ -15,10 +16,7 @@ const pictures = [
   "book-page-10",
   "book-page-11",
   "book-page-12",
-  "book-page-13",
-  "book-page-14",
-  "book-page-15",
-  "book-page-16",
+  "book-page-13"
 ];
 
 // Global state for current page

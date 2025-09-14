@@ -90,27 +90,44 @@ const pageMaterials = [
   }),
 ];
 
-// Preload textures for better performance - commented out to avoid errors with missing files
-// pages.forEach((page) => {
-//   useTexture.preload(`/textures/${page.front}.jpg`);
-//   useTexture.preload(`/textures/${page.back}.jpg`);
-//   useTexture.preload(`/textures/book-cover-roughness.jpg`);
-// });
+// Preload cover page, first page, and back cover textures
+useTexture.preload('/book_pages/cover_page_resized.jpeg');
+useTexture.preload('/book_pages/page_1.png');
+useTexture.preload('/book_pages/back_cover.png');
+// Preload fallback texture for pages without specific images
+useTexture.preload('/book_pages/continued.png');
 
 const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
-  // Create fallback textures instead of loading from files
-  // const [picture, picture2, pictureRoughness] = useTexture([
-  //   `/textures/${front}.jpg`,
-  //   `/textures/${back}.jpg`,
-  //   ...(number === 0 || number === pages.length - 1
-  //     ? [`/textures/book-cover-roughness.jpg`]
-  //     : []),
-  // ]);
-  // picture.colorSpace = picture2.colorSpace = SRGBColorSpace;
+  // Load cover page texture for the first page (cover)
+  const coverTexture = number === 0 ? useTexture('/book_pages/cover_page_resized.jpeg') : null;
+  if (coverTexture) {
+    coverTexture.colorSpace = SRGBColorSpace;
+  }
   
-  // Use solid colors instead of textures for now
-  const picture = null;
-  const picture2 = null;
+  // Load page_1.png texture for the left side of the first spread (back of cover)
+  const page1Texture = number === 0 ? useTexture('/book_pages/page_1.png') : null;
+  if (page1Texture) {
+    page1Texture.colorSpace = SRGBColorSpace;
+  }
+  
+  // Load back cover texture for the last page (back cover)
+  const backCoverTexture = number === pages.length - 1 ? useTexture('/book_pages/back_cover.png') : null;
+  if (backCoverTexture) {
+    backCoverTexture.colorSpace = SRGBColorSpace;
+  }
+  
+  // Fallback texture used when a page does not have a dedicated image
+  const continuedTexture = useTexture('/book_pages/continued.png');
+  if (continuedTexture) {
+    continuedTexture.colorSpace = SRGBColorSpace;
+  }
+  
+  // Determine textures for this page surfaces
+  // - Front (material[4]): cover image on page 0
+  // - Back  (material[5]): page_1.png on page 0, back cover image on last page
+  //   For all other pages without images, use the continued.png fallback
+  const frontTexture = number === 0 ? coverTexture : continuedTexture;
+  const backTexture = number === 0 ? page1Texture : (number === pages.length - 1 ? backCoverTexture : continuedTexture);
   const pictureRoughness = null;
   
   const group = useRef();
@@ -137,7 +154,7 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
     }
     const skeleton = new Skeleton(bones);
 
-    // Create materials for page surfaces with solid colors
+    // Create materials for page surfaces
     const pageColors = [
       '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', 
       '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F',
@@ -145,20 +162,25 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
       '#F1948A', '#AED6F1', '#A9DFBF', '#F9E79F'
     ];
     
-    const frontColor = number === 0 ? '#2C3E50' : pageColors[number % pageColors.length];
-    const backColor = number === pages.length - 1 ? '#34495E' : pageColors[(number + 1) % pageColors.length];
+    // If a texture is present, keep material color white to avoid tinting
+    const hasFrontTexture = !!frontTexture;
+    const hasBackTexture = !!backTexture;
+    const frontColor = hasFrontTexture ? 'white' : pageColors[number % pageColors.length];
+    const backColor = hasBackTexture ? 'white' : pageColors[(number + 1) % pageColors.length];
     
     const materials = [
       ...pageMaterials,
       new MeshStandardMaterial({
+        map: frontTexture, // Cover texture on page 0
         color: frontColor,
-        roughness: number === 0 ? 0.8 : 0.1,
+        roughness: frontTexture ? 0.8 : 0.1,
         emissive: emissiveColor,
         emissiveIntensity: 0,
       }),
       new MeshStandardMaterial({
+        map: backTexture, // page_1.png on back of cover (left side), back cover on last page
         color: backColor,
-        roughness: number === pages.length - 1 ? 0.8 : 0.1,
+        roughness: backTexture ? 0.8 : 0.1,
         emissive: emissiveColor,
         emissiveIntensity: 0,
       }),
