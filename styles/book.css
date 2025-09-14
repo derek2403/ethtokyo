@@ -1,0 +1,103 @@
+/* Book slider specific styles */
+.outline-text {
+  -webkit-text-stroke: 2px white;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Horizontal scrolling animations */
+@keyframes horizontal-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes horizontal-scroll-2 {
+  0% {
+    transform: translateX(50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.animate-horizontal-scroll {
+  animation: horizontal-scroll 20s linear infinite;
+}
+
+.animate-horizontal-scroll-2 {
+  animation: horizontal-scroll-2 20s linear infinite;
+}
+
+/* Large text sizing */
+.text-8xl {
+  font-size: 6rem;
+  line-height: 1;
+}
+
+.text-9xl {
+  font-size: 8rem;
+  line-height: 1;
+}
+
+.text-10xl {
+  font-size: 10rem;
+  line-height: 1;
+}
+
+.text-12xl {
+  font-size: 12rem;
+  line-height: 1;
+}
+
+.text-13xl {
+  font-size: 14rem;
+  line-height: 1;
+}
+
+/* Responsive text scaling */
+@media (max-width: 768px) {
+  .text-8xl {
+    font-size: 3rem;
+  }
+  .text-9xl {
+    font-size: 4rem;
+  }
+  .text-10xl {
+    font-size: 5rem;
+  }
+  .text-12xl {
+    font-size: 6rem;
+  }
+  .text-13xl {
+    font-size: 7rem;
+  }
+}
+
+/* Canvas container styling */
+#book-canvas-root,
+#book-canvas-root > canvas {
+  position: fixed;
+  inset: 0;
+}
+
+#book-canvas-root > canvas {
+  width: 100vw !important;
+  height: 100vh !important;
+  display: block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  z-index: 0;
+}
+
+/* Button hover effects */
+.book-nav-button {
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.book-nav-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}

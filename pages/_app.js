@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import "../styles/manga.css"; // ✅ keep your manga.css
 import { PrivyProvider } from "@privy-io/react-auth";
 import { jscKaiganTestnet } from "@/lib/chains";
 
@@ -14,7 +15,11 @@ export default function App({ Component, pageProps }) {
       );
     }
     // Render without PrivyProvider to avoid initialization error
-    return <Component {...pageProps} />;
+    return (
+      <div className="dark">
+        <Component {...pageProps} />
+      </div>
+    );
   }
 
   if (!PRIVY_APP_ID.startsWith("app_")) {
@@ -76,7 +81,9 @@ export default function App({ Component, pageProps }) {
         }
       }}
     >
-      <Component {...pageProps} />
+      <div className="dark">
+        <Component {...pageProps} />
+      </div>
     </PrivyProvider>
   );
 }
