@@ -80,7 +80,7 @@ export default function LandingPage() {
           {/* Manifesto Button */}
           <div className="manifesto-container">
             <button className="manifesto-button">
-              Start now
+              Get started
             </button>
           </div>
         </div>
@@ -166,12 +166,12 @@ export default function LandingPage() {
 
         .landingpage-title {
           font-size: clamp(3rem, 8vw, 6rem);
-          font-weight: 300;
+          font-weight: 700;
           color: white;
           margin: 0;
           font-style: italic;
           letter-spacing: -2px;
-          text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+          text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.6);
         }
 
         .trademark {
@@ -204,8 +204,8 @@ export default function LandingPage() {
 
         .input-container:focus-within {
           background: rgba(255, 255, 255, 0.2);
-          border-color: rgba(255, 255, 255, 0.4);
-          box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.6);
+          box-shadow: 0 0 24px rgba(255, 255, 255, 0.18);
         }
 
         .email-input {
@@ -260,11 +260,11 @@ export default function LandingPage() {
         }
 
         .landingpage-description p {
-          font-size: 18px;
+          font-size: 20px;
           line-height: 1.6;
-          color: rgba(255, 255, 255, 0.9);
+          color: #fff;
           margin: 0;
-          text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+          text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
         }
 
         .manifesto-container {
@@ -272,6 +272,7 @@ export default function LandingPage() {
         }
 
         .manifesto-button {
+          font-weight: 600;
           background: rgba(255, 255, 255, 0.15);
           backdrop-filter: blur(10px);
           border: 1px solid rgba(255, 255, 255, 0.2);
@@ -285,6 +286,7 @@ export default function LandingPage() {
         }
 
         .manifesto-button:hover {
+          border-color: rgba(255, 255, 255, 0.6);
           background: rgba(255, 255, 255, 0.2);
           transform: translateY(-2px);
           box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
