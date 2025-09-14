@@ -104,10 +104,10 @@ export async function spawnBoy(scene, opts = {}) {
 
   console.log("[boy] loading idle model (as base)...");
   let base = await loadFBX("/model/boy/Idle.fbx");
-  // Some animation FBX files may not include a skinned mesh. Fallback to base.fbx.
+  // Some animation FBX files may not include a skinned mesh. Fallback to base_basic_shaded.fbx.
   if (!hasAnyMesh(base)) {
-    console.warn("[boy] Idle.fbx contains no meshes; falling back to base.fbx");
-    base = await loadFBX("/model/boy/base.fbx");
+    console.warn("[boy] Idle.fbx contains no meshes; falling back to base_basic_shaded.fbx");
+    base = await loadFBX("/model/boy/base_basic_shaded.fbx");
   }
   boyModel = base; // mesh (and possibly idle animation)
   setShadowAndSkinning(boyModel);
@@ -131,13 +131,23 @@ export async function spawnBoy(scene, opts = {}) {
   if (boyModel.animations && boyModel.animations.length) {
     const idleClip = boyModel.animations[0];
     boyActions.idle = boyMixer.clipAction(idleClip, boyModel);
+    console.log("[boy] idle animation loaded from Idle.fbx");
   }
   await loadAnim("walk", "/model/boy/Walking.fbx");
   await loadAnim("startWalking", "/model/boy/Start Walking.fbx");
 
-  // Default state
-  if (boyActions.idle || boyActions.walk || boyActions.startWalking) {
-    fadeTo(boyActions.idle ? "idle" : boyActions.walk ? "walk" : "startWalking");
+  // Default state - prioritize idle animation
+  if (boyActions.idle) {
+    console.log("[boy] setting idle as default animation");
+    fadeTo("idle");
+  } else if (boyActions.walk) {
+    console.log("[boy] no idle animation found, falling back to walk");
+    fadeTo("walk");
+  } else if (boyActions.startWalking) {
+    console.log("[boy] no idle or walk animation found, falling back to startWalking");
+    fadeTo("startWalking");
+  } else {
+    console.warn("[boy] no animations available");
   }
 
   boyLoaded = true;
