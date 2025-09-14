@@ -4,7 +4,7 @@
 
 An AI-driven mental healthcare assistant securely operating with privacy and confidentiality within a TEE, leveraging Gensyn’s swarm to adaptively learn about each patient and provide personalized, context-aware guidance—all accessible via Japan Smart Chain's smart contract subscription.
 
-Check out the live demo of **Cure Me Baby**:  👉 [Click here to try it out](https://e6df18cd50509713f55d4a9091642db764e3ff31-3000.dstack-prod5.phala.network/)
+Check out the live demo of **Cure Me Baby**:  👉 [Click here to try it out]()
 
 ---
 
@@ -16,8 +16,11 @@ We thought:
 > *"So many lives are lost in silence. What if reaching out for help felt safe, judgment-free, and confidential?"*
 
 This exploration led us to design a platform that is not only accessible and adaptive but also offers rock-solid confidentiality. Our research and real-life stories revealed that:
+
 	•	Privacy concerns stop many from seeking digital mental health support.
+ 
 	•	Stigma makes people hide their struggles rather than reach out.
+ 
 	•	Traditional tools often feel cold, one-size-fits-all, or overwhelming.
 
 By combining **confidential computing**, **decentralized AI learning**, and **gamified engagement**, we realized we could reimagine how mental wellness support is delivered—making it safe, adaptive, and even empowering.
@@ -26,6 +29,8 @@ By combining **confidential computing**, **decentralized AI learning**, and **ga
 
 
 ## The Problem🚧
+
+In many Asian societies especially Japan, cultural stigmas associated with mental health often discourage individuals from seeking professional psychiatric help. The perception that visiting a psychiatrist is unusual or "weird" can lead to profound social pressure, causing people to avoid in-person consultations even when they may be struggling with mental health issues. In addition, there is a deep-seated concern about confidentiality as users fear that their private issues may not remain secure in traditional treatment settings. This combination of social stigma and privacy fears creates a significant barrier, leading to unmet mental health needs within these communities.
 
 ---
 
@@ -49,7 +54,7 @@ To address this gap, we have built an AI-driven mental healthcare assistant (psy
 
 ### 1. User Onboarding & Subscription
 - **Login with Privy Wallet:** Users start by logging in using Privy wallet.
-- **Subscription Payment:** Upon login, users pay 0.001 JETH via a smart contract that records their subscription. Renewals are as simple as making another payment, ensuring continuous access month-to-month.
+- **Subscription Payment:** Upon login, users pay 0.0001 JETH via a smart contract that records their subscription. Renewals are as simple as making another payment, ensuring continuous access month-to-month.
 
 ### 2. Personalized Mental Health Interaction
 - **AI-Powered Conversations:** Once authenticated, users interact with our AI psychiatrist—powered by a robust Large Language Model (LLM)—to discuss their challenges and receive empathetic guidance.
@@ -77,7 +82,7 @@ To address this gap, we have built an AI-driven mental healthcare assistant (psy
 
 ## System Architecture High-Level Overview🏗️
 
-![Logo]()
+![Logo](https://github.com/derek2403/ethtokyo/blob/main/public/TokuKaiganArchitecture.png?raw=true)
 
 ### 1. User Onboarding & Subscription
 
@@ -86,7 +91,7 @@ To address this gap, we have built an AI-driven mental healthcare assistant (psy
 
 - **Smart Contract-Based Subscription:**  
   The subscription process is executed through a Japan Smart Chain smart contract:
-  - Users pay 0.001 JETH to subscribe.
+  - Users pay 0.0001 JETH to subscribe.
   - The contract records the payment and activates the subscription.
   - Monthly renewals are handled in the same way, ensuring continuous access.
 
@@ -159,12 +164,80 @@ To address this gap, we have built an AI-driven mental healthcare assistant (psy
 ---
 
 ## How to Run This Project 🚀
+
+### Prerequisites
+- Node.js (v14+ recommended)
+- A valid `.env` file in the project root containing all required API keys and configuration settings
+
+### Installation Steps
+
+1. git clone https://github.com/derek2403/ethtokyo.git
+2. cd ethtokyo
+3. npm install --legacy-peer-deps
+4. npm run dev
+
+
+
 ---
+
+
 
 ## Important Code Directories 📂
+
+Here's a quick reference to the major directories and files in this project, along with their purposes:
+
+- **`components/`**  
+  Contains reusable UI elements and other modular building blocks for the front end.
+
+- **`lib/`**  
+  Houses various custom React Hooks, including functions that interact with the Japan Smart Chain smart contracts and perform other utility tasks.
+
+- **`pages/`**  
+  All Next.js pages (routes) and their respective components live here, defining the user-facing interface and navigation.
+
+  - **`rl-swarm/`**  
+  Holds the code for the Gensyn Swarm implementation, where reinforcement learning logic is managed and models can collaboratively refine mental health guidance.
+
+  - **`prompt_engineering/`**  
+  Holds all the prompts for the 3 LLM in the swarm
+
+- **`smartcontract/`**  
+  Japan Smart Chain smart contract source code for handling subscription payments (0.0001 JETH/month) and other on-chain functionalities.
+
+
+
 ---
 
-## Future Implementations 🚀
+
+## Sponsor Integration & Technical Contributions
+
+Our solution leverages cutting-edge services from three strategic partners to deliver a robust, adaptive, and secure mental healthcare experience:
+
+### Japan Smart Chain
+
+Explorer link to the SBT Token: 
+Explorer link to the Smart Contract:
+
+---
+
+## Proof of Gamification: Why It Matters 💪
+
+Recent research has provided solid evidence that integrating gamification into mental health apps can significantly improve user engagement, retention, and ultimately mental wellness. For example:
+
+- **Enhanced Engagement & Resilience:**  
+  A large-scale randomized controlled trial of the gamified app *eQuoo* demonstrated that game-inspired elements—such as progress feedback, narrative challenges, and rewards—led to notable improvements in resilience and reduced symptoms of depression and anxiety among students.  
+  [Read the eQuoo study](https://mental.jmir.org/2023/1/e47285)
+
+- **Systematic Review Insights:**  
+  A systematic review on gamification in mental health apps outlines that key gamification elements (e.g., levels, rewards, and personalized feedback) are closely associated with better mental health outcomes and sustained user participation. This research highlights that gamification is not merely for entertainment but serves as a robust mechanism to motivate behavioral change and promote long-term engagement.  
+  [View the systematic review](https://www.researchgate.net/publication/333473768_Gamification_in_Apps_and_Technologies_for_Improving_Mental_Health_and_Well-Being_A_Systematic_Review)
+
+- **User Perspectives on Health Tracking:**  
+  Qualitative analyses of user reviews for depression self-management apps reveal that visual feedback (like timelines or memory snapshots) and gamified tracking features provide users with tangible evidence of their progress. These features help boost self-awareness, making users feel more in control of their mental health journey.  
+  [See insights from user reviews](https://www.researchgate.net/publication/362539161_Health_tracking_via_mobile_apps_for_depression_self-management_a_qualitative_content_analysis_of_user_reviews)
+
+Together, these studies underscore that gamification is not just an add-on but a fundamental aspect in enhancing the effectiveness of digital mental health interventions. It drives both initial engagement and continuous usage, making it a key ingredient for improving mental health outcomes.
+
 ---
 
 
