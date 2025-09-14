@@ -1,0 +1,1586 @@
+
+
+# New Session 2025-04-13 01:22:43
+
+INFO:root:Starting complete log recording to supervisor_content.txt
+INFO:hivemind_exp.runner.grpo_runner:🤖 Starting swarm at /ip4/127.0.0.1/tcp/53451/p2p/QmWJnAG64Y3Ftf1inoZuvvVPtQNSJH7EuuRiQKwc4t92qE
+INFO:hivemind_exp.runner.grpo_runner:🐱 Hello 🐈 [dormant noisy eel] 🦮 [QmWJnAG64Y3Ftf1inoZuvvVPtQNSJH7EuuRiQKwc4t92qE]!
+# All Therapist Responses
+
+<therapist_answer id="0" entry="1">
+I understand you're sharing about hi i wnat to kill myself... Let me help you with this situation.
+</therapist_answer>
+
+--------------------------------------------------------------------------------
+
+<therapist_answer id="1" entry="2">
+I understand you're sharing about hi i wnat to kill myself... Let me help you with this situation.
+</therapist_answer>
+
+--------------------------------------------------------------------------------
+
+# All Supervisor Feedback from Simulation
+
+<supervisor id="0" entry="1">
+After reviewing the therapeutic responses:
+**Clinical Evaluation**
+The therapist establishes good rapport and uses evidence-based techniques. Their response addresses the client's concern about "hi i wnat to kill myself...".
+
+This approach aligns with best practices in therapeutic intervention for this type of situation.
+
+</supervisor>
+
+<supervisor id="1" entry="2">
+After reviewing the therapeutic responses:
+**Clinical Evaluation**
+The therapist establishes good rapport and uses evidence-based techniques. Their response addresses the client's concern about "hi i wnat to kill myself...".
+
+This approach aligns with best practices in therapeutic intervention for this type of situation.
+
+</supervisor>
+
+INFO:hivemind_exp.runner.grpo_runner:Starting training 2025-04-13 01:23:02 for 3.0 epochs
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:🤖 Starting new round: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: hi i wnat to kill myself
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 18.1029
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.11
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.055
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: -1.5278686302244715e-11
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: hi i wnat to kill myself
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:agent_answers: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: The client concern we received is: hi i wnat to kill myself  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+It is understandable to feel this way. It's important to talk about these feelings or thoughts with someone you trust, such as a counselor or a mental health professional who can guide you in creating a safe and supportive environment to discuss your thoughts and feelings. 
+
+However, it's important to remember that these thoughts and feelings are just that - feelings. They do not define you or your identity, and there is nothing to be ashamed of for recognizing when something is triggering you. It's okay to express them - this is normal human emotion - but it's important to recognize that this alone is not enough to deal with the underlying mental health challenges. 
+
+If this is something causing you distress or that is affecting your daily life, it might be beneficial to reach out to a professional for further guidance. Think about the things that are driving your behavior, and use this information as a starting point for a plan of action.
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 26.8709
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.074
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.037
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: -1.1813284725437079e-11
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:stage2_prompt: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:agent_opinion: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 2
+# All Therapist Responses from Full Stage
+
+# All Supervisor Feedback
+
+<supervisor id="0" entry="3">
+Therapist #0 (Therapist's name)
+
+Therapeutic response: 
+
+1. It is understandable to feel this way. It's important to talk about these feelings or thoughts with someone you trust, such as a counselor or a mental health professional who can guide you in creating a safe and supportive environment to discuss your thoughts and feelings.
+
+2. It's important to remember that these thoughts and feelings are just that - feelings. They do not define you or your identity, and there is nothing to be ashamed of for recognizing when something is triggering you. It's okay to express them - this is normal human emotion - but it's important to recognize that this alone is not enough to deal with the underlying mental health challenges. 
+
+3. If this is something causing you distress or that is affecting your daily life, it might be beneficial to reach out to a professional for further guidance. Think about the things that are driving your behavior, and use this information as a starting point for a plan of action.
+
+Note: If the client is not willing to seek help or if there is a conflict between the two therapeutic responses, it might not be possible to work with the client. If you are unsure or if the client is not receptive, you might need to consider using other resources such as counseling or therapy with a psychiatrist.
+</supervisor>
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: The client concern we received is: hi i wnat to kill myself  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+It is understandable to feel this way. It's important to talk about these feelings or thoughts with someone you trust, such as a counselor or a mental health professional who can guide you in creating a safe and supportive environment to discuss your thoughts and feelings. 
+
+However, it's important to remember that these thoughts and feelings are just that - feelings. They do not define you or your identity, and there is nothing to be ashamed of for recognizing when something is triggering you. It's okay to express them - this is normal human emotion - but it's important to recognize that this alone is not enough to deal with the underlying mental health challenges. 
+
+If this is something causing you distress or that is affecting your daily life, it might be beneficial to reach out to a professional for further guidance. Think about the things that are driving your behavior, and use this information as a starting point for a plan of action.
+
+
+  
+After comparing these therapeutic responses, the following supervision feedback was provided: 
+<supervisor>Supervisor #0</supervisor> provided 
+Therapist #0 (Therapist's name)
+
+Therapeutic response: 
+
+1. It is understandable to feel this way. It's important to talk about these feelings or thoughts with someone you trust, such as a counselor or a mental health professional who can guide you in creating a safe and supportive environment to discuss your thoughts and feelings.
+
+2. It's important to remember that these thoughts and feelings are just that - feelings. They do not define you or your identity, and there is nothing to be ashamed of for recognizing when something is triggering you. It's okay to express them - this is normal human emotion - but it's important to recognize that this alone is not enough to deal with the underlying mental health challenges. 
+
+3. If this is something causing you distress or that is affecting your daily life, it might be beneficial to reach out to a professional for further guidance. Think about the things that are driving your behavior, and use this information as a starting point for a plan of action.
+
+Note: If the client is not willing to seek help or if there is a conflict between the two therapeutic responses, it might not be possible to work with the client. If you are unsure or if the client is not receptive, you might need to consider using other resources such as counseling or therapy with a psychiatrist.
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 18.3598
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.109
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.054
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: 5.960464477539063e-08
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:stage3_prompt: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:final_agent_decision: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 2
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL SUMMARY OF ALL STAGES
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 0 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:CLIENT QUESTION:
+hi i wnat to kill myself
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 1 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 2 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:END OF TRAINING SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+
+
+# Complete Round Cache Data
+
+
+# Detailed Model Responses
+
+
+
+# New Session 2025-04-13 01:24:38
+
+INFO:root:Starting complete log recording to supervisor_content.txt
+INFO:hivemind_exp.runner.grpo_runner:🤖 Starting swarm at /ip4/127.0.0.1/tcp/53465/p2p/QmWJnAG64Y3Ftf1inoZuvvVPtQNSJH7EuuRiQKwc4t92qE
+INFO:hivemind_exp.runner.grpo_runner:🐱 Hello 🐈 [dormant noisy eel] 🦮 [QmWJnAG64Y3Ftf1inoZuvvVPtQNSJH7EuuRiQKwc4t92qE]!
+# All Therapist Responses
+
+<therapist_answer id="0" entry="3">
+I understand you're sharing about hi i love someone but i dont d... Let me help you with this situation.
+</therapist_answer>
+
+--------------------------------------------------------------------------------
+
+<therapist_answer id="1" entry="4">
+I understand you're sharing about hi i love someone but i dont d... Let me help you with this situation.
+</therapist_answer>
+
+--------------------------------------------------------------------------------
+
+# All Supervisor Feedback from Simulation
+
+<supervisor id="0" entry="4">
+After reviewing the therapeutic responses:
+**Clinical Evaluation**
+The therapist establishes good rapport and uses evidence-based techniques. Their response addresses the client's concern about "hi i love someone but i dont d...".
+
+This approach aligns with best practices in therapeutic intervention for this type of situation.
+
+</supervisor>
+
+<supervisor id="1" entry="5">
+After reviewing the therapeutic responses:
+**Clinical Evaluation**
+The therapist establishes good rapport and uses evidence-based techniques. Their response addresses the client's concern about "hi i love someone but i dont d...".
+
+This approach aligns with best practices in therapeutic intervention for this type of situation.
+
+</supervisor>
+
+INFO:hivemind_exp.runner.grpo_runner:Starting training 2025-04-13 01:25:24 for 3.0 epochs
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:🤖 Starting new round: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: hi i love someone but i dont dare to tell her how should i do it it drives me crazy
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 26.4869
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.076
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.038
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: -1.637443999835675e-11
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: hi i love someone but i dont dare to tell her how should i do it it drives me crazy
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:agent_answers: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: The client concern we received is: hi i love someone but i dont dare to tell her how should i do it it drives me crazy  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+It sounds like you may be struggling with a variety of issues, including feelings of unease and uncertainty about telling someone you love them. It's important that you take this situation seriously and explore all options to ensure that you are making the right decisions.
+
+Firstly, consider discussing your feelings and thoughts with someone you trust, such as a friend, family member, or counselor. Sharing your feelings openly and honestly can provide valuable insights and support that can help you navigate your emotions and make the right decision.
+
+Additionally, consider seeking support from professionals such as a therapist or counselor who can help you explore different options and provide guidance on how to express your feelings.
+
+Ultimately, it's important to approach this situation with open and honest communication, and to take the time you need to process your feelings before proceeding with any decisions. It may take time and patience to find the answer that works best for you, and it's okay to ask for help when you need it.
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 15.7755
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.127
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.063
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: -8.978302476481126e-12
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:stage2_prompt: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:agent_opinion: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 2
+# All Therapist Responses from Full Stage
+
+# All Supervisor Feedback
+
+<supervisor id="0" entry="6">
+Therapist #0 (Therapist's response)
+
+Therapy can be a powerful tool to work through complex emotions and emotions that are overwhelming or distressing. It's important to note that you are in control of your own feelings and that it's okay to feel confused and unsure.
+
+Therapy can provide emotional support, guidance, and the opportunity to explore your feelings and provide insights and suggestions to help you make the right decision. Therapists can help you manage stress, anxiety, and confusion, and can provide tools and techniques to help you think more clearly about your feelings and where to go next.
+
+Before taking any steps toward dealing with this situation, it's important that you take time to be honest and open about how you're feeling. It may be helpful to talk to a trusted friend, family member, or counselor who can listen to your feelings and provide non-judgmental support.
+
+Remember, therapy is a process, and it's not always about finding the answer to your questions immediately. It's important to approach the process with curiosity and a willingness to learn from the therapist's guidance.
+</supervisor>
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: The client concern we received is: hi i love someone but i dont dare to tell her how should i do it it drives me crazy  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+It sounds like you may be struggling with a variety of issues, including feelings of unease and uncertainty about telling someone you love them. It's important that you take this situation seriously and explore all options to ensure that you are making the right decisions.
+
+Firstly, consider discussing your feelings and thoughts with someone you trust, such as a friend, family member, or counselor. Sharing your feelings openly and honestly can provide valuable insights and support that can help you navigate your emotions and make the right decision.
+
+Additionally, consider seeking support from professionals such as a therapist or counselor who can help you explore different options and provide guidance on how to express your feelings.
+
+Ultimately, it's important to approach this situation with open and honest communication, and to take the time you need to process your feelings before proceeding with any decisions. It may take time and patience to find the answer that works best for you, and it's okay to ask for help when you need it.
+
+
+  
+After comparing these therapeutic responses, the following supervision feedback was provided: 
+<supervisor>Supervisor #0</supervisor> provided 
+Therapist #0 (Therapist's response)
+
+Therapy can be a powerful tool to work through complex emotions and emotions that are overwhelming or distressing. It's important to note that you are in control of your own feelings and that it's okay to feel confused and unsure.
+
+Therapy can provide emotional support, guidance, and the opportunity to explore your feelings and provide insights and suggestions to help you make the right decision. Therapists can help you manage stress, anxiety, and confusion, and can provide tools and techniques to help you think more clearly about your feelings and where to go next.
+
+Before taking any steps toward dealing with this situation, it's important that you take time to be honest and open about how you're feeling. It may be helpful to talk to a trusted friend, family member, or counselor who can listen to your feelings and provide non-judgmental support.
+
+Remember, therapy is a process, and it's not always about finding the answer to your questions immediately. It's important to approach the process with curiosity and a willingness to learn from the therapist's guidance.
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 16.393
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.122
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.061
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:stage3_prompt: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:final_agent_decision: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 2
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL SUMMARY OF ALL STAGES
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 0 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:CLIENT QUESTION:
+hi i love someone but i dont dare to tell her how should i do it it drives me crazy
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 1 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 2 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:END OF TRAINING SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+
+
+# Complete Round Cache Data
+
+
+# Detailed Model Responses
+
+
+
+# New Session 2025-04-13 04:08:35
+
+INFO:root:Starting complete log recording to supervisor_content.txt
+INFO:hivemind_exp.runner.grpo_runner:🤖 Starting swarm at /ip4/127.0.0.1/tcp/56083/p2p/QmWJnAG64Y3Ftf1inoZuvvVPtQNSJH7EuuRiQKwc4t92qE
+INFO:hivemind_exp.runner.grpo_runner:🐱 Hello 🐈 [dormant noisy eel] 🦮 [QmWJnAG64Y3Ftf1inoZuvvVPtQNSJH7EuuRiQKwc4t92qE]!
+
+
+# New Session 2025-04-13 04:11:30
+
+INFO:root:Starting complete log recording to supervisor_content.txt
+INFO:hivemind_exp.runner.grpo_runner:🤖 Starting swarm at /ip4/127.0.0.1/tcp/56130/p2p/QmWJnAG64Y3Ftf1inoZuvvVPtQNSJH7EuuRiQKwc4t92qE
+INFO:hivemind_exp.runner.grpo_runner:🐱 Hello 🐈 [dormant noisy eel] 🦮 [QmWJnAG64Y3Ftf1inoZuvvVPtQNSJH7EuuRiQKwc4t92qE]!
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+INFO:hivemind_exp.runner.grpo_runner:Starting training 2025-04-13 04:11:32 for 3.0 epochs
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:🤖 Starting new round: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: hi
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 26.3982
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.076
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.038
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: -1.1920929521291868e-11
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 3
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: hi
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:agent_answers: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 50.9171
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.039
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.02
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: -2.9802322387695312e-08
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:stage2_prompt: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:agent_opinion: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 2
+# All Therapist Responses from Full Stage
+
+# All Supervisor Feedback
+
+<supervisor id="0" entry="7">
+<compare>
+Comparison of therapeutic responses provided by both therapists
+</compare>
+<explain>
+Therapist 1 used a warm and non-judgmental approach to connect with the client. The response was positive and empathetic, which was helpful in alleviating the client's feelings of isolation. However, the response was not specific enough to address the specific concerns of the client.
+Therapist 2 provided a different approach, using established therapeutic approaches such as Cognitive Behavioral Therapy (CBT) and Solution-Focused Brief Therapy (SFBT). These approaches have been proven to be effective in managing a range of mental health concerns. While the therapist's response may not have been 100% specific, it provided a practical, actionable strategy that the client could implement.
+Therapist 0's response was not detailed enough; it was not clear what specific strategies or approaches the therapist offered.
+</supervisor>
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+  
+After comparing these therapeutic responses, the following supervision feedback was provided: 
+<supervisor>Supervisor #0</supervisor> provided 
+<compare>
+Comparison of therapeutic responses provided by both therapists
+</compare>
+<explain>
+Therapist 1 used a warm and non-judgmental approach to connect with the client. The response was positive and empathetic, which was helpful in alleviating the client's feelings of isolation. However, the response was not specific enough to address the specific concerns of the client.
+Therapist 2 provided a different approach, using established therapeutic approaches such as Cognitive Behavioral Therapy (CBT) and Solution-Focused Brief Therapy (SFBT). These approaches have been proven to be effective in managing a range of mental health concerns. While the therapist's response may not have been 100% specific, it provided a practical, actionable strategy that the client could implement.
+Therapist 0's response was not detailed enough; it was not clear what specific strategies or approaches the therapist offered.
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 16.935
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.118
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.059
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: 8.940696716308594e-08
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:stage3_prompt: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:final_agent_decision: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 2
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL SUMMARY OF ALL STAGES
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 0 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:CLIENT QUESTION:
+hi
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 1 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 2 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:END OF TRAINING SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+
+
+# Complete Round Cache Data
+
+
+# Detailed Model Responses
+
+
+
+# New Session 2025-04-13 04:19:18
+
+INFO:root:Starting complete log recording to supervisor_content.txt
+INFO:hivemind_exp.runner.grpo_runner:🤖 Starting swarm at /ip4/127.0.0.1/tcp/56171/p2p/QmWJnAG64Y3Ftf1inoZuvvVPtQNSJH7EuuRiQKwc4t92qE
+INFO:hivemind_exp.runner.grpo_runner:🐱 Hello 🐈 [dormant noisy eel] 🦮 [QmWJnAG64Y3Ftf1inoZuvvVPtQNSJH7EuuRiQKwc4t92qE]!
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+INFO:hivemind_exp.runner.grpo_runner:Starting training 2025-04-13 04:19:20 for 3.0 epochs
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:🤖 Starting new round: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: hi
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 7.787
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.257
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.128
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: -1.1920929521291868e-11
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 3
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: hi
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:agent_answers: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 18.2316
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.11
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.055
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: -2.9802322387695312e-08
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:stage2_prompt: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:agent_opinion: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 2
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+  
+After comparing these therapeutic responses, the following supervision feedback was provided: 
+<supervisor>Supervisor #0</supervisor> provided 
+<compare>
+Comparison of therapeutic responses provided by both therapists
+</compare>
+<explain>
+Therapist 1 used a warm and non-judgmental approach to connect with the client. The response was positive and empathetic, which was helpful in alleviating the client's feelings of isolation. However, the response was not specific enough to address the specific concerns of the client.
+Therapist 2 provided a different approach, using established therapeutic approaches such as Cognitive Behavioral Therapy (CBT) and Solution-Focused Brief Therapy (SFBT). These approaches have been proven to be effective in managing a range of mental health concerns. While the therapist's response may not have been 100% specific, it provided a practical, actionable strategy that the client could implement.
+Therapist 0's response was not detailed enough; it was not clear what specific strategies or approaches the therapist offered.
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 8.2845
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.241
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.121
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: 8.940696716308594e-08
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:stage3_prompt: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:final_agent_decision: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 2
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL SUMMARY OF ALL STAGES
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 0 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:CLIENT QUESTION:
+hi
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 1 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 2 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:END OF TRAINING SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+
+
+# Complete Round Cache Data
+
+
+# Detailed Model Responses
+
+
+
+# New Session 2025-04-13 04:32:55
+
+INFO:root:Starting complete log recording to supervisor_content.txt
+INFO:hivemind_exp.runner.grpo_runner:🤖 Starting swarm at /ip4/127.0.0.1/tcp/56301/p2p/QmWJnAG64Y3Ftf1inoZuvvVPtQNSJH7EuuRiQKwc4t92qE
+INFO:hivemind_exp.runner.grpo_runner:🐱 Hello 🐈 [dormant noisy eel] 🦮 [QmWJnAG64Y3Ftf1inoZuvvVPtQNSJH7EuuRiQKwc4t92qE]!
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+INFO:hivemind_exp.runner.grpo_runner:Starting training 2025-04-13 04:32:57 for 3.0 epochs
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:🤖 Starting new round: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: hi
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 10.8118
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.185
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.092
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: -1.1920929521291868e-11
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 3
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: hi
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:agent_answers: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 17.0957
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.117
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.058
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: -2.9802322387695312e-08
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:stage2_prompt: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:agent_opinion: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 2
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+  
+After comparing these therapeutic responses, the following supervision feedback was provided: 
+<supervisor>Supervisor #0</supervisor> provided 
+<compare>
+Comparison of therapeutic responses provided by both therapists
+</compare>
+<explain>
+Therapist 1 used a warm and non-judgmental approach to connect with the client. The response was positive and empathetic, which was helpful in alleviating the client's feelings of isolation. However, the response was not specific enough to address the specific concerns of the client.
+Therapist 2 provided a different approach, using established therapeutic approaches such as Cognitive Behavioral Therapy (CBT) and Solution-Focused Brief Therapy (SFBT). These approaches have been proven to be effective in managing a range of mental health concerns. While the therapist's response may not have been 100% specific, it provided a practical, actionable strategy that the client could implement.
+Therapist 0's response was not detailed enough; it was not clear what specific strategies or approaches the therapist offered.
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 23.6315
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.085
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.042
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: 8.940696716308594e-08
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:stage3_prompt: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:final_agent_decision: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 2
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL SUMMARY OF ALL STAGES
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 0 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:CLIENT QUESTION:
+hi
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 1 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 2 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:END OF TRAINING SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+
+
+# Complete Round Cache Data
+
+
+# Detailed Model Responses
+
+
+
+# New Session 2025-04-13 04:57:20
+
+INFO:root:Starting complete log recording to supervisor_content.txt
+INFO:hivemind_exp.runner.grpo_runner:🤖 Starting swarm at /ip4/127.0.0.1/tcp/56505/p2p/QmWJnAG64Y3Ftf1inoZuvvVPtQNSJH7EuuRiQKwc4t92qE
+INFO:hivemind_exp.runner.grpo_runner:🐱 Hello 🐈 [dormant noisy eel] 🦮 [QmWJnAG64Y3Ftf1inoZuvvVPtQNSJH7EuuRiQKwc4t92qE]!
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+INFO:hivemind_exp.runner.grpo_runner:Starting training 2025-04-13 04:57:22 for 3.0 epochs
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:🤖 Starting new round: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: hi
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 10.306
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.194
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.097
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: -1.1920929521291868e-11
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 3
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: hi
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:agent_answers: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 26.5107
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.075
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.038
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: -2.9802322387695312e-08
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:stage2_prompt: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:agent_opinion: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 2
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+  
+After comparing these therapeutic responses, the following supervision feedback was provided: 
+<supervisor>Supervisor #0</supervisor> provided 
+<compare>
+Comparison of therapeutic responses provided by both therapists
+</compare>
+<explain>
+Therapist 1 used a warm and non-judgmental approach to connect with the client. The response was positive and empathetic, which was helpful in alleviating the client's feelings of isolation. However, the response was not specific enough to address the specific concerns of the client.
+Therapist 2 provided a different approach, using established therapeutic approaches such as Cognitive Behavioral Therapy (CBT) and Solution-Focused Brief Therapy (SFBT). These approaches have been proven to be effective in managing a range of mental health concerns. While the therapist's response may not have been 100% specific, it provided a practical, actionable strategy that the client could implement.
+Therapist 0's response was not detailed enough; it was not clear what specific strategies or approaches the therapist offered.
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 13.6283
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.147
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.073
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: 8.940696716308594e-08
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:stage3_prompt: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:final_agent_decision: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 2
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL SUMMARY OF ALL STAGES
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 0 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:CLIENT QUESTION:
+hi
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 1 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 2 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:END OF TRAINING SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+
+
+# Complete Round Cache Data
+
+
+# Detailed Model Responses
+
+
+
+# New Session 2025-04-13 05:04:13
+
+INFO:root:Starting complete log recording to supervisor_content.txt
+INFO:hivemind_exp.runner.grpo_runner:🤖 Starting swarm at /ip4/127.0.0.1/tcp/56618/p2p/QmWJnAG64Y3Ftf1inoZuvvVPtQNSJH7EuuRiQKwc4t92qE
+INFO:hivemind_exp.runner.grpo_runner:🐱 Hello 🐈 [dormant noisy eel] 🦮 [QmWJnAG64Y3Ftf1inoZuvvVPtQNSJH7EuuRiQKwc4t92qE]!
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+INFO:hivemind_exp.runner.grpo_runner:Starting training 2025-04-13 05:04:16 for 3.0 epochs
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:🤖 Starting new round: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: hi
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 8.2707
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.242
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.121
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: -1.1920929521291868e-11
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 3
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: hi
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:agent_answers: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 21.8355
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.092
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.046
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: -2.9802322387695312e-08
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:stage2_prompt: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:agent_opinion: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 2
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+  
+After comparing these therapeutic responses, the following supervision feedback was provided: 
+<supervisor>Supervisor #0</supervisor> provided 
+<compare>
+Comparison of therapeutic responses provided by both therapists
+</compare>
+<explain>
+Therapist 1 used a warm and non-judgmental approach to connect with the client. The response was positive and empathetic, which was helpful in alleviating the client's feelings of isolation. However, the response was not specific enough to address the specific concerns of the client.
+Therapist 2 provided a different approach, using established therapeutic approaches such as Cognitive Behavioral Therapy (CBT) and Solution-Focused Brief Therapy (SFBT). These approaches have been proven to be effective in managing a range of mental health concerns. While the therapist's response may not have been 100% specific, it provided a practical, actionable strategy that the client could implement.
+Therapist 0's response was not detailed enough; it was not clear what specific strategies or approaches the therapist offered.
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 9.2072
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.217
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.109
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: 8.940696716308594e-08
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:stage3_prompt: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:final_agent_decision: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 2
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL SUMMARY OF ALL STAGES
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 0 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:CLIENT QUESTION:
+hi
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 1 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 2 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:END OF TRAINING SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+
+
+# Complete Round Cache Data
+
+
+# Detailed Model Responses
+
+
+
+# New Session 2025-04-13 05:18:48
+
+INFO:root:Starting complete log recording to supervisor_content.txt
+INFO:hivemind_exp.runner.grpo_runner:🤖 Starting swarm at /ip4/127.0.0.1/tcp/59263/p2p/QmWJnAG64Y3Ftf1inoZuvvVPtQNSJH7EuuRiQKwc4t92qE
+INFO:hivemind_exp.runner.grpo_runner:🐱 Hello 🐈 [dormant noisy eel] 🦮 [QmWJnAG64Y3Ftf1inoZuvvVPtQNSJH7EuuRiQKwc4t92qE]!
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+INFO:hivemind_exp.runner.grpo_runner:Starting training 2025-04-13 05:18:51 for 3.0 epochs
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:🤖 Starting new round: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: hi
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 12.7195
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.157
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.079
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: -1.1920929521291868e-11
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 4
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: hi
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:agent_answers: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 20.0561
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.05
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: -2.9802322387695312e-08
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:stage2_prompt: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:agent_opinion: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 2
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+  
+After comparing these therapeutic responses, the following supervision feedback was provided: 
+<supervisor>Supervisor #0</supervisor> provided 
+<compare>
+Comparison of therapeutic responses provided by both therapists
+</compare>
+<explain>
+Therapist 1 used a warm and non-judgmental approach to connect with the client. The response was positive and empathetic, which was helpful in alleviating the client's feelings of isolation. However, the response was not specific enough to address the specific concerns of the client.
+Therapist 2 provided a different approach, using established therapeutic approaches such as Cognitive Behavioral Therapy (CBT) and Solution-Focused Brief Therapy (SFBT). These approaches have been proven to be effective in managing a range of mental health concerns. While the therapist's response may not have been 100% specific, it provided a practical, actionable strategy that the client could implement.
+Therapist 0's response was not detailed enough; it was not clear what specific strategies or approaches the therapist offered.
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 30.2888
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.066
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.033
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: 8.940696716308594e-08
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:stage3_prompt: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:final_agent_decision: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 2
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL SUMMARY OF ALL STAGES
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 0 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:CLIENT QUESTION:
+hi
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 1 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 2 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:END OF TRAINING SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+
+
+# Complete Round Cache Data
+
+
+# Detailed Model Responses
+
+
+
+# New Session 2025-04-13 05:29:37
+
+INFO:root:Starting complete log recording to supervisor_content.txt
+INFO:hivemind_exp.runner.grpo_runner:🤖 Starting swarm at /ip4/127.0.0.1/tcp/61510/p2p/QmWJnAG64Y3Ftf1inoZuvvVPtQNSJH7EuuRiQKwc4t92qE
+INFO:hivemind_exp.runner.grpo_runner:🐱 Hello 🐈 [dormant noisy eel] 🦮 [QmWJnAG64Y3Ftf1inoZuvvVPtQNSJH7EuuRiQKwc4t92qE]!
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+<supervisor_feedback #1>
+**Supervisor Analysis**
+This is a placeholder for supervisor feedback that will be extracted and recorded.
+</supervisor_feedback>
+
+INFO:hivemind_exp.runner.grpo_runner:Starting training 2025-04-13 05:29:40 for 3.0 epochs
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:🤖 Starting new round: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: hi
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 14.2588
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.14
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.07
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: -1.1920929521291868e-11
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 4
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: hi
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:agent_answers: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 80.3934
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.025
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.012
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: -2.9802322387695312e-08
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:stage2_prompt: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:agent_opinion: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📈 Training round: 0 stage: 2
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Question: The client concern we received is: hi  
+
+The following therapeutic responses were provided: 
+<therapist>Therapist #0</therapist> said 
+Hello! How can I assist you today?
+
+
+  
+After comparing these therapeutic responses, the following supervision feedback was provided: 
+<supervisor>Supervisor #0</supervisor> provided 
+<compare>
+Comparison of therapeutic responses provided by both therapists
+</compare>
+<explain>
+Therapist 1 used a warm and non-judgmental approach to connect with the client. The response was positive and empathetic, which was helpful in alleviating the client's feelings of isolation. However, the response was not specific enough to address the specific concerns of the client.
+Therapist 2 provided a different approach, using established therapeutic approaches such as Cognitive Behavioral Therapy (CBT) and Solution-Focused Brief Therapy (SFBT). These approaches have been proven to be effective in managing a range of mental health concerns. While the therapist's response may not have been 100% specific, it provided a practical, actionable strategy that the client could implement.
+Therapist 0's response was not detailed enough; it was not clear what specific strategies or approaches the therapist offered.
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:--------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:TRAINING RESULTS SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_runtime: 19.6687
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples_per_second: 0.102
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_steps_per_second: 0.051
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:total_flos: 0.0
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_loss: 8.940696716308594e-08
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:train_samples: 1
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL MODEL OUTPUTS
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:------------------------------------------------------------
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:question: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:answer: This is a mental health question
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:stage3_prompt: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:final_agent_decision: [Output too large to display]
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:============================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Saving model
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Model saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:Tokenizer saved to runs/gsm8k/multinode/Qwen2.5-0.5B-Instruct-Gensyn-Swarm-dormant_noisy_eel
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:📉 Finished training round: 0 stage: 2
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:FINAL SUMMARY OF ALL STAGES
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 0 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:CLIENT QUESTION:
+hi
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 1 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:
+
+****************************** STAGE 2 OUTPUT ******************************
+
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:END OF TRAINING SUMMARY
+INFO:hivemind_exp.trainer.hivemind_grpo_trainer:dormant noisy eel:================================================================================
+
+
+# Complete Round Cache Data
+
+
+# Detailed Model Responses
+

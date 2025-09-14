@@ -1,0 +1,29 @@
+services:
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile.webserver
+    environment:
+      - OTEL_SERVICE_NAME=rlswarm-fastapi
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+    ports:
+      - "8080:8000"
+    depends_on:
+      - otel-collector
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/healthz"]
+      interval: 30s
+      retries: 3
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.120.0
+    ports:
+      - "4317:4317"  # OTLP gRPC
+      - "4318:4318"  # OTLP HTTP
+      - "55679:55679"  # Prometheus metrics (optional)
+    environment:
+      - OTEL_LOG_LEVEL=DEBUG
+    healthcheck:
+      test: ["CMD", "grpc_health_probe", "-addr=localhost:4317"]
+      interval: 5s
+      retries: 5
