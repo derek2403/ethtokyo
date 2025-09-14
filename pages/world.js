@@ -20,9 +20,42 @@ export default function HomePage() {
     containerElement.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    // Flat pastel background with no fog
-    scene.background = new THREE.Color(0xbfe6ff);
+    // Replace solid color with a simple gradient sky dome
+    scene.background = null;
     scene.fog = null;
+    const skyGeo = new THREE.SphereGeometry(500, 32, 32);
+    const skyMat = new THREE.ShaderMaterial({
+      side: THREE.BackSide,
+      depthWrite: false,
+      uniforms: {
+        topColor: { value: new THREE.Color(0x87ceeb) }, // sky blue
+        bottomColor: { value: new THREE.Color(0xf0f8ff) }, // alice blue
+      },
+      vertexShader: `
+        varying vec3 vWorldPosition;
+        void main(){
+          vec4 p = modelMatrix * vec4(position, 1.0);
+          vWorldPosition = p.xyz;
+          gl_Position = projectionMatrix * viewMatrix * p;
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 topColor;
+        uniform vec3 bottomColor;
+        varying vec3 vWorldPosition;
+        void main(){
+          float h = normalize(vWorldPosition).y * 0.5 + 0.5;
+          vec3 col = mix(bottomColor, topColor, pow(h, 1.5));
+          gl_FragColor = vec4(col, 1.0);
+        }
+      `,
+    });
+    const skyMesh = new THREE.Mesh(skyGeo, skyMat);
+    scene.add(skyMesh);
+
+    // Mountains removed as requested
+
+    // Clouds removed as requested
     const camera = new THREE.PerspectiveCamera(
       60,
       window.innerWidth / window.innerHeight,
@@ -40,12 +73,26 @@ export default function HomePage() {
       0.04
     ).texture;
 
-    const sun = new THREE.DirectionalLight(0xffffff, 1.0);
+    // Improved lighting for Japanese garden atmosphere
+    const sun = new THREE.DirectionalLight(0xfff8dc, 1.2); // warm sunlight
     sun.position.set(3, 5, 2);
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
+    sun.shadow.camera.near = 0.1;
+    sun.shadow.camera.far = 50;
+    sun.shadow.camera.left = -10;
+    sun.shadow.camera.right = 10;
+    sun.shadow.camera.top = 10;
+    sun.shadow.camera.bottom = -10;
     scene.add(sun);
-    scene.add(new THREE.AmbientLight(0xffffff, 0.15));
+
+    // Soft ambient light with slight pink tint for cherry blossom atmosphere
+    scene.add(new THREE.AmbientLight(0xfff0f5, 0.4));
+
+    // Add a subtle fill light
+    const fillLight = new THREE.DirectionalLight(0xe6e6fa, 0.3);
+    fillLight.position.set(-2, 3, -1);
+    scene.add(fillLight);
 
     // Position the sun low in the sky, similar to planets in the diagram
     const SUN_ELEVATION_DEG = 8; // low near the horizon
@@ -286,6 +333,7 @@ export default function HomePage() {
           petal.renderOrder = 999;
           scene.add(petal);
         }
+        // Removed falling petals (performance)
       })();
 
       loader.load("/assets/house.glb", (hgltf) => {
@@ -431,6 +479,8 @@ export default function HomePage() {
           torii.rotateY(THREE.MathUtils.degToRad(10));
 
           scene.add(torii);
+
+          // Torii placed; stone path removed as requested
         });
 
         loader.load("/assets/bridge.glb", (bgltf) => {
@@ -460,6 +510,53 @@ export default function HomePage() {
             rotYdeg: BRIDGE_ROT_Y_DEG,
           });
         });
+
+        // Removed cherry blossom trees as requested
+
+        // Stone path removed as requested
+
+        // Add floating cherry blossom petals
+        function addFloatingPetals() {
+          const petalGeo = new THREE.PlaneGeometry(0.05, 0.08);
+          const petalMat = new THREE.MeshBasicMaterial({
+            color: 0xffc0cb,
+            transparent: true,
+            opacity: 0.9,
+            side: THREE.DoubleSide,
+          });
+
+          const petals = [];
+          for (let i = 0; i < 20; i++) {
+            const petal = new THREE.Mesh(petalGeo, petalMat.clone());
+            petal.position.set(
+              (Math.random() - 0.5) * 10,
+              2 + Math.random() * 3,
+              (Math.random() - 0.5) * 10
+            );
+
+            // Set bright pink color directly
+            petal.material.color.setRGB(1.0, 0.75, 0.8); // Bright pink
+
+            petal.userData.velocity = {
+              x: (Math.random() - 0.5) * 0.01,
+              y: -0.005 - Math.random() * 0.01,
+              z: (Math.random() - 0.5) * 0.01,
+            };
+
+            petal.userData.rotationSpeed = (Math.random() - 0.5) * 0.02;
+
+            scene.add(petal);
+            petals.push(petal);
+          }
+
+          // Animate petals in the render loop
+          return petals;
+        }
+
+        // Wait a bit for island to be fully loaded, then add decorations
+        setTimeout(() => {
+          window.floatingPetals = addFloatingPetals();
+        }, 200); // Slightly longer delay to ensure torii is loaded
       });
     });
 
@@ -555,6 +652,27 @@ export default function HomePage() {
         wasWalking = isWalking;
       }
       updateBoy(dt);
+
+      // Animate floating cherry blossom petals
+      if (window.floatingPetals) {
+        window.floatingPetals.forEach((petal) => {
+          // Move petal
+          petal.position.x += petal.userData.velocity.x;
+          petal.position.y += petal.userData.velocity.y;
+          petal.position.z += petal.userData.velocity.z;
+
+          // Rotate petal
+          petal.rotation.z += petal.userData.rotationSpeed;
+
+          // Reset petal if it falls too low
+          if (petal.position.y < -1) {
+            petal.position.y = 4 + Math.random() * 2;
+            petal.position.x = (Math.random() - 0.5) * 10;
+            petal.position.z = (Math.random() - 0.5) * 10;
+          }
+        });
+      }
+
       controls.update();
       renderer.render(scene, camera);
       rafId = requestAnimationFrame(tick);

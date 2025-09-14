@@ -95,51 +95,23 @@ function ChatPage() {
     const judgeMessages = messages.filter(m => m.speaker === 'judge');
     const latestJudgeMessage = judgeMessages[judgeMessages.length - 1];
     
-    if (latestJudgeMessage && latestJudgeMessage.content && animationsEnabled) {
-      console.log('🎤 New judge message detected, starting streaming:', latestJudgeMessage.content.substring(0, 50) + '...');
-      
+    if (latestJudgeMessage && latestJudgeMessage.content) {
       // Set streaming text
       setStreamingText(latestJudgeMessage.content);
       setIsStreamingActive(true);
       
-      // Stop any current idle motions before starting stream
-      if (model?.internalModel?.motionManager) {
-        try {
-          const motionManager = model.internalModel.motionManager;
-          if (motionManager.stopAllMotions) {
-            motionManager.stopAllMotions();
-            console.log('🛑 Stopped all motions before judge response stream');
-          }
-        } catch (e) {
-          console.warn('Could not stop motions before streaming:', e);
-        }
-      }
-      
-      // Use streamTextWithTiming for mouth sync animation
+      // Use streamTextWithTiming for text animation
       streamTextWithTiming(latestJudgeMessage.content, {
         baseSpeed: 15,
         onComplete: () => {
-          console.log('Judge response streaming completed');
           setIsStreamingActive(false);
           
-          // Clear streaming text after a delay
-          setTimeout(() => setStreamingText(''), 4000); // Longer delay for judge responses
-          
-          // Re-enable idle motions after streaming is complete
-          setTimeout(() => {
-            if (model?.motion) {
-              try {
-                model.motion('Idle');
-                console.log('♻️ Restarted idle motion after judge response stream');
-              } catch (e) {
-                console.warn('Could not restart idle motion:', e);
-              }
-            }
-          }, 500);
+          // Keep the message visible for a while before fading
+          setTimeout(() => setStreamingText(''), 6000);
         }
       });
     }
-  }, [messages, animationsEnabled, model]); // Watch for changes in messages
+  }, [messages]); // Watch for changes in messages
 
   // References
   const canvasContainerRef = useRef(null);
@@ -374,16 +346,14 @@ function ChatPage() {
   }, [app, model, placeholderFace]);
 
   // Event handlers
-  const handleSendMessage = async (value) => {
-    const input = (value ?? userQuestion ?? '').trim();
-    if (!input || isLoading) return;
-    // Use MultiAIChat orchestration logic
-    await startConsultation(input);
-    if (!isChatOpen) setIsChatOpen(true);
-    setUserQuestion('');
-    return;
-    
-  };
+    const handleSendMessage = async (value) => {
+      const input = (value ?? userQuestion ?? '').trim();
+      if (!input || isLoading) return;
+      // Use MultiAIChat orchestration logic
+      await startConsultation(input);
+      setUserQuestion('');
+      return;
+    };
 
   const handleFeelingTodayRating = (rating) => {
     setFeelingTodayRating(rating);
@@ -542,41 +512,163 @@ function ChatPage() {
             }}
           />
           
-          {/* Debug Overlay */}
-          <DebugOverlay
-            debugInfo={debugInfo}
-            cubismLoaded={cubismLoaded}
-            app={app}
-            model={model}
-            placeholderFace={placeholderFace}
-            animationsEnabled={animationsEnabled}
-            visible={true}
-          />
-          
-          {/* Streaming Text Display */}
-          {streamingText && (
-            <div className="absolute bottom-4 left-4 right-4 z-30">
+          {/* AI Response Streaming Display */}
+          <div className="streaming-container">
+            {streamingText && (
               <StreamingText
                 text={streamingText}
                 speed={18}
                 isStreaming={isStreamingActive}
-                className="max-w-md mx-auto"
+                className="streaming-text"
+              />
+            )}
+          </div>
+        </div>
+      
+        {/* Chat History Button & Panel */}
+        <div className="chat-history-container">
+          <button 
+            onClick={() => setIsChatOpen(!isChatOpen)} 
+            className="history-button"
+          >
+            {isChatOpen ? '✕' : '💬'}
+          </button>
+          
+          {isChatOpen && (
+            <div className="history-panel">
+              <ChatHistory
+                isOpen={isChatOpen}
+                onToggle={() => setIsChatOpen(!isChatOpen)}
+                messages={chatMessages}
               />
             </div>
           )}
         </div>
-      
-        {/* Chat History Panel */}
-        <ChatHistory
-          isOpen={isChatOpen}
-          onToggle={() => setIsChatOpen(!isChatOpen)}
-          messages={chatMessages}
-          onDemoStream={handleDemoStream}
-          onExpression={handleExpressionTest}
-          animationsEnabled={animationsEnabled}
-          onToggleAnimations={handleToggleAnimations}
-          onMouthTest={handleMouthTest}
+
+        {/* Chat Input */}
+        <ChatInput
+          value={userQuestion}
+          onChange={setUserQuestion}
+          onSend={handleSendMessage}
+          placeholder="Share your mental health concern..."
+          disabled={isLoading}
         />
+
+        {/* Feeling Today Modal */}
+        <FeelingTodayModal
+          isOpen={showFeelingTodayModal}
+          onClose={() => setShowFeelingTodayModal(false)}
+          onRatingSubmit={handleFeelingTodayRating}
+        />
+
+        <style jsx global>{`
+          .streaming-container {
+            position: fixed;
+            bottom: 160px;
+            left: 0;
+            right: 0;
+            z-index: 30;
+            display: flex;
+            justify-content: center;
+            padding: 0 16px;
+            pointer-events: none;
+          }
+
+          .streaming-text {
+            width: 100%;
+            max-width: 50vw;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            padding: 20px 32px;
+            color: white;
+            font-size: 18px;
+            line-height: 1.6;
+            animation: fadeIn 0.3s ease;
+            transition: all 0.3s ease;
+          }
+
+          .streaming-text:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 0 24px rgba(255, 255, 255, 0.18);
+          }
+
+          .cursor {
+            display: inline-block;
+            margin-left: 2px;
+            animation: blink 1s infinite;
+          }
+
+          @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+          }
+
+          .chat-history-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 50;
+          }
+
+          .history-button {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+          }
+
+          .history-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+          }
+
+          .history-panel {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            width: 360px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            animation: slideIn 0.3s ease forwards;
+          }
+
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          @keyframes slideIn {
+            from {
+              opacity: 0;
+              transform: translateX(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(0);
+            }
+          }
+        `}</style>
         
         {/* Chat Input */}
         <ChatInput
