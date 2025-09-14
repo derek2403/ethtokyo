@@ -220,6 +220,132 @@ export default function MemoriesPage() {
     }
   };
 
+  // Add 3 specific test memories for polaroid collection testing
+  const addTestMemories = async () => {
+    setIsLoading(true);
+    try {
+      // Memory 1: Happy creative day
+      const memory1 = {
+        id: '2025-09-14',
+        date: '2025-09-14',
+        title: 'Creative Breakthrough Day',
+        logline: 'A day filled with inspiration and artistic flow',
+        tags: ['creative', 'happy', 'breakthrough', 'art'],
+        mood: {
+          primary: 'happy',
+          valence: 0.8,
+          energy: 0.9,
+          topEmotions: ['happy', 'excited'],
+          emoji: '🎨'
+        },
+        skillsUsed: ['creative-thinking', 'problem-solving', 'artistic-expression'],
+        keyMoments: [
+          { time: '09:00', note: 'Morning inspiration struck' },
+          { time: '14:30', note: 'Made significant progress on project' },
+          { time: '19:00', note: 'Feeling proud of today\'s work' }
+        ],
+        panels: [
+          { type: 'wide', caption: 'The morning sun illuminated new possibilities', style: 'colorAccent' },
+          { type: 'square', caption: 'Ideas flowing like a river', style: 'bw' },
+          { type: 'tall', caption: 'Creating something beautiful from nothing', style: 'halftone' },
+          { type: 'square', caption: 'The satisfaction of a day well spent', style: 'bw' }
+        ],
+        status: 'generated',
+        favorite: true,
+        sources: [],
+        contentWarnings: [],
+        version: 1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      // Memory 2: Calm reflective day
+      const memory2 = {
+        id: '2025-09-13',
+        date: '2025-09-13',
+        title: 'Finding Peace in Stillness',
+        logline: 'A gentle day of meditation and self-reflection',
+        tags: ['calm', 'meditation', 'peaceful', 'growth', 'mindfulness'],
+        mood: {
+          primary: 'calm',
+          valence: 0.6,
+          energy: 0.3,
+          topEmotions: ['calm', 'peaceful'],
+          emoji: '🧘‍♂️'
+        },
+        skillsUsed: ['mindfulness', 'self-reflection', 'breathing-techniques'],
+        keyMoments: [
+          { time: '07:00', note: 'Started with morning meditation' },
+          { time: '12:00', note: 'Mindful lunch in the garden' },
+          { time: '21:00', note: 'Evening gratitude practice' }
+        ],
+        panels: [
+          { type: 'square', caption: 'Breathing in peace, breathing out tension', style: 'bw' },
+          { type: 'wide', caption: 'The garden whispers ancient wisdom', style: 'halftone' },
+          { type: 'tall', caption: 'In stillness, we find our true selves', style: 'bw' },
+          { type: 'square', caption: 'Gratitude fills the evening air', style: 'colorAccent' }
+        ],
+        status: 'generated',
+        favorite: false,
+        sources: [],
+        contentWarnings: [],
+        version: 1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      // Memory 3: Social connection day
+      const memory3 = {
+        id: '2025-09-12',
+        date: '2025-09-12',
+        title: 'Bonds That Matter',
+        logline: 'A heartwarming day of meaningful connections with loved ones',
+        tags: ['social', 'family', 'friendship', 'connection', 'love'],
+        mood: {
+          primary: 'happy',
+          valence: 0.9,
+          energy: 0.7,
+          topEmotions: ['happy', 'grateful', 'loved'],
+          emoji: '❤️'
+        },
+        skillsUsed: ['empathy', 'communication', 'active-listening'],
+        keyMoments: [
+          { time: '10:00', note: 'Coffee with an old friend' },
+          { time: '15:30', note: 'Family video call brought smiles' },
+          { time: '18:00', note: 'Dinner party with neighbors' }
+        ],
+        panels: [
+          { type: 'wide', caption: 'Laughter shared over morning coffee', style: 'colorAccent' },
+          { type: 'square', caption: 'Distance means nothing when hearts are connected', style: 'bw' },
+          { type: 'square', caption: 'Stories and meals shared around the table', style: 'halftone' },
+          { type: 'tall', caption: 'The warmth of human connection', style: 'bw' }
+        ],
+        status: 'generated',
+        favorite: true,
+        sources: [],
+        contentWarnings: [],
+        version: 1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      // Save all three memories
+      await memoryStore.saveMemory(memory1);
+      await memoryStore.saveMemory(memory2);
+      await memoryStore.saveMemory(memory3);
+
+      // Reload memories to show the new ones
+      await loadMemories();
+      
+      showToast('Added 3 new test memories for polaroid collection!');
+    } catch (error) {
+      console.error('Failed to add test memories:', error);
+      showToast('Failed to add test memories', 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const clearTestData = async () => {
     if (!confirm('Clear all memories? This cannot be undone.')) return;
     
@@ -292,6 +418,7 @@ export default function MemoriesPage() {
           onToggle={() => setShowDevPanel(!showDevPanel)}
           onSeedData={seedTestData}
           onClearData={clearTestData}
+          onAddTestMemories={addTestMemories}
           memoriesCount={memories.length}
           isLoading={isLoading}
         />

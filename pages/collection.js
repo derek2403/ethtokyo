@@ -47,8 +47,8 @@ export default function CollectionPage() {
   const [isReaderOpen, setIsReaderOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   
-  // Position tracking for draggable cards
-  const [cardPositions, setCardPositions] = useState({});
+  // UI state for hover effects
+  const [hoveredCard, setHoveredCard] = useState(null);
 
   // Development state (only in development)
   const [showDevPanel, setShowDevPanel] = useState(false);
@@ -186,45 +186,36 @@ export default function CollectionPage() {
     }
   };
 
-  // Generate initial positions for polaroids (x, y coordinates and rotations)
-  const generateInitialPositions = (memories) => {
+  // Generate overlapping positions using absolute positioning classes
+  const generateOverlappingPositions = (memories) => {
     const positions = [
-      { x: -200, y: -150, rotation: -8 },
-      { x: -100, y: -80, rotation: 5 },
-      { x: 50, y: -180, rotation: -3 },
-      { x: 200, y: -50, rotation: 7 },
-      { x: 300, y: -120, rotation: -5 },
-      { x: -150, y: 50, rotation: 10 },
-      { x: -50, y: 20, rotation: -7 },
-      { x: 100, y: -200, rotation: 4 },
-      { x: 250, y: 80, rotation: -2 },
-      { x: 350, y: -160, rotation: 6 },
-      { x: -250, y: 120, rotation: -9 },
-      { x: 0, y: 60, rotation: 3 },
+      { className: "absolute top-20 left-[45%] rotate-[-12deg]" },
+      { className: "absolute top-24 left-[47%] rotate-[8deg]" },
+      { className: "absolute top-16 left-[43%] rotate-[-5deg]" },
+      { className: "absolute top-32 left-[49%] rotate-[15deg]" },
+      { className: "absolute top-28 left-[41%] rotate-[-8deg]" },
+      { className: "absolute top-12 left-[51%] rotate-[10deg]" },
+      { className: "absolute top-36 left-[44%] rotate-[-15deg]" },
+      { className: "absolute top-8 left-[48%] rotate-[6deg]" },
+      { className: "absolute top-40 left-[46%] rotate-[-10deg]" },
+      { className: "absolute top-4 left-[50%] rotate-[12deg]" },
+      { className: "absolute top-44 left-[42%] rotate-[-7deg]" },
+      { className: "absolute top-48 left-[52%] rotate-[9deg]" }
     ];
     
     return memories.map((memory, index) => {
-      const defaultPos = positions[index % positions.length];
-      const savedPos = cardPositions[memory.id];
+      const position = positions[index % positions.length];
       
       return {
         ...memory,
-        x: savedPos?.x ?? defaultPos.x,
-        y: savedPos?.y ?? defaultPos.y,
-        rotation: defaultPos.rotation
+        positionClass: position.className,
+        zIndex: index // Later cards appear on top
       };
     });
   };
 
-  // Handle position updates from draggable cards
-  const handlePositionChange = (memoryId, x, y) => {
-    setCardPositions(prev => ({
-      ...prev,
-      [memoryId]: { x, y }
-    }));
-  };
 
-  const memoriesWithPositions = generateInitialPositions(memories);
+  const memoriesWithPositions = generateOverlappingPositions(memories);
 
   return (
     <>
@@ -261,20 +252,14 @@ export default function CollectionPage() {
             <DraggableCardContainer className="polaroid-collection-background relative flex min-h-screen w-full items-center justify-center overflow-clip">
               {/* Background text for atmosphere */}
               <p className="absolute top-1/2 mx-auto max-w-2xl -translate-y-3/4 text-center text-3xl font-black text-amber-800 md:text-5xl opacity-20 select-none pointer-events-none">
-                Your memories scattered like polaroids...
+                Your memories stacked like treasured polaroids...
               </p>
               
               {/* Draggable Polaroid Cards */}
               {memoriesWithPositions.map((memory, index) => (
                 <DraggableCardBody 
                   key={memory.id}
-                  className={`polaroid-card cursor-grab active:cursor-grabbing bg-white dark:bg-neutral-100 shadow-xl`}
-                  initialX={memory.x}
-                  initialY={memory.y}
-                  onPositionChange={(x, y) => handlePositionChange(memory.id, x, y)}
-                  style={{ 
-                    transform: `rotate(${memory.rotation}deg)`
-                  }}
+                  className={`polaroid-card cursor-grab active:cursor-grabbing bg-white dark:bg-neutral-100 shadow-xl ${memory.positionClass}`}
                 >
                   {/* Polaroid image area */}
                   <div 
@@ -386,15 +371,15 @@ export default function CollectionPage() {
           background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
           border: 1px solid rgba(0, 0, 0, 0.1);
           box-shadow: 
-            0 4px 8px rgba(0, 0, 0, 0.12),
-            0 2px 4px rgba(0, 0, 0, 0.08),
+            0 6px 12px rgba(0, 0, 0, 0.15),
+            0 3px 6px rgba(0, 0, 0, 0.10),
             inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
         
         .polaroid-card:hover {
           box-shadow: 
-            0 8px 16px rgba(0, 0, 0, 0.15),
-            0 4px 8px rgba(0, 0, 0, 0.12),
+            0 12px 24px rgba(0, 0, 0, 0.20),
+            0 6px 12px rgba(0, 0, 0, 0.15),
             inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
         
