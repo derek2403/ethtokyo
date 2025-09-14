@@ -46,6 +46,8 @@ export default async function handler(req, res) {
         model: usedModel,
         messages: payloadMessages,
         temperature: 0.7,
+        // Conservative cap to encourage brevity (~80–90 words ≈ 110–130 tokens)
+        max_tokens: 140,
       }),
     });
 
@@ -55,7 +57,29 @@ export default async function handler(req, res) {
     }
 
     const data = await rpResp.json();
-    const text = data?.choices?.[0]?.message?.content ?? '';
+
+    // Extract model text
+    let text = data?.choices?.[0]?.message?.content ?? '';
+
+    // Enforce a hard word-limit on server side to keep UI concise
+    const HARD_WORD_LIMIT = 90; // target upper bound
+    const sanitizeToSingleParagraph = (s) => s.replace(/\n+/g, ' ').replace(/\s+/g, ' ').trim();
+    const truncateToWords = (s, limit) => {
+      const words = s.split(/\s+/);
+      if (words.length <= limit) return s;
+      // Try to end at the last sentence boundary before the limit
+      const clipped = words.slice(0, limit).join(' ');
+      const lastPunct = clipped.lastIndexOf('.') > -1 ? clipped.lastIndexOf('.') :
+                        (clipped.lastIndexOf('!') > -1 ? clipped.lastIndexOf('!') :
+                        (clipped.lastIndexOf('?') > -1 ? clipped.lastIndexOf('?') : -1));
+      if (lastPunct !== -1 && lastPunct > clipped.length * 0.6) {
+        return clipped.slice(0, lastPunct + 1);
+      }
+      return clipped + '…';
+    };
+
+    text = sanitizeToSingleParagraph(text);
+    text = truncateToWords(text, HARD_WORD_LIMIT);
 
     await appendLog({ type: 'judge_output', ai: 'judge', sessionId: sessionId || null, userQuestion, round3Responses, judgeText: text, ratings: { feelingToday: feelingToday ?? null, feelingBetter: feelingBetter ?? null } });
 
