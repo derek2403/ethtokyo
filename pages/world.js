@@ -326,7 +326,7 @@ export default function HomePage() {
           );
           scene.add(tree2);
         });
-        //right -> decoupled placement using island bounds fractions
+
         loader.load("/assets/tree2.glb", (tgltf) => {
           const tree = tgltf.scene;
           tree.traverse((o) => {
@@ -334,13 +334,11 @@ export default function HomePage() {
           });
           tree.scale.set(0.85, 0.85, 0.85);
 
-          // Place near a diagonal corner; tweak 0.18/0.82 as needed
           placeOnIslandByFrac(tree, 0.8, 0.09, {
             pad: 0.18,
             alignToSlope: true,
           });
 
-          // Face the house for composition
           tree.lookAt(
             new THREE.Vector3(
               house.position.x,
@@ -386,12 +384,37 @@ export default function HomePage() {
 
           scene.add(torii);
         });
+
+        loader.load("/assets/bridge.glb", (bgltf) => {
+          const bridge = bgltf.scene;
+          bridge.traverse((o) => {
+            if (o.isMesh) {
+              o.castShadow = true;
+              o.receiveShadow = true;
+            }
+          });
+
+          const BRIDGE_POS = new THREE.Vector3(0.66, 2.69, -1.02);
+
+          const BRIDGE_SCALE_X = 0.55;
+          const BRIDGE_SCALE_Y = 0.55;
+          const BRIDGE_SCALE_Z = 0.95;
+          const BRIDGE_ROT_Y_DEG = 75;
+
+          bridge.scale.set(BRIDGE_SCALE_X, BRIDGE_SCALE_Y, BRIDGE_SCALE_Z);
+          bridge.position.copy(BRIDGE_POS);
+          bridge.rotation.y = THREE.MathUtils.degToRad(BRIDGE_ROT_Y_DEG);
+
+          scene.add(bridge);
+          console.log("[bridge] placed at fixed coordinate", {
+            position: bridge.position,
+            scale: bridge.scale,
+            rotYdeg: BRIDGE_ROT_Y_DEG,
+          });
+        });
       });
     });
 
-    // Spawn Boy once island is in scene
-    // This happens after islandRoot is added within loader callbacks above.
-    // Poll until island meshes are ready, then place the boy on land.
     (function trySpawnBoy() {
       const ready =
         islandMeshes.length > 0 && scene.children.includes(islandRoot);
@@ -402,10 +425,10 @@ export default function HomePage() {
       loadBoy(scene, {
         onBoyLoaded: ({ model }) => {
           boy = model;
-          // Place near island center
+
           const box = new THREE.Box3().setFromObject(islandRoot);
           const ctr = box.getCenter(new THREE.Vector3());
-          // Slight offset so not colliding with house
+
           const x = ctr.x + 0.2;
           const z = ctr.z + 0.2;
           placeOnIsland(model, x, z, { sinkDepth: 0.02, alignToSlope: true });
@@ -413,7 +436,6 @@ export default function HomePage() {
       });
     })();
 
-    // Click-to-move like sample-map: click ground to walk there
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     function onPointerDown(e) {
@@ -457,7 +479,6 @@ export default function HomePage() {
         );
         const dist = dir.length();
         if (dist <= ARRIVE_RADIUS) {
-          // Close enough: snap to ground at target and stop
           const hit = groundHitAt(targetPos.x, targetPos.z, islandMeshes);
           if (hit) boy.position.copy(hit.point);
           isWalking = false;
@@ -479,9 +500,7 @@ export default function HomePage() {
           }
         }
 
-        // Handle animation state transitions
         if (wasWalking && !isWalking) {
-          // Just stopped walking, go to idle
           playBoy("idle");
         }
 
@@ -494,7 +513,6 @@ export default function HomePage() {
     };
     tick();
 
-    // Resize
     const onResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -502,7 +520,6 @@ export default function HomePage() {
     };
     window.addEventListener("resize", onResize);
 
-    // Cleanup
     return () => {
       window.removeEventListener("resize", onResize);
       renderer.domElement.removeEventListener("pointerdown", onPointerDown);
