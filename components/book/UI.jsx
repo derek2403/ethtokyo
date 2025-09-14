@@ -63,15 +63,19 @@ export const UI = () => {
 
   return (
     <>
+      {/* Background with wooden floor texture */}
+      <div 
+        className="fixed inset-0 z-0"
+        style={{
+          backgroundImage: 'url(/background/lightwooden_floor.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      />
+      
       {/* Main UI overlay */}
-      <main className="pointer-events-none select-none z-10 fixed inset-0 flex justify-between flex-col">
-        
-        {/* Logo/Brand in top left */}
-        <div className="pointer-events-auto mt-10 ml-10">
-          <div className="text-white text-2xl font-bold">
-            📚 Book Slider
-          </div>
-        </div>
+      <main className="pointer-events-none select-none z-10 fixed inset-0 flex flex-col justify-end">
         
         {/* Page navigation buttons */}
         <div className="w-full overflow-auto pointer-events-auto flex justify-center">
