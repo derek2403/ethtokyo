@@ -26,9 +26,13 @@ export default async function handler(req, res) {
     const usedModel = 'gpt-4o-mini';
 
     // Centralized judge prompts
-    const { JUDGE_SYSTEM_PROMPT, buildJudgePrompt } = await import('@/prompt_engineering/prompts');
-    const systemPrompt = JUDGE_SYSTEM_PROMPT;
-    const judgePrompt = buildJudgePrompt(userQuestion, round3Responses);
+    const { JUDGE_SYSTEM_PROMPT_MINI, buildJudgePromptCompact } = await import('@/prompt_engineering/prompts');
+    const systemPrompt = JUDGE_SYSTEM_PROMPT_MINI;
+    const judgePrompt = buildJudgePromptCompact(userQuestion, round3Responses);
+
+    // Debug: Log the prompts being sent
+    console.log('🔍 Judge API - Received userQuestion:', userQuestion);
+    console.log('🔍 Judge User Prompt:', judgePrompt);
 
     const payloadMessages = [systemPrompt, { role: 'user', content: judgePrompt }];
 

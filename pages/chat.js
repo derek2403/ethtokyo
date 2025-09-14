@@ -11,6 +11,9 @@ import DebugOverlay from '@/components/chat/DebugOverlay';
 import StreamingText from '@/components/chat/StreamingText';
 import FeelingTodayModal from '@/components/FeelingTodayModal';
 
+// Multi-AI Chat logic (shared with MultiAIChat component)
+import { useMultiAIChat } from '@/lib/chat/useMultiAIChat';
+
 // Animation System
 import { animationState, resetAnimationState } from '@/lib/animation/animationState';
 import { updateIdleBehaviors, updateAnimationTransitions } from '@/lib/animation/idleBehaviors';
@@ -36,15 +39,43 @@ import { listModelParameters, testParameter, findMouthParameters, createDebugCon
 
 function ChatPage() {
   // State management
-  const [messages, setMessages] = useState([]);
-  const [inputValue, setInputValue] = useState('');
+  const [uiMessages, setUiMessages] = useState([]);
+  
   const [isChatOpen, setIsChatOpen] = useState(false);
   
-  // AI Chat state (from MultiAIChat)
-  const [isLoading, setIsLoading] = useState(false);
+  // AI Chat state (hooked from MultiAIChat logic)
+  const {
+    userQuestion,
+    setUserQuestion,
+    round,
+    messages,
+    isLoading,
+    finalRecommendation,
+    feelingTodayRating,
+    setFeelingTodayRating,
+    feelingBetterRating,
+    setFeelingBetterRating,
+    aiConfig,
+    sendMessage,
+    startConsultation,
+    startCriticismRound,
+    startVotingRound,
+    generateFinalRecommendation,
+    clearChat,
+  } = useMultiAIChat({ showOnlyJudge: true });
+
+  // Transform hook messages to ChatHistory format, but only show judge outputs
+  const chatMessages = messages
+    .filter(m => m.speaker === 'judge')
+    .map(m => ({
+      id: m.id,
+      text: m.content,
+      isUser: false,
+      timestamp: m.timestamp,
+    }));
+
   const [showFeelingTodayModal, setShowFeelingTodayModal] = useState(false);
-  const [feelingTodayRating, setFeelingTodayRating] = useState(null);
-  const [sessionId, setSessionId] = useState(`s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
+  const [sessionId] = useState(`s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
   
   // Streaming state
   const [streamingText, setStreamingText] = useState('');
@@ -62,7 +93,7 @@ function ChatPage() {
   // References
   const canvasContainerRef = useRef(null);
 
-  // Add message function
+  // Add UI-only message (for demo/debug overlay)
   const addMessage = (text, isUser = false) => {
     const newMessage = {
       id: Date.now(),
@@ -70,9 +101,7 @@ function ChatPage() {
       isUser,
       timestamp: new Date().toLocaleTimeString()
     };
-    setMessages(prev => [...prev, newMessage]);
-    
-    // Auto-open chat on new messages
+    setUiMessages(prev => [...prev, newMessage]);
     if (!isChatOpen) setIsChatOpen(true);
   };
 
@@ -293,182 +322,16 @@ function ChatPage() {
     return () => window.removeEventListener('resize', handleResize);
   }, [app, model, placeholderFace]);
 
-  // AI Chat configuration
-  const aiConfig = {
-    ai1: { name: 'AI1 - Clinical Psychologist', color: 'bg-purple-500', endpoint: '/api/ai1' },
-    ai2: { name: 'AI2 - Psychiatrist', color: 'bg-blue-500', endpoint: '/api/ai2' },
-    ai3: { name: 'AI3 - Holistic Counselor', color: 'bg-green-500', endpoint: '/api/ai3' },
-    judge: { name: 'AI Judge - Final Synthesis', color: 'bg-yellow-500', endpoint: '/api/judge' }
-  };
-
-  // Chat storage function
-  const storeChatHistory = async (messagesToStore = null) => {
-    try {
-      const currentMessages = messagesToStore || messages;
-      console.log('Storing chat history with messages:', currentMessages.length);
-      
-      await fetch('/api/store_chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          sessionId,
-          messages: currentMessages,
-          feelingRating: feelingTodayRating
-        }),
-      });
-      console.log('Chat history stored successfully with', currentMessages.length, 'messages');
-    } catch (error) {
-      console.error('Failed to store chat history:', error);
-    }
-  };
-
-  // AI Chat functions
-  const sendMessage = async (speaker, message, roundType = 'answer') => {
-    setIsLoading(true);
-    
-    try {
-      const response = await fetch(aiConfig[speaker].endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages: [{ role: 'user', content: message }],
-          model: 'gpt-4o-mini',
-          sessionId,
-          round: roundType
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const newMessage = {
-        id: Date.now(),
-        speaker: speaker,
-        content: data.text,
-        timestamp: new Date().toLocaleTimeString(),
-        round: roundType
-      };
-      
-      setMessages(prev => [...prev, newMessage]);
-      return data.text;
-    } catch (error) {
-      console.error(`Error sending message to ${speaker}:`, error);
-      const errorMessage = {
-        id: Date.now(),
-        speaker: speaker,
-        content: `Sorry, there was an error processing the message.`,
-        timestamp: new Date().toLocaleTimeString(),
-        round: roundType
-      };
-      setMessages(prev => [...prev, errorMessage]);
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Event handlers
-  const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+  const handleSendMessage = async (value) => {
+    const input = (value ?? userQuestion ?? '').trim();
+    if (!input || isLoading) return;
+    // Use MultiAIChat orchestration logic
+    await startConsultation(input);
+    if (!isChatOpen) setIsChatOpen(true);
+    setUserQuestion('');
+    return;
     
-    const currentInput = inputValue;
-    setInputValue(''); // Clear input immediately
-    
-    // Add user message
-    const userMessage = {
-      id: Date.now(),
-      text: currentInput,
-      isUser: true,
-      timestamp: new Date().toLocaleTimeString()
-    };
-    
-    // Update messages state with user message
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
-    
-    // Get AI response from the first AI (Clinical Psychologist)
-    const { buildRound1Prompt } = await import('@/prompt_engineering/prompts');
-    const question = buildRound1Prompt(currentInput);
-    
-    const aiResponse = await sendMessage('ai1', question, 'round1');
-    
-    if (aiResponse) {
-      // Create AI message
-      const aiMessage = {
-        id: Date.now() + 1,
-        text: aiResponse,
-        isUser: false,
-        timestamp: new Date().toLocaleTimeString()
-      };
-      
-      // Build complete messages array with both user and AI messages
-      const completeMessages = [...updatedMessages, aiMessage];
-      
-      // Add AI response to chat history
-      addMessage(aiResponse, false);
-      
-      // Display and stream the response through StreamingText component
-      setStreamingText(aiResponse);
-      setIsStreamingActive(true);
-      
-      if (animationsEnabled) {
-        // Stop any current idle motions before starting stream
-        if (model?.internalModel?.motionManager) {
-          try {
-            const motionManager = model.internalModel.motionManager;
-            if (motionManager.stopAllMotions) {
-              motionManager.stopAllMotions();
-              console.log('🛑 Stopped all motions before AI response stream');
-            }
-          } catch (e) {
-            console.warn('Could not stop motions before streaming:', e);
-          }
-        }
-        
-        // Use streamTextWithTiming for mouth sync animation
-        streamTextWithTiming(aiResponse, {
-          baseSpeed: 15,
-          onComplete: () => {
-            console.log('AI response streaming completed');
-            setIsStreamingActive(false);
-            
-            // Store chat history with complete messages array
-            storeChatHistory(completeMessages);
-            
-            // Clear streaming text after a delay
-            setTimeout(() => setStreamingText(''), 3000);
-            
-            // Re-enable idle motions after streaming is complete
-            setTimeout(() => {
-              if (model?.motion) {
-                try {
-                  model.motion('Idle');
-                  console.log('♻️ Restarted idle motion after AI response stream');
-                } catch (e) {
-                  console.warn('Could not restart idle motion:', e);
-                }
-              }
-            }, 500);
-          }
-        });
-      } else {
-        // If animations disabled, just show the text without mouth sync
-        setTimeout(() => {
-          setIsStreamingActive(false);
-          
-          // Store chat history with complete messages array
-          storeChatHistory(completeMessages);
-          
-          setTimeout(() => setStreamingText(''), 3000);
-        }, aiResponse.length * 50); // Simulate streaming time
-      }
-    }
   };
 
   const handleFeelingTodayRating = (rating) => {
@@ -656,7 +519,7 @@ function ChatPage() {
         <ChatHistory
           isOpen={isChatOpen}
           onToggle={() => setIsChatOpen(!isChatOpen)}
-          messages={messages}
+          messages={chatMessages}
           onDemoStream={handleDemoStream}
           onExpression={handleExpressionTest}
           animationsEnabled={animationsEnabled}
@@ -666,8 +529,8 @@ function ChatPage() {
         
         {/* Chat Input */}
         <ChatInput
-          value={inputValue}
-          onChange={setInputValue}
+          value={userQuestion}
+          onChange={setUserQuestion}
           onSend={handleSendMessage}
           placeholder="Share your mental health concern..."
           disabled={isLoading}
