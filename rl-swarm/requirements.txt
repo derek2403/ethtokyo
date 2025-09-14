@@ -1,0 +1,11 @@
+#accelerate
+colorlog
+datasets
+#deepspeed
+hf-transfer
+peft
+protobuf==5.29.0
+tensorboard
+transformers>=4.46.0
+trl==0.15.2
+web3
