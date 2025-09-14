@@ -154,6 +154,8 @@ function ChatPage() {
   // Streaming state
   const [streamingText, setStreamingText] = useState('');
   const [isStreamingActive, setIsStreamingActive] = useState(false);
+  // UI busy state: loading across multi-round flow until output visible
+  const isBusy = isLoading || round !== 0;
   
   // System state
   const [app, setApp] = useState(null);
@@ -588,13 +590,17 @@ function ChatPage() {
           
           {/* AI Response Streaming Display */}
           <div className="streaming-container">
-            {streamingText && (
+            {streamingText ? (
               <StreamingText
                 text={streamingText}
                 speed={18}
                 isStreaming={isStreamingActive}
                 className="streaming-text"
               />
+            ) : (
+              isBusy && (
+                <div className="streaming-text">Chotto matte! Kaigan is thinking…</div>
+              )
             )}
           </div>
         </div>
@@ -619,13 +625,15 @@ function ChatPage() {
           )}
         </div>
 
+        {/* Thinking indicator now shown in streaming container for consistent style */}
+
         {/* Chat Input */}
         <ChatInput
           value={userQuestion}
           onChange={setUserQuestion}
           onSend={handleSendMessage}
           placeholder="Share your mental health concern..."
-          disabled={isLoading}
+          disabled={isBusy}
         />
 
         {/* Feeling Today Modal */}
@@ -721,6 +729,8 @@ function ChatPage() {
             animation: slideIn 0.3s ease forwards;
           }
 
+          /* Removed separate thinking indicator styles; using .streaming-text style */
+
           @keyframes fadeIn {
             from {
               opacity: 0;
@@ -750,7 +760,7 @@ function ChatPage() {
           onChange={setUserQuestion}
           onSend={handleSendMessage}
           placeholder="Share your mental health concern..."
-          disabled={isLoading}
+          disabled={isBusy}
         />
         
         {/* Feeling Today Modal */}
