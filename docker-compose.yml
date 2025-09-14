@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  ethtokyo-app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./logs:/app/logs
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+    restart: unless-stopped
+    platform: linux/amd64

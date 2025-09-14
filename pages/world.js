@@ -9,18 +9,53 @@ export default function HomePage() {
   const containerRef = useRef(null);
 
   useEffect(() => {
-    // Renderer
+    const containerElement = containerRef.current;
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.7;
+    renderer.toneMappingExposure = 0.9; // slightly brighter overall
     renderer.shadowMap.enabled = true;
-    containerRef.current.appendChild(renderer.domElement);
+    containerElement.appendChild(renderer.domElement);
 
-    // Scene / Camera
     const scene = new THREE.Scene();
+    // Replace solid color with a simple gradient sky dome
+    scene.background = null;
+    scene.fog = null;
+    const skyGeo = new THREE.SphereGeometry(500, 32, 32);
+    const skyMat = new THREE.ShaderMaterial({
+      side: THREE.BackSide,
+      depthWrite: false,
+      uniforms: {
+        topColor: { value: new THREE.Color(0x87ceeb) }, // sky blue
+        bottomColor: { value: new THREE.Color(0xf0f8ff) }, // alice blue
+      },
+      vertexShader: `
+        varying vec3 vWorldPosition;
+        void main(){
+          vec4 p = modelMatrix * vec4(position, 1.0);
+          vWorldPosition = p.xyz;
+          gl_Position = projectionMatrix * viewMatrix * p;
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 topColor;
+        uniform vec3 bottomColor;
+        varying vec3 vWorldPosition;
+        void main(){
+          float h = normalize(vWorldPosition).y * 0.5 + 0.5;
+          vec3 col = mix(bottomColor, topColor, pow(h, 1.5));
+          gl_FragColor = vec4(col, 1.0);
+        }
+      `,
+    });
+    const skyMesh = new THREE.Mesh(skyGeo, skyMat);
+    scene.add(skyMesh);
+
+    // Mountains removed as requested
+
+    // Clouds removed as requested
     const camera = new THREE.PerspectiveCamera(
       60,
       window.innerWidth / window.innerHeight,
@@ -29,34 +64,81 @@ export default function HomePage() {
     );
     camera.position.set(2.5, 2, 3);
 
-    // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
 
-    // Environment
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromScene(
       new RoomEnvironment(renderer),
       0.04
     ).texture;
 
-    // Lights
-    const sun = new THREE.DirectionalLight(0xffffff, 1.0);
+    // Improved lighting for Japanese garden atmosphere
+    const sun = new THREE.DirectionalLight(0xfff8dc, 1.2); // warm sunlight
     sun.position.set(3, 5, 2);
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
+    sun.shadow.camera.near = 0.1;
+    sun.shadow.camera.far = 50;
+    sun.shadow.camera.left = -10;
+    sun.shadow.camera.right = 10;
+    sun.shadow.camera.top = 10;
+    sun.shadow.camera.bottom = -10;
     scene.add(sun);
-    scene.add(new THREE.AmbientLight(0xffffff, 0.15));
 
-    // Loaders / state
+    // Soft ambient light with slight pink tint for cherry blossom atmosphere
+    scene.add(new THREE.AmbientLight(0xfff0f5, 0.4));
+
+    // Add a subtle fill light
+    const fillLight = new THREE.DirectionalLight(0xe6e6fa, 0.3);
+    fillLight.position.set(-2, 3, -1);
+    scene.add(fillLight);
+
+    // Position the sun low in the sky, similar to planets in the diagram
+    const SUN_ELEVATION_DEG = 8; // low near the horizon
+    const SUN_AZIMUTH_DEG = 260; // further to the left from the default view
+    const sunDir = new THREE.Vector3();
+    const phi = THREE.MathUtils.degToRad(90 - SUN_ELEVATION_DEG);
+    const theta = THREE.MathUtils.degToRad(SUN_AZIMUTH_DEG);
+    sunDir.setFromSphericalCoords(1, phi, theta);
+    // Place the light along that direction; closer and leftward
+    sun.position.copy(sunDir.clone().multiplyScalar(20));
+    sun.intensity = 1.25;
+
+    // No mountains or other background geometry
+
     const loader = new GLTFLoader();
+    let sunModel = null;
+    // Load a large visible sun model high in the sky
+    loader.load("/assets/sun.glb", (sgltf) => {
+      sunModel = sgltf.scene;
+      // Keep original GLB materials; don't override colors/emissive/toneMapping
+      sunModel.traverse((o) => {
+        if (o.isMesh) {
+          o.castShadow = false;
+          o.receiveShadow = false;
+        }
+      });
+      // Position along the sun direction; smaller, lower, and nearer
+      const sunDistance = 18;
+      const pos = sunDir.clone().multiplyScalar(sunDistance);
+      // Keep very low so it's clearly to the side of the island
+      pos.y = Math.max(pos.y, 1.5);
+      sunModel.position.copy(pos);
+      sunModel.scale.setScalar(3.0);
+      // Look toward the world origin until island center is known
+      sunModel.lookAt(new THREE.Vector3(0, 0, 0));
+      scene.add(sunModel);
+    });
     let islandRoot = null;
     const islandMeshes = [];
-    // Boy movement state
+
     let boy = null;
     let isWalking = false;
+    let wasWalking = false; // track animation state transitions
     const targetPos = new THREE.Vector3();
-    const WALK_SPEED = 0.6; // meters per second
+    const WALK_SPEED = 0.5;
+    const ARRIVE_RADIUS = 0.05; // tolerance to consider arrival
 
     // Helpers
     function frameObject(obj, { pad = 0.4 } = {}) {
@@ -134,12 +216,67 @@ export default function HomePage() {
       return { minX: b.min.x, maxX: b.max.x, minZ: b.min.z, maxZ: b.max.z };
     }
 
+    function dropHighestAt(x, z) {
+      const rc = new THREE.Raycaster(
+        new THREE.Vector3(x, 50, z),
+        new THREE.Vector3(0, -1, 0)
+      );
+      const hits = rc.intersectObjects(islandMeshes, true);
+      if (!hits.length) return null;
+      const candidates = hits.filter((h) => {
+        const n = (h.object.name || "").toLowerCase();
+        const m = (h.object.material?.name || "").toLowerCase();
+        return (
+          !/water|pond|lake|pool/.test(n) && !/water|pond|lake|pool/.test(m)
+        );
+      });
+      if (!candidates.length) return null;
+      candidates.sort((a, b) => b.point.y - a.point.y);
+      return candidates[0];
+    }
+
+    // Place by island-bounds fractions (decoupled from camera and other props)
+    function placeOnIslandByFrac(
+      object3D,
+      fracX,
+      fracZ,
+      { pad = 0.18, alignToSlope = true } = {}
+    ) {
+      if (!islandRoot) return;
+      const box = new THREE.Box3().setFromObject(islandRoot);
+      const x = THREE.MathUtils.lerp(
+        box.min.x + pad,
+        box.max.x - pad,
+        THREE.MathUtils.clamp(fracX, 0, 1)
+      );
+      const z = THREE.MathUtils.lerp(
+        box.min.z + pad,
+        box.max.z - pad,
+        THREE.MathUtils.clamp(fracZ, 0, 1)
+      );
+      const hit = dropHighestAt(x, z);
+      if (hit) {
+        const up = new THREE.Vector3(0, 1, 0);
+        const n =
+          hit.face && hit.face.normal
+            ? hit.face.normal.clone().normalize()
+            : up.clone();
+        object3D.position.copy(hit.point);
+        if (alignToSlope) {
+          const q = new THREE.Quaternion().setFromUnitVectors(up, n);
+          object3D.quaternion.copy(q);
+        }
+      } else {
+        object3D.position.set(x, 0, z);
+      }
+    }
+
     const rand = (a, b) => a + Math.random() * (b - a);
 
     // Load island and props
     loader.load("/assets/island.glb", (gltf) => {
       islandRoot = gltf.scene;
-      islandRoot.scale.set(2.0, 2.0, 2.0);
+      islandRoot.scale.set(2.0, 2.0, 3.0);
 
       islandRoot.traverse((o) => {
         if (o.isMesh) {
@@ -152,6 +289,16 @@ export default function HomePage() {
       scene.add(islandRoot);
       frameObject(islandRoot);
 
+      // Aim the directional light and sun model at the island center
+      const islandCenter = new THREE.Box3()
+        .setFromObject(islandRoot)
+        .getCenter(new THREE.Vector3());
+      sun.target.position.copy(islandCenter);
+      if (!scene.children.includes(sun.target)) scene.add(sun.target);
+      if (typeof sunModel !== "undefined" && sunModel) {
+        sunModel.lookAt(islandCenter);
+      }
+
       // Petals
       (function addPetals() {
         const { minX, maxX, minZ, maxZ } = boundsXZ(islandRoot);
@@ -162,7 +309,7 @@ export default function HomePage() {
           depthTest: true,
           depthWrite: true,
         });
-        const PETALS = 10;
+        const PETALS = 15;
         for (let i = 0; i < PETALS; i++) {
           const x = rand(minX + 0.22, maxX - 0.22);
           const z = rand(minZ + 0.22, maxZ - 0.22);
@@ -186,9 +333,9 @@ export default function HomePage() {
           petal.renderOrder = 999;
           scene.add(petal);
         }
+        // Removed falling petals (performance)
       })();
 
-      // House + trees + torii
       loader.load("/assets/house.glb", (hgltf) => {
         const house = hgltf.scene;
         house.traverse((o) => {
@@ -197,9 +344,9 @@ export default function HomePage() {
             o.receiveShadow = true;
           }
         });
-        house.scale.set(0.7, 0.7, 0.7);
+        house.scale.set(0.9, 0.9, 0.9);
 
-        placeOnIsland(house, -1.0, 0.9, {
+        placeOnIsland(house, -0.8, 1.5, {
           sinkDepth: 0.03,
           alignToSlope: true,
         });
@@ -226,11 +373,11 @@ export default function HomePage() {
           );
           const target = house.position
             .clone()
-            .addScaledVector(right, 1.05)
-            .addScaledVector(fwd, 0.3);
+            .addScaledVector(right, 1.15)
+            .addScaledVector(fwd, 0.6);
 
           placeOnIsland(tree, target.x, target.z, {
-            sinkDepth: 0.05,
+            sinkDepth: 0.1,
             alignToSlope: true,
           });
           tree.lookAt(
@@ -242,13 +389,13 @@ export default function HomePage() {
           );
           scene.add(tree);
         });
-
+        //left
         loader.load("/assets/tree2.glb", (t2gltf) => {
           const tree2 = t2gltf.scene;
           tree2.traverse((o) => {
             if (o.isMesh) o.castShadow = true;
           });
-          tree2.scale.set(1.0, 1.0, 1.0);
+          tree2.scale.set(1.5, 1.5, 1.5);
 
           const right = new THREE.Vector3(1, 0, 0).applyQuaternion(
             house.quaternion
@@ -258,14 +405,14 @@ export default function HomePage() {
           );
           const target2 = house.position
             .clone()
-            .addScaledVector(right, -0.85)
-            .addScaledVector(fwd, 0.25);
+            .addScaledVector(right, -1.3)
+            .addScaledVector(fwd, 0.3);
 
           placeOnIsland(tree2, target2.x, target2.z, {
             sinkDepth: 0.05,
             alignToSlope: true,
           });
-          tree2.rotation.y += THREE.MathUtils.degToRad(-90);
+          tree2.rotation.y += THREE.MathUtils.degToRad(150);
           tree2.lookAt(
             new THREE.Vector3(
               house.position.x,
@@ -281,25 +428,13 @@ export default function HomePage() {
           tree.traverse((o) => {
             if (o.isMesh) o.castShadow = true;
           });
-          tree.scale.set(0.65, 0.65, 0.65);
+          tree.scale.set(0.85, 0.85, 0.85);
 
-          const right = new THREE.Vector3(1, 0, 0).applyQuaternion(
-            house.quaternion
-          );
-          const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(
-            house.quaternion
-          );
-          const target = house.position
-            .clone()
-            .addScaledVector(right, 1.25)
-            .addScaledVector(fwd, 0.6);
-
-          placeOnIsland(tree, target.x, target.z, {
-            sinkDepth: 0.05,
+          placeOnIslandByFrac(tree, 0.8, 0.09, {
+            pad: 0.18,
             alignToSlope: true,
           });
-          tree.rotation.z += THREE.MathUtils.degToRad(90);
-          tree.rotation.y += THREE.MathUtils.degToRad(30);
+
           tree.lookAt(
             new THREE.Vector3(
               house.position.x,
@@ -318,7 +453,7 @@ export default function HomePage() {
               o.receiveShadow = true;
             }
           });
-          torii.scale.set(0.75, 0.75, 0.75);
+          torii.scale.set(0.88, 0.88, 0.88);
 
           let grassTop = null;
           islandRoot.traverse((o) => {
@@ -331,65 +466,103 @@ export default function HomePage() {
           if (!grassTop) grassTop = islandRoot;
 
           const box = new THREE.Box3().setFromObject(grassTop);
-          const half = box.getSize(new THREE.Vector3()).multiplyScalar(0.5);
           const ctr = box.getCenter(new THREE.Vector3());
 
-          const up = new THREE.Vector3(0, 1, 0);
-          const front = camera.position.clone().sub(ctr).setY(0).normalize();
-          const left = new THREE.Vector3().crossVectors(up, front).normalize();
-
-          const margin = 0.18;
-          const dist = Math.max(0.01, Math.min(half.x, half.z) - margin);
-
-          const targetXZ = ctr
-            .clone()
-            .addScaledVector(front, dist * 0.95)
-            .addScaledVector(left, dist * 0.15);
-
-          const drop = (x, z) => {
-            const rc = new THREE.Raycaster(
-              new THREE.Vector3(x, 50, z),
-              new THREE.Vector3(0, -1, 0)
-            );
-            const hits = rc.intersectObjects(islandMeshes, true);
-            return hits.length ? hits[0] : null;
-          };
-
-          let hit = drop(targetXZ.x, targetXZ.z);
-          if (!hit) {
-            for (let i = 1; i <= 12 && !hit; i++) {
-              const p = targetXZ
-                .clone()
-                .addScaledVector(front, -0.1 * i)
-                .addScaledVector(left, -0.1 * i);
-              hit = drop(p.x, p.z);
-            }
-          }
-          if (!hit) return;
-
-          const n =
-            hit.face && hit.face.normal
-              ? hit.face.normal.clone().normalize()
-              : up.clone();
-          torii.position.copy(hit.point).addScaledVector(n, 0);
-          const q = new THREE.Quaternion().setFromUnitVectors(up, n);
-          torii.quaternion.copy(q);
+          placeOnIslandByFrac(torii, 0.23, 0.1, {
+            pad: 0.2,
+            alignToSlope: true,
+          });
 
           const hp = new THREE.Vector3();
           house.getWorldPosition(hp);
           torii.lookAt(new THREE.Vector3(hp.x, torii.position.y, hp.z));
-          torii.rotateY(THREE.MathUtils.degToRad(-14));
+          torii.rotateY(THREE.MathUtils.degToRad(10));
 
           scene.add(torii);
+
+          // Torii placed; stone path removed as requested
         });
+
+        loader.load("/assets/bridge.glb", (bgltf) => {
+          const bridge = bgltf.scene;
+          bridge.traverse((o) => {
+            if (o.isMesh) {
+              o.castShadow = true;
+              o.receiveShadow = true;
+            }
+          });
+
+          const BRIDGE_POS = new THREE.Vector3(0.66, 2.69, -1.02);
+
+          const BRIDGE_SCALE_X = 0.55;
+          const BRIDGE_SCALE_Y = 0.55;
+          const BRIDGE_SCALE_Z = 0.95;
+          const BRIDGE_ROT_Y_DEG = 75;
+
+          bridge.scale.set(BRIDGE_SCALE_X, BRIDGE_SCALE_Y, BRIDGE_SCALE_Z);
+          bridge.position.copy(BRIDGE_POS);
+          bridge.rotation.y = THREE.MathUtils.degToRad(BRIDGE_ROT_Y_DEG);
+
+          scene.add(bridge);
+          console.log("[bridge] placed at fixed coordinate", {
+            position: bridge.position,
+            scale: bridge.scale,
+            rotYdeg: BRIDGE_ROT_Y_DEG,
+          });
+        });
+
+        // Removed cherry blossom trees as requested
+
+        // Stone path removed as requested
+
+        // Add floating cherry blossom petals
+        function addFloatingPetals() {
+          const petalGeo = new THREE.PlaneGeometry(0.05, 0.08);
+          const petalMat = new THREE.MeshBasicMaterial({
+            color: 0xffc0cb,
+            transparent: true,
+            opacity: 0.9,
+            side: THREE.DoubleSide,
+          });
+
+          const petals = [];
+          for (let i = 0; i < 20; i++) {
+            const petal = new THREE.Mesh(petalGeo, petalMat.clone());
+            petal.position.set(
+              (Math.random() - 0.5) * 10,
+              2 + Math.random() * 3,
+              (Math.random() - 0.5) * 10
+            );
+
+            // Set bright pink color directly
+            petal.material.color.setRGB(1.0, 0.75, 0.8); // Bright pink
+
+            petal.userData.velocity = {
+              x: (Math.random() - 0.5) * 0.01,
+              y: -0.005 - Math.random() * 0.01,
+              z: (Math.random() - 0.5) * 0.01,
+            };
+
+            petal.userData.rotationSpeed = (Math.random() - 0.5) * 0.02;
+
+            scene.add(petal);
+            petals.push(petal);
+          }
+
+          // Animate petals in the render loop
+          return petals;
+        }
+
+        // Wait a bit for island to be fully loaded, then add decorations
+        setTimeout(() => {
+          window.floatingPetals = addFloatingPetals();
+        }, 200); // Slightly longer delay to ensure torii is loaded
       });
     });
 
-    // Spawn Boy once island is in scene
-    // This happens after islandRoot is added within loader callbacks above.
-    // Poll until island meshes are ready, then place the boy on land.
     (function trySpawnBoy() {
-      const ready = islandMeshes.length > 0 && scene.children.includes(islandRoot);
+      const ready =
+        islandMeshes.length > 0 && scene.children.includes(islandRoot);
       if (!ready) {
         requestAnimationFrame(trySpawnBoy);
         return;
@@ -397,10 +570,10 @@ export default function HomePage() {
       loadBoy(scene, {
         onBoyLoaded: ({ model }) => {
           boy = model;
-          // Place near island center
+
           const box = new THREE.Box3().setFromObject(islandRoot);
           const ctr = box.getCenter(new THREE.Vector3());
-          // Slight offset so not colliding with house
+
           const x = ctr.x + 0.2;
           const z = ctr.z + 0.2;
           placeOnIsland(model, x, z, { sinkDepth: 0.02, alignToSlope: true });
@@ -408,7 +581,6 @@ export default function HomePage() {
       });
     })();
 
-    // Click-to-move like sample-map: click ground to walk there
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     function onPointerDown(e) {
@@ -423,11 +595,17 @@ export default function HomePage() {
       // Ignore water-like surfaces
       const n = (hit.object.name || "").toLowerCase();
       const m = (hit.object.material?.name || "").toLowerCase();
-      if (/water|pond|lake|pool/.test(n) || /water|pond|lake|pool/.test(m)) return;
+      if (/water|pond|lake|pool/.test(n) || /water|pond|lake|pool/.test(m))
+        return;
 
       targetPos.copy(hit.point);
-      isWalking = true;
-      playBoy("startWalking");
+
+      // Only start walking if not already walking
+      if (!isWalking) {
+        isWalking = true;
+        // Play walk animation directly - no startWalking animation
+        playBoy("walk");
+      }
     }
     renderer.domElement.addEventListener("pointerdown", onPointerDown);
 
@@ -445,42 +623,62 @@ export default function HomePage() {
           targetPos.z - pos.z
         );
         const dist = dir.length();
-        if (dist < 1e-3) {
+        if (dist <= ARRIVE_RADIUS) {
+          const hit = groundHitAt(targetPos.x, targetPos.z, islandMeshes);
+          if (hit) boy.position.copy(hit.point);
           isWalking = false;
         } else {
           dir.normalize();
-          const step = WALK_SPEED * dt;
-          if (dist <= step) {
-            // Snap to target and stop
-            const hit = groundHitAt(targetPos.x, targetPos.z, islandMeshes);
-            if (hit) boy.position.copy(hit.point);
-            isWalking = false;
+          // Clamp step to avoid large hitch-induced overshoot
+          const step = Math.min(WALK_SPEED * dt, dist);
+          const nx = pos.x + dir.x * step;
+          const nz = pos.z + dir.z * step;
+          const hit = groundHitAt(nx, nz, islandMeshes);
+          if (hit) {
+            boy.position.copy(hit.point);
           } else {
-            const nx = pos.x + dir.x * step;
-            const nz = pos.z + dir.z * step;
-            const hit = groundHitAt(nx, nz, islandMeshes);
-            if (hit) {
-              boy.position.copy(hit.point);
-            } else {
-              boy.position.set(nx, pos.y, nz);
-            }
+            boy.position.set(nx, pos.y, nz);
           }
           // Face movement direction
-          if (dir.lengthSq() > 0.0001) {
+          if (step > 0.0001) {
             boy.rotation.y = Math.atan2(dir.x, dir.z);
           }
         }
-        // If stopped this frame, return to idle
-        if (!isWalking) playBoy("idle");
+
+        if (wasWalking && !isWalking) {
+          playBoy("idle");
+        }
+
+        wasWalking = isWalking;
       }
       updateBoy(dt);
+
+      // Animate floating cherry blossom petals
+      if (window.floatingPetals) {
+        window.floatingPetals.forEach((petal) => {
+          // Move petal
+          petal.position.x += petal.userData.velocity.x;
+          petal.position.y += petal.userData.velocity.y;
+          petal.position.z += petal.userData.velocity.z;
+
+          // Rotate petal
+          petal.rotation.z += petal.userData.rotationSpeed;
+
+          // Reset petal if it falls too low
+          if (petal.position.y < -1) {
+            petal.position.y = 4 + Math.random() * 2;
+            petal.position.x = (Math.random() - 0.5) * 10;
+            petal.position.z = (Math.random() - 0.5) * 10;
+          }
+        });
+      }
+
       controls.update();
       renderer.render(scene, camera);
       rafId = requestAnimationFrame(tick);
     };
     tick();
 
-    // Resize
     const onResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -488,7 +686,6 @@ export default function HomePage() {
     };
     window.addEventListener("resize", onResize);
 
-    // Cleanup
     return () => {
       window.removeEventListener("resize", onResize);
       renderer.domElement.removeEventListener("pointerdown", onPointerDown);
@@ -497,8 +694,8 @@ export default function HomePage() {
       pmrem.dispose();
       scene.environment = null;
       renderer.dispose();
-      if (containerRef.current?.contains(renderer.domElement)) {
-        containerRef.current.removeChild(renderer.domElement);
+      if (containerElement?.contains(renderer.domElement)) {
+        containerElement.removeChild(renderer.domElement);
       }
     };
   }, []);

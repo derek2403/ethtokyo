@@ -3,10 +3,10 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Bangers&family=Courier+Prime:wght@400;700&display=swap');
 
-/* Base manga page styling */
+/* Base manga page styling - allows natural scrolling */
 .manga-memories-page {
-  height: 100vh;
-  max-height: 100vh;
+  min-height: 100vh;
+  /* Removed height/max-height constraints to allow content to scroll naturally */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -20,13 +20,13 @@
   color: #000000;
 }
 
-/* Manga header with dramatic title */
+/* Manga header with dramatic title - scrolls with content */
 .manga-header {
   position: relative;
   padding: 1rem 2rem;
   background: white;
   border-bottom: 5px solid black;
-  flex-shrink: 0;
+  /* Removed flex-shrink: 0 to allow natural scrolling */
 }
 
 .manga-title-panel {
@@ -71,11 +71,11 @@
   pointer-events: none;
 }
 
-/* Main content area */
+/* Main content area - simplified for natural scrolling */
 .manga-content {
   flex: 1;
-  overflow-y: auto;
   padding: 1rem 0;
+  /* Removed overflow-y: auto to let parent handle scrolling */
 }
 
 /* Search panel styling */
@@ -548,8 +548,8 @@
 /* Responsive design */
 @media (max-width: 768px) {
   .manga-memories-page {
-    height: 100vh;
-    height: 100dvh; /* Use dynamic viewport height on mobile */
+    min-height: 100vh;
+    min-height: 100dvh; /* Use dynamic viewport height on mobile */
   }
   
   .manga-header {
