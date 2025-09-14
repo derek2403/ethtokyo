@@ -131,7 +131,6 @@ export default function HomePage() {
       return { minX: b.min.x, maxX: b.max.x, minZ: b.min.z, maxZ: b.max.z };
     }
 
-    // Raycast straight down and return the highest non-water hit over the island
     function dropHighestAt(x, z) {
       const rc = new THREE.Raycaster(
         new THREE.Vector3(x, 50, z),
@@ -360,7 +359,7 @@ export default function HomePage() {
               o.receiveShadow = true;
             }
           });
-          torii.scale.set(0.75, 0.75, 0.75);
+          torii.scale.set(0.85, 0.85, 0.85);
 
           let grassTop = null;
           islandRoot.traverse((o) => {
@@ -375,8 +374,7 @@ export default function HomePage() {
           const box = new THREE.Box3().setFromObject(grassTop);
           const ctr = box.getCenter(new THREE.Vector3());
 
-          // Decoupled placement: use fixed island fractions
-          placeOnIslandByFrac(torii, 0.82, 0.22, {
+          placeOnIslandByFrac(torii, 0.23, 0.1, {
             pad: 0.2,
             alignToSlope: true,
           });
@@ -384,7 +382,7 @@ export default function HomePage() {
           const hp = new THREE.Vector3();
           house.getWorldPosition(hp);
           torii.lookAt(new THREE.Vector3(hp.x, torii.position.y, hp.z));
-          torii.rotateY(THREE.MathUtils.degToRad(-14));
+          torii.rotateY(THREE.MathUtils.degToRad(10));
 
           scene.add(torii);
         });
