@@ -17,7 +17,7 @@ import {
   Vector3,
 } from "three";
 import { degToRad } from "three/src/math/MathUtils.js";
-import { pageAtom, pages, modalPageAtom } from "./UI";
+import { pageAtom, pages, modalPageAtom, summaryTextureAtom } from "./UI";
 
 // Animation and curve parameters
 const easingFactor = 0.5; // Controls the speed of the easing
@@ -123,13 +123,27 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
   if (continuedTexture) {
     continuedTexture.colorSpace = SRGBColorSpace;
   }
+
+  // Optional dynamic summary texture for the right page of the first spread
+  const [summaryTextureUrl] = useAtom(summaryTextureAtom);
+  const dynamicSummaryTexture = useTexture(summaryTextureUrl || '/book_pages/continued.png');
+  dynamicSummaryTexture.colorSpace = SRGBColorSpace;
   
   // Determine textures for this page surfaces
   // - Front (material[4]): cover image on page 0
   // - Back  (material[5]): page_1.png on page 0, back cover image on last page
   //   For all other pages without images, use the continued.png fallback
-  const frontTexture = number === 0 ? coverTexture : continuedTexture;
-  const backTexture = number === 0 ? page1Texture : (number === pages.length - 1 ? backCoverTexture : continuedTexture);
+  const frontTexture = number === 0
+    ? coverTexture
+    : (number === 1 ? dynamicSummaryTexture : continuedTexture);
+  const backTexture =
+    number === 0
+      ? page1Texture
+      : number === pages.length - 1
+        ? backCoverTexture
+        : number === 1
+          ? dynamicSummaryTexture
+          : continuedTexture;
   const pictureRoughness = null;
   
   const group = useRef();
@@ -196,6 +210,22 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
     mesh.bind(skeleton);
     return mesh;
   }, []);
+
+  // When textures change (e.g., summary data URL ready), update the material maps
+  useEffect(() => {
+    const mesh = skinnedMeshRef.current;
+    if (!mesh) return;
+    const frontMat = mesh.material[4];
+    const backMat = mesh.material[5];
+    if (frontMat && frontMat.map !== frontTexture) {
+      frontMat.map = frontTexture;
+      frontMat.needsUpdate = true;
+    }
+    if (backMat && backMat.map !== backTexture) {
+      backMat.map = backTexture;
+      backMat.needsUpdate = true;
+    }
+  }, [frontTexture, backTexture]);
 
   // Animation loop for page turning
   useFrame((_, delta) => {

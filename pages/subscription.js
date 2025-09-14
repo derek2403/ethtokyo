@@ -365,6 +365,39 @@ export default function SubscriptionPage() {
         throw new Error("No ethereum provider found");
       }
 
+      // Ensure wallet is on the target chain before sending
+      const hexChainId = '0x' + chain.id.toString(16);
+      try {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: hexChainId }],
+        });
+      } catch (switchErr) {
+        // If the chain has not been added to MetaMask, add it first, then switch
+        if (switchErr?.code === 4902 || (switchErr?.data && String(switchErr.data).includes('Unrecognized chain ID'))) {
+          try {
+            await window.ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [{
+                chainId: hexChainId,
+                chainName: chain.name,
+                nativeCurrency: chain.nativeCurrency,
+                rpcUrls: chain.rpcUrls?.default?.http || [RPC_URL],
+              }],
+            });
+            // Try switching again
+            await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: hexChainId }] });
+          } catch (addErr) {
+            console.warn('Failed to add/switch chain', addErr);
+            throw new Error(`Please switch your wallet to ${chain.name} (id: ${chain.id}) and try again.`);
+          }
+        } else {
+          // Generic switch error
+          console.warn('Switch chain failed', switchErr);
+          throw new Error(`Please switch your wallet to ${chain.name} (id: ${chain.id}) and try again.`);
+        }
+      }
+
       const walletClient = createWalletClient({
         chain,
         transport: custom(window.ethereum),

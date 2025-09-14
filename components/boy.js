@@ -287,7 +287,6 @@ export function playBoy(name, forceRestart = false) {
     return;
   }
 
-  // Simple direct animation switching
   fadeTo(name);
 }
 

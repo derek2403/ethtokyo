@@ -7,7 +7,10 @@ const HalfPageView = ({ src, isLeft }) => {
   let imagePath = src;
   
   // Handle different texture sources
-  if (src.startsWith('/book_pages/')) {
+  if (typeof src === 'string' && src.startsWith('data:')) {
+    // Direct data URL from generated canvas
+    imagePath = src;
+  } else if (src.startsWith('/book_pages/')) {
     // Use PNG images from book_pages directory (cover, back cover, etc.)
     imagePath = src;
   } else if (src === 'book-cover') {
@@ -93,7 +96,7 @@ const pictures = [
 
 // Determine the texture image URLs used by the 3D Book for a given page index
 // This mirrors the logic in components/book/Book.jsx
-function textureUrlsForPage(index) {
+function textureUrlsForPage(index, summaryTextureUrl) {
   const total = pages.length; // includes cover and back cover entries
   
   if (index === 0) {
@@ -110,6 +113,14 @@ function textureUrlsForPage(index) {
       back: "/book_pages/back_cover.png" 
     };
   }
+
+  // First content spread (right page next to page_1): use dynamic summary if available
+  if (index === 1 && summaryTextureUrl) {
+    return {
+      front: summaryTextureUrl,
+      back: summaryTextureUrl,
+    };
+  }
   
   // Content pages: map to the texture images
   // Each page spread (index) corresponds to 2 texture images
@@ -124,6 +135,8 @@ function textureUrlsForPage(index) {
 
 // Global state for current page
 export const pageAtom = atom(0);
+// Data URL for the dynamic summary texture (right page of first spread)
+export const summaryTextureAtom = atom(null);
 // Modal state for showing page content popup
 // Holds { page: number, side: 'front'|'back', half: 'left'|'right' } or null
 export const modalPageAtom = atom(null);
@@ -153,6 +166,7 @@ pages.push({
 export const UI = () => {
   const [page, setPage] = useAtom(pageAtom);
   const [modalPage, setModalPage] = useAtom(modalPageAtom);
+  const [summaryTextureUrl] = useAtom(summaryTextureAtom);
 
   // Page flip sound effect - disabled for now to avoid 416 errors
   // useEffect(() => {
@@ -187,7 +201,7 @@ export const UI = () => {
               <div className="text-black">
                 {/* Zoomed textures of the exact page content, cropped to the half clicked */}
               {(() => {
-                const urls = textureUrlsForPage(modalPage.page);
+                const urls = textureUrlsForPage(modalPage.page, summaryTextureUrl);
                 const imgSrc = modalPage.side === 'front' ? urls.front : urls.back;
                 const isLeft = modalPage.half === 'left';
                 return (

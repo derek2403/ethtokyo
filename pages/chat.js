@@ -614,6 +614,15 @@ function ChatPage() {
           >
             {isChatOpen ? '✕' : '💬'}
           </button>
+          {/* Memories button */}
+          <a
+            href="/book"
+            className="history-button memories-button"
+            title="Open Memories"
+            aria-label="Open Memories"
+          >
+            📚
+          </a>
           
           {isChatOpen && (
             <div className="history-panel">
@@ -704,7 +713,10 @@ function ChatPage() {
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
-            font-size: 20px;
+            font-size: 22px;
+            line-height: 1;
+            text-align: center;
+            padding: 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -730,6 +742,13 @@ function ChatPage() {
             animation: slideIn 0.3s ease forwards;
           }
 
+          .memories-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+          }
+
           /* Removed separate thinking indicator styles; using .streaming-text style */
 
           @keyframes fadeIn {
@@ -743,7 +762,7 @@ function ChatPage() {
             }
           }
 
-          @keyframes slideIn {
+          @keyframes slideIn    
             from {
               opacity: 0;
               transform: translateX(-20px);
