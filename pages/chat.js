@@ -115,6 +115,25 @@ function ChatPage() {
           // Initialize streaming engine with model
           initializeStreamingEngine(pixiModel);
           
+          // Try to make MotionPriority available globally for streaming system
+          setTimeout(() => {
+            try {
+              // Import MotionPriority from pixi-live2d-display
+              import('pixi-live2d-display').then((Live2DModule) => {
+                if (Live2DModule.MotionPriority) {
+                  window.MotionPriority = Live2DModule.MotionPriority;
+                  console.log('✅ MotionPriority made available globally');
+                } else {
+                  console.log('MotionPriority not found in pixi-live2d-display module');
+                }
+              }).catch((e) => {
+                console.log('Could not import pixi-live2d-display module:', e.message);
+              });
+            } catch (e) {
+              console.log('Dynamic import not supported, using fallback');
+            }
+          }, 500);
+          
           // Verify streaming function is available
           setTimeout(() => {
             const hasStreamFn = typeof window !== 'undefined' && typeof window.pushStreamChunk === 'function';
@@ -281,9 +300,36 @@ function ChatPage() {
       
       // Stream the response with mouth sync
       if (animationsEnabled) {
+        // Stop any current idle motions before starting stream
+        if (model?.internalModel?.motionManager) {
+          try {
+            const motionManager = model.internalModel.motionManager;
+            if (motionManager.stopAllMotions) {
+              motionManager.stopAllMotions();
+              console.log('🛑 Stopped all motions before response stream');
+            }
+          } catch (e) {
+            console.warn('Could not stop motions before streaming:', e);
+          }
+        }
+        
         streamTextWithTiming(responseText, {
           baseSpeed: 15,
-          onComplete: () => console.log('Response streaming completed')
+          onComplete: () => {
+            console.log('Response streaming completed');
+            
+            // Re-enable idle motions after streaming is complete
+            setTimeout(() => {
+              if (model?.motion) {
+                try {
+                  model.motion('Idle');
+                  console.log('♻️ Restarted idle motion after response stream');
+                } catch (e) {
+                  console.warn('Could not restart idle motion:', e);
+                }
+              }
+            }, 500);
+          }
         });
       }
     }, 500);
@@ -300,6 +346,20 @@ function ChatPage() {
       setStreamingText(demoText);
       setIsStreamingActive(true);
       
+      // Stop any current idle motions before starting stream
+      if (model?.internalModel?.motionManager) {
+        try {
+          // Stop all current motions to prevent interference
+          const motionManager = model.internalModel.motionManager;
+          if (motionManager.stopAllMotions) {
+            motionManager.stopAllMotions();
+            console.log('🛑 Stopped all motions before demo stream');
+          }
+        } catch (e) {
+          console.warn('Could not stop motions before streaming:', e);
+        }
+      }
+      
       startDemoStream(
         demoText,
         18, // Characters per second
@@ -307,6 +367,19 @@ function ChatPage() {
           addMessage("Demo animation complete!", false);
           setIsStreamingActive(false);
           setTimeout(() => setStreamingText(''), 2000); // Clear after 2s
+          
+          // Re-enable idle motions after streaming is complete
+          setTimeout(() => {
+            if (model?.motion) {
+              try {
+                // Restart idle motion with low priority
+                model.motion('Idle');
+                console.log('♻️ Restarted idle motion after demo stream');
+              } catch (e) {
+                console.warn('Could not restart idle motion:', e);
+              }
+            }
+          }, 1000);
         }
       );
     } else {
@@ -402,7 +475,7 @@ function ChatPage() {
             ref={canvasContainerRef} 
             className="w-full h-full"
             style={{
-              transform: 'translateX(-17%)',
+              transform: 'translateX(-17%)', 
               transformOrigin: 'center bottom'
             }}
           />
