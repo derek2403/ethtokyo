@@ -576,6 +576,12 @@ function ChatPage() {
           backgroundRepeat: 'no-repeat'
         }}
       >
+        {/* Clickable hotspot over the book area on the table */}
+        <a
+          href="/book"
+          aria-label="Open book memories"
+          className="book-hotspot"
+        />
         {/* Character Stage - positioned to stand on floor */}
         <div className="absolute inset-0 bottom-20">
           <div 
@@ -740,6 +746,26 @@ function ChatPage() {
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
             animation: slideIn 0.3s ease forwards;
+          }
+
+          /* Book hotspot over background image */
+          .book-hotspot {
+            position: absolute;
+            bottom: 12%;
+            left: 60%;
+            transform: translateX(-50%);
+            width: min(20vw, 300px);
+            height: min(13vw, 200px);
+            border-radius: 12px;
+            z-index: 40; /* above streaming text (30) and below chat button (50) */
+            cursor: pointer;
+            /* invisible but still clickable */
+            background: transparent;
+          }
+
+          .book-hotspot:hover {
+            outline: 2px solid rgba(255, 255, 255, 0.2);
+            outline-offset: 2px;
           }
 
           .memories-button {
