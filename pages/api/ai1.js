@@ -1,4 +1,4 @@
-// pages/api/ai1.js - AI Agent 1: The Philosopher
+// pages/api/ai1.js - AI Agent 1: Clinical Psychologist
 
 import { appendLog } from '@/lib/serverLogger';
 
@@ -22,11 +22,9 @@ export default async function handler(req, res) {
 
     const usedModel = model || 'gpt-4o-mini';
 
-    // Add system prompt for AI1 - The Clinical Psychologist
-    const systemPrompt = {
-      role: 'system',
-      content: 'You are AI1, a licensed Clinical Psychologist with 20+ years of experience in cognitive-behavioral therapy (CBT) and evidence-based treatments. You take a comprehensive approach to mental health, considering biological, psychological, and social factors. You are empathetic, non-judgmental, and focus on practical coping strategies. You emphasize the importance of professional help when needed and always prioritize client safety. Keep responses supportive, evidence-based, and therapeutic. Always provide your reasoning and consider various therapeutic approaches.'
-    };
+    // Centralized system prompt for AI1
+    const { SYSTEM_PROMPTS } = await import('@/prompt_enginnering/prompts');
+    const systemPrompt = SYSTEM_PROMPTS.ai1;
 
     const payloadMessages = Array.isArray(messages)
       ? [systemPrompt, ...messages]
@@ -54,7 +52,14 @@ export default async function handler(req, res) {
     const text = data?.choices?.[0]?.message?.content ?? '';
 
     // Log this AI response
-    await appendLog({ type: 'ai_output', ai: 'ai1', round: round || null, sessionId: sessionId || null, userPrompt: Array.isArray(messages) ? messages.map(m => m.content).join('\n') : String(messages), output: text });
+    await appendLog({
+      type: 'ai_output',
+      ai: 'ai1',
+      round: round || null,
+      sessionId: sessionId || null,
+      userPrompt: Array.isArray(messages) ? messages.map(m => m.content).join('\n') : String(messages),
+      output: text,
+    });
 
     return res.status(200).json({ text, ai: 'ai1' });
   } catch (err) {

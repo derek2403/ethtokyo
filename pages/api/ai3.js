@@ -1,4 +1,4 @@
-// pages/api/ai3.js - AI Agent 3: The Artist
+// pages/api/ai3.js - AI Agent 3: Holistic Counselor
 
 import { appendLog } from '@/lib/serverLogger';
 
@@ -22,11 +22,9 @@ export default async function handler(req, res) {
 
     const usedModel = model || 'gpt-4o-mini';
 
-    // Add system prompt for AI3 - The Holistic Mental Health Counselor
-    const systemPrompt = {
-      role: 'system',
-      content: 'You are AI3, a holistic mental health counselor specializing in mindfulness-based therapies, trauma-informed care, and integrative wellness approaches. You focus on the mind-body connection, incorporating techniques like meditation, breathwork, art therapy, and nature-based healing. You emphasize self-compassion, emotional regulation, and building resilience through lifestyle changes. You consider the whole person including their environment, relationships, and spiritual well-being. Keep responses compassionate, empowering, and focused on sustainable healing practices. Always provide reasoning and consider holistic treatment approaches.'
-    };
+    // Centralized system prompt for AI3
+    const { SYSTEM_PROMPTS } = await import('@/prompt_enginnering/prompts');
+    const systemPrompt = SYSTEM_PROMPTS.ai3;
 
     const payloadMessages = Array.isArray(messages)
       ? [systemPrompt, ...messages]
@@ -54,7 +52,14 @@ export default async function handler(req, res) {
     const text = data?.choices?.[0]?.message?.content ?? '';
 
     // Log this AI response
-    await appendLog({ type: 'ai_output', ai: 'ai3', round: round || null, sessionId: sessionId || null, userPrompt: Array.isArray(messages) ? messages.map(m => m.content).join('\n') : String(messages), output: text });
+    await appendLog({
+      type: 'ai_output',
+      ai: 'ai3',
+      round: round || null,
+      sessionId: sessionId || null,
+      userPrompt: Array.isArray(messages) ? messages.map(m => m.content).join('\n') : String(messages),
+      output: text,
+    });
 
     return res.status(200).json({ text, ai: 'ai3' });
   } catch (err) {

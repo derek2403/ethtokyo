@@ -1,4 +1,4 @@
-// pages/api/ai2.js - AI Agent 2: The Scientist
+// pages/api/ai2.js - AI Agent 2: Psychiatrist
 
 import { appendLog } from '@/lib/serverLogger';
 
@@ -22,11 +22,9 @@ export default async function handler(req, res) {
 
     const usedModel = model || 'gpt-4o-mini';
 
-    // Add system prompt for AI2 - The Psychiatrist
-    const systemPrompt = {
-      role: 'system',
-      content: 'You are AI2, a board-certified Psychiatrist with expertise in neuropsychiatry, mood disorders, and psychopharmacology. You approach mental health with a medical perspective, considering neurobiological factors, medication management, and complex psychiatric conditions. You are thorough in considering differential diagnoses and treatment-resistant cases. You emphasize the importance of proper diagnosis, medication when appropriate, and comprehensive treatment planning. Keep responses professional, medically informed, and focused on evidence-based psychiatric care. Always provide detailed reasoning and consider biological interventions.'
-    };
+    // Centralized system prompt for AI2
+    const { SYSTEM_PROMPTS } = await import('@/prompt_enginnering/prompts');
+    const systemPrompt = SYSTEM_PROMPTS.ai2;
 
     const payloadMessages = Array.isArray(messages)
       ? [systemPrompt, ...messages]
@@ -54,7 +52,14 @@ export default async function handler(req, res) {
     const text = data?.choices?.[0]?.message?.content ?? '';
 
     // Log this AI response
-    await appendLog({ type: 'ai_output', ai: 'ai2', round: round || null, sessionId: sessionId || null, userPrompt: Array.isArray(messages) ? messages.map(m => m.content).join('\n') : String(messages), output: text });
+    await appendLog({
+      type: 'ai_output',
+      ai: 'ai2',
+      round: round || null,
+      sessionId: sessionId || null,
+      userPrompt: Array.isArray(messages) ? messages.map(m => m.content).join('\n') : String(messages),
+      output: text,
+    });
 
     return res.status(200).json({ text, ai: 'ai2' });
   } catch (err) {
