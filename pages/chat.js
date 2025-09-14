@@ -301,6 +301,29 @@ function ChatPage() {
     judge: { name: 'AI Judge - Final Synthesis', color: 'bg-yellow-500', endpoint: '/api/judge' }
   };
 
+  // Chat storage function
+  const storeChatHistory = async (messagesToStore = null) => {
+    try {
+      const currentMessages = messagesToStore || messages;
+      console.log('Storing chat history with messages:', currentMessages.length);
+      
+      await fetch('/api/store_chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId,
+          messages: currentMessages,
+          feelingRating: feelingTodayRating
+        }),
+      });
+      console.log('Chat history stored successfully with', currentMessages.length, 'messages');
+    } catch (error) {
+      console.error('Failed to store chat history:', error);
+    }
+  };
+
   // AI Chat functions
   const sendMessage = async (speaker, message, roundType = 'answer') => {
     setIsLoading(true);
@@ -354,22 +377,39 @@ function ChatPage() {
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
     
+    const currentInput = inputValue;
+    setInputValue(''); // Clear input immediately
+    
     // Add user message
     const userMessage = {
       id: Date.now(),
-      text: inputValue,
+      text: currentInput,
       isUser: true,
       timestamp: new Date().toLocaleTimeString()
     };
-    setMessages(prev => [...prev, userMessage]);
+    
+    // Update messages state with user message
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     
     // Get AI response from the first AI (Clinical Psychologist)
     const { buildRound1Prompt } = await import('@/prompt_engineering/prompts');
-    const question = buildRound1Prompt(inputValue);
+    const question = buildRound1Prompt(currentInput);
     
     const aiResponse = await sendMessage('ai1', question, 'round1');
     
     if (aiResponse) {
+      // Create AI message
+      const aiMessage = {
+        id: Date.now() + 1,
+        text: aiResponse,
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString()
+      };
+      
+      // Build complete messages array with both user and AI messages
+      const completeMessages = [...updatedMessages, aiMessage];
+      
       // Add AI response to chat history
       addMessage(aiResponse, false);
       
@@ -398,6 +438,9 @@ function ChatPage() {
             console.log('AI response streaming completed');
             setIsStreamingActive(false);
             
+            // Store chat history with complete messages array
+            storeChatHistory(completeMessages);
+            
             // Clear streaming text after a delay
             setTimeout(() => setStreamingText(''), 3000);
             
@@ -418,12 +461,14 @@ function ChatPage() {
         // If animations disabled, just show the text without mouth sync
         setTimeout(() => {
           setIsStreamingActive(false);
+          
+          // Store chat history with complete messages array
+          storeChatHistory(completeMessages);
+          
           setTimeout(() => setStreamingText(''), 3000);
         }, aiResponse.length * 50); // Simulate streaming time
       }
     }
-    
-    setInputValue('');
   };
 
   const handleFeelingTodayRating = (rating) => {
