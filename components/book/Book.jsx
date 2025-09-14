@@ -211,6 +211,22 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
     return mesh;
   }, []);
 
+  // When textures change (e.g., summary data URL ready), update the material maps
+  useEffect(() => {
+    const mesh = skinnedMeshRef.current;
+    if (!mesh) return;
+    const frontMat = mesh.material[4];
+    const backMat = mesh.material[5];
+    if (frontMat && frontMat.map !== frontTexture) {
+      frontMat.map = frontTexture;
+      frontMat.needsUpdate = true;
+    }
+    if (backMat && backMat.map !== backTexture) {
+      backMat.map = backTexture;
+      backMat.needsUpdate = true;
+    }
+  }, [frontTexture, backTexture]);
+
   // Animation loop for page turning
   useFrame((_, delta) => {
     if (!skinnedMeshRef.current) {
