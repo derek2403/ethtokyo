@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import { usePrivy } from '@privy-io/react-auth';
 
 export default function LandingPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const { ready, authenticated, login } = usePrivy();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -12,6 +14,20 @@ export default function LandingPage() {
     }
     router.push('/world');
   };
+
+  async function handleGetStarted() {
+    try {
+      if (!ready) return; // wait until Privy initialized
+      if (authenticated) {
+        router.push('/world');
+        return;
+      }
+      await login();
+      router.push('/world');
+    } catch (e) {
+      // User may cancel the login modal; do nothing
+    }
+  }
 
   return (
     <div className="landingpage-root">
@@ -75,7 +91,7 @@ export default function LandingPage() {
 
           {/* Manifesto Button */}
           <div className="manifesto-container">
-            <button className="manifesto-button" onClick={() => router.push('/world')}>
+            <button className="manifesto-button" onClick={handleGetStarted}>
               Get started
             </button>
           </div>

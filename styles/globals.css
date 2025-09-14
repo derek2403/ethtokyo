@@ -121,16 +121,42 @@ button {
   background: rgba(0,0,0,0.05) !important;
 }
 
+.cta-primary {
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.15);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 30px;
+  padding: 14px 32px;
+  color: #626262; /* black text as requested */
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.cta-primary:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
 /* Scope a reset for the Privy UI pill to escape global button/input styles from shadcn */
 .rovo-privy-pill, .rovo-privy-pill * {
   all: revert;
   font-family: inherit;
 }
 .rovo-privy-pill {
-  background: #ffffff !important;
-  color: #000000 !important;
-  border: 1px solid #000000 !important;
-  border-radius: 0.5rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 30px !important;
+  padding: 12px 20px !important;
+  color: #000000 !important; /* keep text black after connect */
 }
 
 body {
