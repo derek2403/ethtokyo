@@ -50,17 +50,13 @@ const StreamingText = ({
   if (!text && !displayedText) return null;
 
   return (
-    <div className={`font-mono text-sm p-2 bg-black/20 rounded ${className}`}>
-      <div className="text-xs text-muted-foreground mb-1">🎤 Streaming:</div>
-      <div className="text-foreground">
+    <div className={`streaming-message ${className}`}>
+      <div className="message-content">
         {displayedText}
         {isStreaming && currentIndex < text.length && (
-          <span className="animate-pulse">|</span>
+          <span className="cursor">|</span>
         )}
       </div>
-      {!isStreaming && displayedText && (
-        <div className="text-xs text-green-400 mt-1">✅ Complete</div>
-      )}
     </div>
   );
 };
