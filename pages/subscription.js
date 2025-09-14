@@ -4,7 +4,7 @@ import subscriptionAbi from "@/lib/subscription-abi.json";
 import ConnectWalletButton from "@/components/ConnectWalletButton";
 
 const RPC_URL = `https://rpc.kaigan.jsc.dev/rpc?token=${process.env.NEXT_PUBLIC_KAIGAN_RPC_TOKEN}`;
-const SUBSCRIPTION_CONTRACT_ADDRESS = "0xf3DeB1959A25f3C1ae9e1a561A1ED6DA2Ca34EaF";
+const SUBSCRIPTION_CONTRACT_ADDRESS = "0xAb8281Eb535238eA29fC10cbc67959e0FBdb6626";
 
 export default function SubscriptionPage() {
   const { ready, authenticated, user } = usePrivy();
@@ -13,9 +13,20 @@ export default function SubscriptionPage() {
   const [plans, setPlans] = useState([]);
   const [userSubscription, setUserSubscription] = useState(null);
   const [isSubscriptionActive, setIsSubscriptionActive] = useState(false);
+  const [isSbtHolder, setIsSbtHolder] = useState(false);
+  const [isVerifiedAndSubscribed, setIsVerifiedAndSubscribed] = useState(false);
+  const [mizuhikiSbtAddress, setMizuhikiSbtAddress] = useState(null);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
   const [contractBalance, setContractBalance] = useState("0");
+  const [checkMessage, setCheckMessage] = useState(null);
+  const [checkOk, setCheckOk] = useState(null);
+  const [checking, setChecking] = useState(false);
+  // Arbitrary address check state
+  const [targetAddress, setTargetAddress] = useState("");
+  const [targetCheckMessage, setTargetCheckMessage] = useState(null);
+  const [targetCheckOk, setTargetCheckOk] = useState(null);
+  const [targetChecking, setTargetChecking] = useState(false);
 
   // Form states
   const [newPlanPrice, setNewPlanPrice] = useState("");
@@ -51,9 +62,11 @@ export default function SubscriptionPage() {
       // Read basic contract info
       const owner = await contract.read.owner();
       const nextId = await contract.read.nextPlanId();
+      const sbtAddress = await contract.read.mizuhikiSbtContract();
       
       setContractOwner(owner.toLowerCase());
       setNextPlanId(Number(nextId));
+      setMizuhikiSbtAddress(sbtAddress);
 
       // Get contract balance
       const balance = await client.getBalance({ address: SUBSCRIPTION_CONTRACT_ADDRESS });
@@ -72,13 +85,38 @@ export default function SubscriptionPage() {
         setPlans(planResults.filter(plan => plan.active));
       }
 
-      // Read user subscription if authenticated
+      // Read user subscription and SBT status if authenticated
       if (authenticated && user?.wallet?.address) {
+        // Check SBT balance directly on the SBT contract
+        let sbtHolder = false;
+        try {
+          if (sbtAddress && sbtAddress !== '0x0000000000000000000000000000000000000000') {
+            const { getContract } = await import('viem');
+            const sbtAbi = [
+              {
+                inputs: [{ internalType: 'address', name: 'owner', type: 'address' }],
+                name: 'balanceOf',
+                outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+                stateMutability: 'view',
+                type: 'function',
+              },
+            ];
+            const sbt = getContract({ address: sbtAddress, abi: sbtAbi, client });
+            const bal = await sbt.read.balanceOf([user.wallet.address]);
+            sbtHolder = BigInt(bal) > 0n;
+          }
+        } catch (e) {
+          console.warn('Failed to read SBT balance', e);
+        }
+
         const userSub = await contract.read.getSubscription([user.wallet.address]);
         const isActive = await contract.read.isSubscriptionActive([user.wallet.address]);
+        const verifiedAndSubscribed = await contract.read.isVerifiedAndSubscribed([user.wallet.address]);
         
         setUserSubscription(userSub);
         setIsSubscriptionActive(isActive);
+        setIsVerifiedAndSubscribed(Boolean(verifiedAndSubscribed));
+        setIsSbtHolder(sbtHolder);
       }
     } catch (e) {
       console.error(e);
@@ -128,6 +166,134 @@ export default function SubscriptionPage() {
       setErr(e.message || "Failed to subscribe");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function checkVerifiedAndSubscribedNow() {
+    setChecking(true);
+    setCheckMessage(null);
+    setCheckOk(null);
+    setErr("");
+    try {
+      const client = await createPublicClient();
+      const contract = await getContract(client);
+
+      // Contract-side check (source of truth) with msg.sender = connected wallet
+      const ok = await client.readContract({
+        address: SUBSCRIPTION_CONTRACT_ADDRESS,
+        abi: subscriptionAbi,
+        functionName: 'isCallerVerifiedAndSubscribed',
+        account: user.wallet.address,
+      });
+      setCheckOk(Boolean(ok));
+
+      if (ok) {
+        setCheckMessage("You are verified (hold the Mizuhiki SBT) and have an active subscription.");
+      } else {
+        // Diagnose what is missing
+        let hasSbt = false;
+        try {
+          const sbtAddress = await contract.read.mizuhikiSbtContract();
+          if (sbtAddress && sbtAddress !== '0x0000000000000000000000000000000000000000') {
+            const { getContract } = await import('viem');
+            const sbtAbi = [
+              {
+                inputs: [{ internalType: 'address', name: 'owner', type: 'address' }],
+                name: 'balanceOf',
+                outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+                stateMutability: 'view',
+                type: 'function',
+              },
+            ];
+            const sbt = getContract({ address: sbtAddress, abi: sbtAbi, client });
+            const bal = await sbt.read.balanceOf([user.wallet.address]);
+            hasSbt = BigInt(bal) > 0n;
+          }
+        } catch {}
+
+        const hasActiveSub = await contract.read.isSubscriptionActive([user.wallet.address]);
+
+        if (!hasSbt && !hasActiveSub) {
+          setCheckMessage("You are not verified (SBT missing) and you do not have an active subscription.");
+        } else if (!hasSbt) {
+          setCheckMessage("You are not verified (Mizuhiki SBT missing).");
+        } else if (!hasActiveSub) {
+          setCheckMessage("You do not have an active subscription.");
+        } else {
+          // Should not happen if ok is false, but fallback message
+          setCheckMessage("You are missing one or more requirements.");
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      setErr(e.message || "Failed to check verified + subscribed status");
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  function isValidAddress(addr) {
+    return /^0x[a-fA-F0-9]{40}$/.test(addr);
+  }
+
+  async function checkAddressVerifiedAndSubscribed() {
+    setTargetChecking(true);
+    setTargetCheckMessage(null);
+    setTargetCheckOk(null);
+    setErr("");
+
+    try {
+      if (!isValidAddress(targetAddress)) {
+        throw new Error("Please enter a valid address (0x...) to check");
+      }
+      const client = await createPublicClient();
+      const contract = await getContract(client);
+
+      // Read combined check and also diagnose if false
+      const combined = await contract.read.isVerifiedAndSubscribed([targetAddress]);
+      setTargetCheckOk(Boolean(combined));
+
+      if (combined) {
+        setTargetCheckMessage("Address is verified (SBT holder) and has an active subscription.");
+      } else {
+        // Diagnose: SBT ownership and active subscription
+        let hasSbt = false;
+        try {
+          const sbtAddress = await contract.read.mizuhikiSbtContract();
+          if (sbtAddress && sbtAddress !== '0x0000000000000000000000000000000000000000') {
+            const { getContract } = await import('viem');
+            const sbtAbi = [
+              {
+                inputs: [{ internalType: 'address', name: 'owner', type: 'address' }],
+                name: 'balanceOf',
+                outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+                stateMutability: 'view',
+                type: 'function',
+              },
+            ];
+            const sbt = getContract({ address: sbtAddress, abi: sbtAbi, client });
+            const bal = await sbt.read.balanceOf([targetAddress]);
+            hasSbt = BigInt(bal) > 0n;
+          }
+        } catch {}
+
+        const hasActiveSub = await contract.read.isSubscriptionActive([targetAddress]);
+
+        if (!hasSbt && !hasActiveSub) {
+          setTargetCheckMessage("Address is not verified (SBT missing) and does not have an active subscription.");
+        } else if (!hasSbt) {
+          setTargetCheckMessage("Address is not verified (Mizuhiki SBT missing).");
+        } else if (!hasActiveSub) {
+          setTargetCheckMessage("Address does not have an active subscription.");
+        } else {
+          setTargetCheckMessage("Address is missing one or more requirements.");
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      setErr(e.message || "Failed to check address status");
+    } finally {
+      setTargetChecking(false);
     }
   }
 
@@ -321,11 +487,55 @@ export default function SubscriptionPage() {
         {/* User Subscription Status */}
         {authenticated && user?.wallet?.address && (
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
-            <h2 className="text-xl font-semibold mb-4">Your Subscription</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">Your Subscription</h2>
+              <button
+                onClick={checkVerifiedAndSubscribedNow}
+                disabled={checking}
+                className="rovo-privy-btn"
+              >
+                {checking ? 'Checking…' : 'Check Verified + Subscribed'}
+              </button>
+            </div>
+            {/* Inline result for the on-demand check */}
+            {checkMessage && (
+              <div className={`mb-4 px-4 py-2 rounded ${checkOk ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                {checkMessage}
+              </div>
+            )}
+
+            <div className="text-sm text-gray-600 mb-2">
+              Mizuhiki SBT Contract: <span className="font-mono">{mizuhikiSbtAddress || 'not set'}</span>
+            </div>
             
+            {/* Arbitrary Address Check */}
+            <div className="mt-4 mb-6 p-4 border border-gray-200 rounded">
+              <h3 className="font-medium mb-2">Check another address</h3>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="0x... address"
+                  value={targetAddress}
+                  onChange={(e) => setTargetAddress(e.target.value.trim())}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                />
+                <button
+                  onClick={checkAddressVerifiedAndSubscribed}
+                  disabled={targetChecking}
+                  className="rovo-privy-btn"
+                >
+                  {targetChecking ? 'Checking…' : 'Check Address'}
+                </button>
+              </div>
+              {targetCheckMessage && (
+                <div className={`mt-3 px-4 py-2 rounded ${targetCheckOk ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                  {targetCheckMessage}
+                </div>
+              )}
+            </div>
+
             {isSubscriptionActive ? (
               <div className="space-y-3">
-                <div className="text-green-600 font-medium">✓ Active Subscription</div>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <p><strong>Plan ID:</strong> {userSubscription.planId.toString()}</p>

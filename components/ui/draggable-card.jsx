@@ -14,18 +14,11 @@ import {
 export const DraggableCardBody = ({
   className,
   children,
-  onPositionChange,
-  initialX = 0,
-  initialY = 0,
-  style = {},
 }) => {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const dragX = useMotionValue(initialX);
-  const dragY = useMotionValue(initialY);
   const cardRef = useRef(null);
   const controls = useAnimationControls();
-  const isMountedRef = useRef(false);
   const [constraints, setConstraints] = useState({
     top: 0,
     left: 0,
@@ -65,14 +58,7 @@ export const DraggableCardBody = ({
   );
 
   useEffect(() => {
-    // Mark component as mounted
-    isMountedRef.current = true;
-
-    // Set initial position for drag motion values
-    dragX.set(initialX);
-    dragY.set(initialY);
-
-    // Update drag constraints when component mounts or window resizes
+    // Update constraints when component mounts or window resizes
     const updateConstraints = () => {
       if (typeof window !== "undefined") {
         setConstraints({
@@ -86,15 +72,14 @@ export const DraggableCardBody = ({
 
     updateConstraints();
 
-    // Add resize listener for responsive constraints
+    // Add resize listener
     window.addEventListener("resize", updateConstraints);
 
-    // Cleanup event listener and mark as unmounted
+    // Clean up
     return () => {
-      isMountedRef.current = false;
       window.removeEventListener("resize", updateConstraints);
     };
-  }, [initialX, initialY]);
+  }, []);
 
   // Handle mouse movement for tilt effect
   const handleMouseMove = (e) => {
@@ -125,36 +110,20 @@ export const DraggableCardBody = ({
       ref={cardRef}
       drag
       dragConstraints={constraints}
-      x={dragX}
-      y={dragY}
       onDragStart={() => {
         document.body.style.cursor = "grabbing";
       }}
       onDragEnd={(event, info) => {
         document.body.style.cursor = "default";
 
-        // Update motion values to maintain position
-        dragX.set(info.point.x);
-        dragY.set(info.point.y);
-
-        // Notify parent of position change
-        if (onPositionChange) {
-          onPositionChange(info.point.x, info.point.y);
-        }
-
-        // Reset rotation after drag (only if component is still mounted)
-        if (isMountedRef.current) {
-          controls.start({
-            rotateX: 0,
-            rotateY: 0,
-            transition: {
-              type: "spring",
-              ...springConfig,
-            },
-          });
-        }
-
-        // Calculate velocity for bounce effect
+        controls.start({
+          rotateX: 0,
+          rotateY: 0,
+          transition: {
+            type: "spring",
+            ...springConfig,
+          },
+        });
         const currentVelocityX = velocityX.get();
         const currentVelocityY = velocityY.get();
 
@@ -164,7 +133,6 @@ export const DraggableCardBody = ({
         );
         const bounce = Math.min(0.8, velocityMagnitude / 1000);
 
-        // Animate bounce effect
         animate(info.point.x, info.point.x + currentVelocityX * 0.3, {
           duration: 0.8,
           ease: [0.2, 0, 0, 1],
@@ -190,7 +158,6 @@ export const DraggableCardBody = ({
         rotateY,
         opacity,
         willChange: "transform",
-        ...style,
       }}
       animate={controls}
       whileHover={{ scale: 1.02 }}

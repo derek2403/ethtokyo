@@ -18,6 +18,7 @@ export default function DevPanel({
   onToggle, 
   onSeedData, 
   onClearData, 
+  onAddTestMemories,
   memoriesCount, 
   isLoading 
 }) {
@@ -50,6 +51,15 @@ export default function DevPanel({
               className="w-full"
             >
               Seed Data (60 days)
+            </Button>
+            <Button 
+              onClick={onAddTestMemories} 
+              disabled={isLoading} 
+              size="sm" 
+              variant="secondary"
+              className="w-full"
+            >
+              Add 3 Test Memories
             </Button>
             <Button 
               onClick={onClearData} 
