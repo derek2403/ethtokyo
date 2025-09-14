@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment";
+import { loadBoy, updateBoy, playBoy } from "../components/boy.js";
 
 export default function HomePage() {
   const containerRef = useRef(null);
@@ -51,6 +52,11 @@ export default function HomePage() {
     const loader = new GLTFLoader();
     let islandRoot = null;
     const islandMeshes = [];
+    // Boy movement state
+    let boy = null;
+    let isWalking = false;
+    const targetPos = new THREE.Vector3();
+    const WALK_SPEED = 0.6; // meters per second
 
     // Helpers
     function frameObject(obj, { pad = 0.4 } = {}) {
@@ -379,9 +385,95 @@ export default function HomePage() {
       });
     });
 
+    // Spawn Boy once island is in scene
+    // This happens after islandRoot is added within loader callbacks above.
+    // Poll until island meshes are ready, then place the boy on land.
+    (function trySpawnBoy() {
+      const ready = islandMeshes.length > 0 && scene.children.includes(islandRoot);
+      if (!ready) {
+        requestAnimationFrame(trySpawnBoy);
+        return;
+      }
+      loadBoy(scene, {
+        onBoyLoaded: ({ model }) => {
+          boy = model;
+          // Place near island center
+          const box = new THREE.Box3().setFromObject(islandRoot);
+          const ctr = box.getCenter(new THREE.Vector3());
+          // Slight offset so not colliding with house
+          const x = ctr.x + 0.2;
+          const z = ctr.z + 0.2;
+          placeOnIsland(model, x, z, { sinkDepth: 0.02, alignToSlope: true });
+        },
+      });
+    })();
+
+    // Click-to-move like sample-map: click ground to walk there
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    function onPointerDown(e) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      const y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
+      mouse.set(x, y);
+      raycaster.setFromCamera(mouse, camera);
+      const hits = raycaster.intersectObjects(islandMeshes, true);
+      if (!hits.length || !boy) return;
+      const hit = hits[0];
+      // Ignore water-like surfaces
+      const n = (hit.object.name || "").toLowerCase();
+      const m = (hit.object.material?.name || "").toLowerCase();
+      if (/water|pond|lake|pool/.test(n) || /water|pond|lake|pool/.test(m)) return;
+
+      targetPos.copy(hit.point);
+      isWalking = true;
+      playBoy("startWalking");
+    }
+    renderer.domElement.addEventListener("pointerdown", onPointerDown);
+
     // Render loop
+    const clock = new THREE.Clock();
     let rafId = 0;
     const tick = () => {
+      const dt = clock.getDelta();
+      // Move boy toward target when walking
+      if (boy && isWalking) {
+        const pos = boy.position;
+        const dir = new THREE.Vector3(
+          targetPos.x - pos.x,
+          0,
+          targetPos.z - pos.z
+        );
+        const dist = dir.length();
+        if (dist < 1e-3) {
+          isWalking = false;
+        } else {
+          dir.normalize();
+          const step = WALK_SPEED * dt;
+          if (dist <= step) {
+            // Snap to target and stop
+            const hit = groundHitAt(targetPos.x, targetPos.z, islandMeshes);
+            if (hit) boy.position.copy(hit.point);
+            isWalking = false;
+          } else {
+            const nx = pos.x + dir.x * step;
+            const nz = pos.z + dir.z * step;
+            const hit = groundHitAt(nx, nz, islandMeshes);
+            if (hit) {
+              boy.position.copy(hit.point);
+            } else {
+              boy.position.set(nx, pos.y, nz);
+            }
+          }
+          // Face movement direction
+          if (dir.lengthSq() > 0.0001) {
+            boy.rotation.y = Math.atan2(dir.x, dir.z);
+          }
+        }
+        // If stopped this frame, return to idle
+        if (!isWalking) playBoy("idle");
+      }
+      updateBoy(dt);
       controls.update();
       renderer.render(scene, camera);
       rafId = requestAnimationFrame(tick);
@@ -399,6 +491,7 @@ export default function HomePage() {
     // Cleanup
     return () => {
       window.removeEventListener("resize", onResize);
+      renderer.domElement.removeEventListener("pointerdown", onPointerDown);
       cancelAnimationFrame(rafId);
       controls.dispose();
       pmrem.dispose();

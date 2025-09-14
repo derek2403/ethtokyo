@@ -8,6 +8,14 @@ let boyMixer = null;
 let boyActions = {};
 let boyActiveAction = null;
 
+function hasAnyMesh(root) {
+  let found = false;
+  root.traverse((o) => {
+    if (o.isMesh) found = true;
+  });
+  return found;
+}
+
 function setShadowAndSkinning(root) {
   root.traverse((o) => {
     if (o.isMesh) {
@@ -17,6 +25,33 @@ function setShadowAndSkinning(root) {
         o.material.skinning = true;
         o.material.needsUpdate = true;
       }
+    }
+  });
+}
+
+function applyBoyMaterials(root) {
+  const texture = new THREE.TextureLoader().load("/model/boy/shaded.png");
+  // Ensure original color fidelity
+  if (THREE.SRGBColorSpace) texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = 8;
+  texture.generateMipmaps = true;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+
+  root.traverse((child) => {
+    if (child.isMesh) {
+      const mat = new THREE.MeshStandardMaterial({
+        map: texture,
+        skinning: !!child.isSkinnedMesh,
+        roughness: 0.6,
+        metalness: 0.05,
+      });
+      child.material = mat;
+      if (child.material.map && THREE.SRGBColorSpace) {
+        child.material.map.colorSpace = THREE.SRGBColorSpace;
+      }
+      child.castShadow = true;
+      child.receiveShadow = true;
     }
   });
 }
@@ -67,11 +102,18 @@ export async function spawnBoy(scene, opts = {}) {
     return { model: boyModel, mixer: boyMixer, actions: boyActions };
   }
 
-  console.log("[boy] loading base model...");
-  const basePath = "/model/boy/base_basic_shaded.fbx"; // prefer shaded rig
-  const base = await loadFBX(basePath);
-  boyModel = base;
+  console.log("[boy] loading idle model (as base)...");
+  let base = await loadFBX("/model/boy/Idle.fbx");
+  // Some animation FBX files may not include a skinned mesh. Fallback to base.fbx.
+  if (!hasAnyMesh(base)) {
+    console.warn("[boy] Idle.fbx contains no meshes; falling back to base.fbx");
+    base = await loadFBX("/model/boy/base.fbx");
+  }
+  boyModel = base; // mesh (and possibly idle animation)
   setShadowAndSkinning(boyModel);
+  applyBoyMaterials(boyModel);
+  // Mark for identification in scene traversals
+  boyModel.userData.isBoy = true;
 
   // Scale to meters (most FBX are centimeters)
   const scale = opts.scale != null ? opts.scale : 0.003;
@@ -86,7 +128,10 @@ export async function spawnBoy(scene, opts = {}) {
 
   // Create mixer and load animations
   boyMixer = new THREE.AnimationMixer(boyModel);
-  await loadAnim("idle", "/model/boy/Idle.fbx");
+  if (boyModel.animations && boyModel.animations.length) {
+    const idleClip = boyModel.animations[0];
+    boyActions.idle = boyMixer.clipAction(idleClip, boyModel);
+  }
   await loadAnim("walk", "/model/boy/Walking.fbx");
   await loadAnim("startWalking", "/model/boy/Start Walking.fbx");
 
@@ -137,3 +182,9 @@ export function isBoyLoaded() {
   return boyLoaded;
 }
 
+// Convenience loader mirroring sample-model style
+export async function loadBoy(scene, callbacks = {}) {
+  const data = await spawnBoy(scene);
+  if (callbacks.onBoyLoaded) callbacks.onBoyLoaded(data);
+  return data;
+}
