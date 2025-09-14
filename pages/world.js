@@ -20,9 +20,38 @@ export default function HomePage() {
     containerElement.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    // Flat pastel background with no fog
-    scene.background = new THREE.Color(0xbfe6ff);
+    // Replace solid color with a simple gradient sky dome
+    scene.background = null;
     scene.fog = null;
+    const skyGeo = new THREE.SphereGeometry(500, 32, 32);
+    const skyMat = new THREE.ShaderMaterial({
+      side: THREE.BackSide,
+      depthWrite: false,
+      uniforms: {
+        topColor: { value: new THREE.Color(0xcfe9ff) },
+        bottomColor: { value: new THREE.Color(0xffffff) },
+      },
+      vertexShader: `
+        varying vec3 vWorldPosition;
+        void main(){
+          vec4 p = modelMatrix * vec4(position, 1.0);
+          vWorldPosition = p.xyz;
+          gl_Position = projectionMatrix * viewMatrix * p;
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 topColor;
+        uniform vec3 bottomColor;
+        varying vec3 vWorldPosition;
+        void main(){
+          float h = normalize(vWorldPosition).y * 0.5 + 0.5;
+          vec3 col = mix(bottomColor, topColor, pow(h, 1.5));
+          gl_FragColor = vec4(col, 1.0);
+        }
+      `,
+    });
+    const skyMesh = new THREE.Mesh(skyGeo, skyMat);
+    scene.add(skyMesh);
     const camera = new THREE.PerspectiveCamera(
       60,
       window.innerWidth / window.innerHeight,
@@ -286,6 +315,7 @@ export default function HomePage() {
           petal.renderOrder = 999;
           scene.add(petal);
         }
+        // Removed falling petals (performance)
       })();
 
       loader.load("/assets/house.glb", (hgltf) => {
