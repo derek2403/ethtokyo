@@ -335,7 +335,7 @@ export default function HomePage() {
           tree.scale.set(0.85, 0.85, 0.85);
 
           // Place near a diagonal corner; tweak 0.18/0.82 as needed
-          placeOnIslandByFrac(tree, 0.18, 0.82, {
+          placeOnIslandByFrac(tree, 0.8, 0.09, {
             pad: 0.18,
             alignToSlope: true,
           });
@@ -359,7 +359,7 @@ export default function HomePage() {
               o.receiveShadow = true;
             }
           });
-          torii.scale.set(0.85, 0.85, 0.85);
+          torii.scale.set(0.88, 0.88, 0.88);
 
           let grassTop = null;
           islandRoot.traverse((o) => {
