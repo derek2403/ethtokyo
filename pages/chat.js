@@ -90,6 +90,57 @@ function ChatPage() {
   const [animationsEnabled, setAnimationsEnabled] = useState(false);
   const animationsEnabledRef = useRef(false);
 
+  // Watch for new judge messages and trigger streaming
+  useEffect(() => {
+    const judgeMessages = messages.filter(m => m.speaker === 'judge');
+    const latestJudgeMessage = judgeMessages[judgeMessages.length - 1];
+    
+    if (latestJudgeMessage && latestJudgeMessage.content && animationsEnabled) {
+      console.log('🎤 New judge message detected, starting streaming:', latestJudgeMessage.content.substring(0, 50) + '...');
+      
+      // Set streaming text
+      setStreamingText(latestJudgeMessage.content);
+      setIsStreamingActive(true);
+      
+      // Stop any current idle motions before starting stream
+      if (model?.internalModel?.motionManager) {
+        try {
+          const motionManager = model.internalModel.motionManager;
+          if (motionManager.stopAllMotions) {
+            motionManager.stopAllMotions();
+            console.log('🛑 Stopped all motions before judge response stream');
+          }
+        } catch (e) {
+          console.warn('Could not stop motions before streaming:', e);
+        }
+      }
+      
+      // Use streamTextWithTiming for mouth sync animation
+      streamTextWithTiming(latestJudgeMessage.content, {
+        baseSpeed: 15,
+        onComplete: () => {
+          console.log('Judge response streaming completed');
+          setIsStreamingActive(false);
+          
+          // Clear streaming text after a delay
+          setTimeout(() => setStreamingText(''), 4000); // Longer delay for judge responses
+          
+          // Re-enable idle motions after streaming is complete
+          setTimeout(() => {
+            if (model?.motion) {
+              try {
+                model.motion('Idle');
+                console.log('♻️ Restarted idle motion after judge response stream');
+              } catch (e) {
+                console.warn('Could not restart idle motion:', e);
+              }
+            }
+          }, 500);
+        }
+      });
+    }
+  }, [messages, animationsEnabled, model]); // Watch for changes in messages
+
   // References
   const canvasContainerRef = useRef(null);
 
