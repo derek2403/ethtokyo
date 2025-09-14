@@ -64,18 +64,92 @@ function ChatPage() {
     clearChat,
   } = useMultiAIChat({ showOnlyJudge: true });
 
-  // Transform hook messages to ChatHistory format, but only show judge outputs
-  const chatMessages = messages
-    .filter(m => m.speaker === 'judge')
+  // Transform hook messages to ChatHistory format, include both user and judge
+  const chatMessagesLive = messages
+    .filter(m => m.speaker === 'user' || m.speaker === 'judge')
     .map(m => ({
       id: m.id,
       text: m.content,
-      isUser: false,
+      isUser: m.speaker === 'user',
       timestamp: m.timestamp,
+      speaker: m.speaker,
+      round: m.round,
     }));
+
+  // Persisted chat history (loaded from file)
+  const [historyMessages, setHistoryMessages] = useState([]);
+  const [historyLoadedAt, setHistoryLoadedAt] = useState(0);
 
   const [showFeelingTodayModal, setShowFeelingTodayModal] = useState(false);
   const [sessionId] = useState(`s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
+  const [storedThisSession, setStoredThisSession] = useState(false);
+  // Reset store flag when a new session starts (detect a fresh user question message)
+  useEffect(() => {
+    const hasFreshQuestion = messages.some(m => m.speaker === 'user' && m.round === 'question');
+    if (hasFreshQuestion && storedThisSession) {
+      setStoredThisSession(false);
+    }
+  }, [messages, storedThisSession]);
+
+  // Load history from file on mount and whenever a new session is stored
+  useEffect(() => {
+    async function loadHistory() {
+      try {
+        const resp = await fetch('/api/chat_history');
+        if (!resp.ok) return;
+        const data = await resp.json();
+        const sessions = Array.isArray(data.sessions) ? data.sessions : [];
+        const last = sessions[sessions.length - 1];
+        if (last?.messages) {
+          setHistoryMessages(
+            last.messages.map(m => ({
+              id: m.id,
+              text: m.text,
+              isUser: Boolean(m.isUser),
+              timestamp: m.timestamp,
+              speaker: m.speaker,
+              round: m.round,
+            }))
+          );
+        } else {
+          setHistoryMessages([]);
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+    loadHistory();
+  }, [historyLoadedAt]);
+
+  // Store the current conversation once we have both a user question and a judge response
+  useEffect(() => {
+    const hasUser = chatMessagesLive.some(m => m.isUser);
+    const hasJudge = chatMessagesLive.some(m => !m.isUser && m.speaker === 'judge');
+    if (!hasUser || !hasJudge || storedThisSession) return;
+
+    const messagesToStore = chatMessagesLive.map(m => ({
+      id: m.id,
+      text: m.text,
+      isUser: m.isUser,
+      timestamp: m.timestamp,
+      speaker: m.speaker,
+      round: m.round,
+    }));
+
+    (async () => {
+      try {
+        const resp = await fetch('/api/store_chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sessionId, messages: messagesToStore }),
+        });
+        if (resp.ok) {
+          setStoredThisSession(true);
+          setHistoryLoadedAt(Date.now());
+        }
+      } catch (_) {}
+    })();
+  }, [chatMessagesLive, sessionId, storedThisSession]);
   
   // Streaming state
   const [streamingText, setStreamingText] = useState('');
@@ -539,7 +613,7 @@ function ChatPage() {
               <ChatHistory
                 isOpen={isChatOpen}
                 onToggle={() => setIsChatOpen(!isChatOpen)}
-                messages={chatMessages}
+                messages={(historyMessages.length ? historyMessages : chatMessagesLive)}
               />
             </div>
           )}
@@ -609,7 +683,7 @@ function ChatPage() {
           .chat-history-container {
             position: fixed;
             top: 20px;
-            right: 20px;
+            left: 20px; /* moved to top-left */
             z-index: 50;
           }
 
@@ -637,7 +711,7 @@ function ChatPage() {
           .history-panel {
             position: absolute;
             top: 60px;
-            right: 0;
+            left: 0; /* open under the button on the left */
             width: 360px;
             background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(10px);
