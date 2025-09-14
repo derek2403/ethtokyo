@@ -1,20 +1,72 @@
 import { atom, useAtom } from "jotai";
 import { useEffect } from "react";
 
+// Component to display half of a page image (left or right side)
+const HalfPageView = ({ src, isLeft }) => {
+  // Determine the correct image path
+  let imagePath = src;
+  
+  // Handle different texture sources
+  if (src.startsWith('/book_pages/')) {
+    // Use PNG images from book_pages directory (cover, back cover, etc.)
+    imagePath = src;
+  } else if (src === 'book-cover') {
+    imagePath = '/textures/book-cover.jpg';
+  } else if (src === 'book-back') {
+    imagePath = '/textures/book-back.jpg';
+  } else if (src.startsWith('book-page-')) {
+    // Use texture images for content pages
+    imagePath = `/textures/${src}.jpg`;
+  } else {
+    // Default fallback
+    imagePath = `/textures/${src}.jpg`;
+  }
+  
+  return (
+    <div 
+      className="relative w-full rounded-lg border shadow-lg bg-gray-100" 
+      style={{ 
+        aspectRatio: '0.75',
+        height: '100vh',                // Full viewport height
+        maxWidth: '75vh',               // Maintain aspect ratio (100vh * 0.75)
+        width: '100%'                   // Use full available width
+      }}
+    >
+      <img
+        src={imagePath}
+        alt={`${isLeft ? 'Left' : 'Right'} half of page`}
+        className="absolute inset-0 w-[200%] h-full object-contain"
+        style={{
+          transform: isLeft ? 'translateX(0)' : 'translateX(-50%)',
+          transformOrigin: 'top left'
+        }}
+        onError={(e) => {
+          console.error(`Failed to load image: ${imagePath}`);
+          // Hide the broken image but keep the fallback visible
+          e.target.style.opacity = '0';
+        }}
+      />
+      {/* Only show fallback when image fails to load */}
+    </div>
+  );
+};
+
 // Simple modal component
 const Modal = ({ open, onClose, children }) => {
   if (!open) return null;
   return (
     <div className="pointer-events-auto fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="relative z-10 max-w-3xl w-[90vw] max-h-[80vh] overflow-auto rounded-xl bg-white p-6 shadow-xl">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="relative z-10 w-full h-full bg-transparent flex flex-col items-center justify-center">
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 rounded-full bg-black/10 hover:bg-black/20 text-black px-3 py-1"
+          className="absolute top-4 right-4 z-20 rounded-full bg-white/20 hover:bg-white/30 text-white px-3 py-1 font-medium transition-colors backdrop-blur-sm"
         >
-          Close
+          ✕ Close
         </button>
-        {children}
+        <div className="flex-shrink-0">
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -42,23 +94,37 @@ const pictures = [
 // This mirrors the logic in components/book/Book.jsx
 function textureUrlsForPage(index) {
   const total = pages.length; // includes cover and back cover entries
-  const cover = "/book_pages/cover_page.png";
-  const firstLeft = "/book_pages/page_1.png";
-  const backCover = "/book_pages/back_cover.png";
-  const continued = "/book_pages/continued.png";
-
+  
   if (index === 0) {
-    return { front: cover, back: firstLeft };
+    // Cover page: front shows cover, back shows first content page
+    return { 
+      front: "/book_pages/cover_page.png", 
+      back: "/book_pages/page_1.png" 
+    };
   }
   if (index === total - 1) {
-    return { front: continued, back: backCover };
+    // Last page: front shows continued, back shows back cover
+    return { 
+      front: "/book_pages/continued.png", 
+      back: "/book_pages/back_cover.png" 
+    };
   }
-  return { front: continued, back: continued };
+  
+  // Content pages: map to the texture images
+  // Each page spread (index) corresponds to 2 texture images
+  const leftPageNum = (index - 1) * 2 + 2; // Start from page 2 for first content spread
+  const rightPageNum = leftPageNum + 1;
+  
+  return { 
+    front: `book-page-${leftPageNum}`, 
+    back: `book-page-${rightPageNum}` 
+  };
 }
 
 // Global state for current page
 export const pageAtom = atom(0);
 // Modal state for showing page content popup
+// Holds { page: number, side: 'front'|'back', half: 'left'|'right' } or null
 export const modalPageAtom = atom(null);
 
 // Generate pages structure: cover -> content pages -> back cover
@@ -116,30 +182,16 @@ export const UI = () => {
       <main className="pointer-events-none select-none z-10 fixed inset-0 flex flex-col justify-end">
         {/* Modal for page content */}
         <Modal open={modalPage !== null} onClose={() => setModalPage(null)}>
-          {modalPage !== null && (
-            <div className="text-black">
-              <h2 className="text-xl font-semibold mb-3">Page {modalPage}</h2>
-              {/* Zoomed textures of the exact page content */}
+            {modalPage !== null && (
+              <div className="text-black">
+                {/* Zoomed textures of the exact page content, cropped to the half clicked */}
               {(() => {
-                const urls = textureUrlsForPage(modalPage);
+                const urls = textureUrlsForPage(modalPage.page);
+                const imgSrc = modalPage.side === 'front' ? urls.front : urls.back;
+                const isLeft = modalPage.half === 'left';
                 return (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-sm text-gray-600 mb-1">Front</div>
-                      <img
-                        src={urls.front}
-                        alt={`Page ${modalPage} front`}
-                        className="w-full h-auto object-contain rounded border"
-                      />
-                    </div>
-                    <div>
-                      <div className="text-sm text-gray-600 mb-1">Back</div>
-                      <img
-                        src={urls.back}
-                        alt={`Page ${modalPage} back`}
-                        className="w-full h-auto object-contain rounded border"
-                      />
-                    </div>
+                  <div className="flex items-center justify-center">
+                    <HalfPageView src={imgSrc} isLeft={isLeft} />
                   </div>
                 );
               })()}

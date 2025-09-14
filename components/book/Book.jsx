@@ -301,8 +301,14 @@ const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
       }}
       onClick={(e) => {
         e.stopPropagation();
-        // Open modal with the clicked page number instead of flipping
-        setModalPage(number);
+        // Determine whether click was on left or right half of the visible page area
+        // Convert pointer to local space on the group
+        const localX = group.current.worldToLocal(e.point.clone()).x;
+        const half = localX < PAGE_WIDTH / 2 ? 'left' : 'right';
+        // For the 3D page, the "front" is material[4], the "back" is material[5]
+        // For simplicity here, use 'front' when not opened, else 'back'
+        const side = opened ? 'back' : 'front';
+        setModalPage({ page: number, side, half });
         setHighlighted(false);
       }}
     >
