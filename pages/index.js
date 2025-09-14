@@ -1,19 +1,24 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment";
 
 export default function HomePage() {
+  const containerRef = useRef(null);
+
   useEffect(() => {
+    // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 0.7;
     renderer.shadowMap.enabled = true;
-    document.body.appendChild(renderer.domElement);
+    containerRef.current.appendChild(renderer.domElement);
 
+    // Scene / Camera
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
       60,
@@ -23,15 +28,18 @@ export default function HomePage() {
     );
     camera.position.set(2.5, 2, 3);
 
+    // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
 
+    // Environment
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromScene(
       new RoomEnvironment(renderer),
       0.04
     ).texture;
 
+    // Lights
     const sun = new THREE.DirectionalLight(0xffffff, 1.0);
     sun.position.set(3, 5, 2);
     sun.castShadow = true;
@@ -39,16 +47,20 @@ export default function HomePage() {
     scene.add(sun);
     scene.add(new THREE.AmbientLight(0xffffff, 0.15));
 
+    // Loaders / state
     const loader = new GLTFLoader();
     let islandRoot = null;
     const islandMeshes = [];
 
-    function frameObject(obj) {
+    // Helpers
+    function frameObject(obj, { pad = 0.4 } = {}) {
       const box = new THREE.Box3().setFromObject(obj);
       const size = box.getSize(new THREE.Vector3()).length();
       const center = box.getCenter(new THREE.Vector3());
+
       controls.target.copy(center);
-      const fitDist = (size * 0.6) / Math.tan((Math.PI * camera.fov) / 360);
+      const fitDist = (size * pad) / Math.tan((Math.PI * camera.fov) / 360);
+
       camera.position
         .copy(center)
         .add(new THREE.Vector3(fitDist, fitDist, fitDist));
@@ -110,12 +122,15 @@ export default function HomePage() {
       }
       return null;
     }
+
     function boundsXZ(root) {
       const b = new THREE.Box3().setFromObject(root);
       return { minX: b.min.x, maxX: b.max.x, minZ: b.min.z, maxZ: b.max.z };
     }
+
     const rand = (a, b) => a + Math.random() * (b - a);
 
+    // Load island and props
     loader.load("/assets/island.glb", (gltf) => {
       islandRoot = gltf.scene;
       islandRoot.scale.set(2.0, 2.0, 2.0);
@@ -131,6 +146,7 @@ export default function HomePage() {
       scene.add(islandRoot);
       frameObject(islandRoot);
 
+      // Petals
       (function addPetals() {
         const { minX, maxX, minZ, maxZ } = boundsXZ(islandRoot);
         const petalGeo = new THREE.CircleGeometry(0.035, 16);
@@ -166,6 +182,7 @@ export default function HomePage() {
         }
       })();
 
+      // House + trees + torii
       loader.load("/assets/house.glb", (hgltf) => {
         const house = hgltf.scene;
         house.traverse((o) => {
@@ -225,7 +242,6 @@ export default function HomePage() {
           tree2.traverse((o) => {
             if (o.isMesh) o.castShadow = true;
           });
-
           tree2.scale.set(1.0, 1.0, 1.0);
 
           const right = new THREE.Vector3(1, 0, 0).applyQuaternion(
@@ -234,7 +250,6 @@ export default function HomePage() {
           const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(
             house.quaternion
           );
-
           const target2 = house.position
             .clone()
             .addScaledVector(right, -0.85)
@@ -244,9 +259,7 @@ export default function HomePage() {
             sinkDepth: 0.05,
             alignToSlope: true,
           });
-
           tree2.rotation.y += THREE.MathUtils.degToRad(-90);
-
           tree2.lookAt(
             new THREE.Vector3(
               house.position.x,
@@ -254,7 +267,6 @@ export default function HomePage() {
               house.position.z
             )
           );
-
           scene.add(tree2);
         });
 
@@ -273,17 +285,15 @@ export default function HomePage() {
           );
           const target = house.position
             .clone()
-            .addScaledVector(right, 1.25) // sideways from the house
+            .addScaledVector(right, 1.25)
             .addScaledVector(fwd, 0.6);
 
           placeOnIsland(tree, target.x, target.z, {
             sinkDepth: 0.05,
             alignToSlope: true,
           });
-
           tree.rotation.z += THREE.MathUtils.degToRad(90);
           tree.rotation.y += THREE.MathUtils.degToRad(30);
-
           tree.lookAt(
             new THREE.Vector3(
               house.position.x,
@@ -307,8 +317,8 @@ export default function HomePage() {
           let grassTop = null;
           islandRoot.traverse((o) => {
             if (!grassTop && o.isMesh) {
-              const n = (o.name || "").toLowerCase(),
-                m = (o.material?.name || "").toLowerCase();
+              const n = (o.name || "").toLowerCase();
+              const m = (o.material?.name || "").toLowerCase();
               if (/grass|top/.test(n) || /grass|top/.test(m)) grassTop = o;
             }
           });
@@ -362,7 +372,6 @@ export default function HomePage() {
           const hp = new THREE.Vector3();
           house.getWorldPosition(hp);
           torii.lookAt(new THREE.Vector3(hp.x, torii.position.y, hp.z));
-
           torii.rotateY(THREE.MathUtils.degToRad(-14));
 
           scene.add(torii);
@@ -370,13 +379,16 @@ export default function HomePage() {
       });
     });
 
+    // Render loop
+    let rafId = 0;
     const tick = () => {
       controls.update();
       renderer.render(scene, camera);
-      requestAnimationFrame(tick);
+      rafId = requestAnimationFrame(tick);
     };
     tick();
 
+    // Resize
     const onResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -384,12 +396,19 @@ export default function HomePage() {
     };
     window.addEventListener("resize", onResize);
 
+    // Cleanup
     return () => {
       window.removeEventListener("resize", onResize);
+      cancelAnimationFrame(rafId);
+      controls.dispose();
+      pmrem.dispose();
+      scene.environment = null;
       renderer.dispose();
-      document.body.removeChild(renderer.domElement);
+      if (containerRef.current?.contains(renderer.domElement)) {
+        containerRef.current.removeChild(renderer.domElement);
+      }
     };
   }, []);
 
-  return null;
+  return <div ref={containerRef} style={{ width: "100vw", height: "100vh" }} />;
 }
