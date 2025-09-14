@@ -91,7 +91,8 @@ const pageMaterials = [
 ];
 
 // Preload cover page, first page, and back cover textures
-useTexture.preload('/book_pages/cover_page_resized.jpeg');
+// Updated to use the new PNG cover image (requested change)
+useTexture.preload('/book_pages/cover_page.png');
 useTexture.preload('/book_pages/page_1.png');
 useTexture.preload('/book_pages/back_cover.png');
 // Preload fallback texture for pages without specific images
@@ -99,7 +100,8 @@ useTexture.preload('/book_pages/continued.png');
 
 const Page = ({ number, front, back, page, opened, bookClosed, ...props }) => {
   // Load cover page texture for the first page (cover)
-  const coverTexture = number === 0 ? useTexture('/book_pages/cover_page_resized.jpeg') : null;
+  // Updated to use the new PNG cover image (requested change)
+  const coverTexture = number === 0 ? useTexture('/book_pages/cover_page.png') : null;
   if (coverTexture) {
     coverTexture.colorSpace = SRGBColorSpace;
   }
