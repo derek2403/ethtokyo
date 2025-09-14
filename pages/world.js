@@ -9,7 +9,6 @@ export default function HomePage() {
   const containerRef = useRef(null);
 
   useEffect(() => {
-    // Renderer
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -19,7 +18,6 @@ export default function HomePage() {
     renderer.shadowMap.enabled = true;
     containerRef.current.appendChild(renderer.domElement);
 
-    // Scene / Camera
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
       60,
@@ -29,18 +27,15 @@ export default function HomePage() {
     );
     camera.position.set(2.5, 2, 3);
 
-    // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
 
-    // Environment
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromScene(
       new RoomEnvironment(renderer),
       0.04
     ).texture;
 
-    // Lights
     const sun = new THREE.DirectionalLight(0xffffff, 1.0);
     sun.position.set(3, 5, 2);
     sun.castShadow = true;
@@ -48,15 +43,16 @@ export default function HomePage() {
     scene.add(sun);
     scene.add(new THREE.AmbientLight(0xffffff, 0.15));
 
-    // Loaders / state
     const loader = new GLTFLoader();
     let islandRoot = null;
     const islandMeshes = [];
-    // Boy movement state
+
     let boy = null;
     let isWalking = false;
+    let wasWalking = false; // track animation state transitions
     const targetPos = new THREE.Vector3();
-    const WALK_SPEED = 0.6; // meters per second
+    const WALK_SPEED = 0.5;
+    const ARRIVE_RADIUS = 0.05; // tolerance to consider arrival
 
     // Helpers
     function frameObject(obj, { pad = 0.4 } = {}) {
@@ -139,7 +135,7 @@ export default function HomePage() {
     // Load island and props
     loader.load("/assets/island.glb", (gltf) => {
       islandRoot = gltf.scene;
-      islandRoot.scale.set(2.0, 2.0, 2.0);
+      islandRoot.scale.set(2.0, 2.0, 3.0);
 
       islandRoot.traverse((o) => {
         if (o.isMesh) {
@@ -188,7 +184,6 @@ export default function HomePage() {
         }
       })();
 
-      // House + trees + torii
       loader.load("/assets/house.glb", (hgltf) => {
         const house = hgltf.scene;
         house.traverse((o) => {
@@ -389,7 +384,8 @@ export default function HomePage() {
     // This happens after islandRoot is added within loader callbacks above.
     // Poll until island meshes are ready, then place the boy on land.
     (function trySpawnBoy() {
-      const ready = islandMeshes.length > 0 && scene.children.includes(islandRoot);
+      const ready =
+        islandMeshes.length > 0 && scene.children.includes(islandRoot);
       if (!ready) {
         requestAnimationFrame(trySpawnBoy);
         return;
@@ -423,11 +419,15 @@ export default function HomePage() {
       // Ignore water-like surfaces
       const n = (hit.object.name || "").toLowerCase();
       const m = (hit.object.material?.name || "").toLowerCase();
-      if (/water|pond|lake|pool/.test(n) || /water|pond|lake|pool/.test(m)) return;
+      if (/water|pond|lake|pool/.test(n) || /water|pond|lake|pool/.test(m))
+        return;
 
       targetPos.copy(hit.point);
-      isWalking = true;
-      playBoy("startWalking");
+      // Start walking animation only on transition from idle
+      if (!isWalking) {
+        isWalking = true;
+        playBoy("startWalking");
+      }
     }
     renderer.domElement.addEventListener("pointerdown", onPointerDown);
 
@@ -445,33 +445,31 @@ export default function HomePage() {
           targetPos.z - pos.z
         );
         const dist = dir.length();
-        if (dist < 1e-3) {
+        if (dist <= ARRIVE_RADIUS) {
+          // Close enough: snap to ground at target and stop
+          const hit = groundHitAt(targetPos.x, targetPos.z, islandMeshes);
+          if (hit) boy.position.copy(hit.point);
           isWalking = false;
         } else {
           dir.normalize();
-          const step = WALK_SPEED * dt;
-          if (dist <= step) {
-            // Snap to target and stop
-            const hit = groundHitAt(targetPos.x, targetPos.z, islandMeshes);
-            if (hit) boy.position.copy(hit.point);
-            isWalking = false;
+          // Clamp step to avoid large hitch-induced overshoot
+          const step = Math.min(WALK_SPEED * dt, dist);
+          const nx = pos.x + dir.x * step;
+          const nz = pos.z + dir.z * step;
+          const hit = groundHitAt(nx, nz, islandMeshes);
+          if (hit) {
+            boy.position.copy(hit.point);
           } else {
-            const nx = pos.x + dir.x * step;
-            const nz = pos.z + dir.z * step;
-            const hit = groundHitAt(nx, nz, islandMeshes);
-            if (hit) {
-              boy.position.copy(hit.point);
-            } else {
-              boy.position.set(nx, pos.y, nz);
-            }
+            boy.position.set(nx, pos.y, nz);
           }
           // Face movement direction
-          if (dir.lengthSq() > 0.0001) {
+          if (step > 0.0001) {
             boy.rotation.y = Math.atan2(dir.x, dir.z);
           }
         }
-        // If stopped this frame, return to idle
-        if (!isWalking) playBoy("idle");
+        // If we just stopped this frame, return to idle
+        if (wasWalking && !isWalking) playBoy("idle");
+        wasWalking = isWalking;
       }
       updateBoy(dt);
       controls.update();

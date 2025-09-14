@@ -7,6 +7,7 @@ let boyModel = null;
 let boyMixer = null;
 let boyActions = {};
 let boyActiveAction = null;
+let startWalkFinishedHandler = null; // one-shot handler for startWalking -> walk
 
 function hasAnyMesh(root) {
   let found = false;
@@ -73,6 +74,14 @@ async function loadAnim(name, url) {
     const clip = fbx.animations[0];
     const action = boyMixer.clipAction(clip, boyModel);
     boyActions[name] = action;
+    // Speed up specific animations
+    if (name === "walk" || name === "startWalking") {
+      if (typeof action.setEffectiveTimeScale === "function") {
+        action.setEffectiveTimeScale(1.5);
+      } else {
+        action.timeScale = 1.5;
+      }
+    }
     console.log(`[boy] animation loaded: ${name}`);
     return action;
   } catch (err) {
@@ -104,18 +113,17 @@ export async function spawnBoy(scene, opts = {}) {
 
   console.log("[boy] loading idle model (as base)...");
   let base = await loadFBX("/model/boy/Idle.fbx");
-  // Some animation FBX files may not include a skinned mesh. Fallback to base_basic_shaded.fbx.
   if (!hasAnyMesh(base)) {
-    console.warn("[boy] Idle.fbx contains no meshes; falling back to base_basic_shaded.fbx");
+    console.warn(
+      "[boy] Idle.fbx contains no meshes; falling back to base_basic_shaded.fbx"
+    );
     base = await loadFBX("/model/boy/base_basic_shaded.fbx");
   }
   boyModel = base; // mesh (and possibly idle animation)
   setShadowAndSkinning(boyModel);
   applyBoyMaterials(boyModel);
-  // Mark for identification in scene traversals
   boyModel.userData.isBoy = true;
 
-  // Scale to meters (most FBX are centimeters)
   const scale = opts.scale != null ? opts.scale : 0.003;
   boyModel.scale.setScalar(scale);
 
@@ -144,7 +152,9 @@ export async function spawnBoy(scene, opts = {}) {
     console.log("[boy] no idle animation found, falling back to walk");
     fadeTo("walk");
   } else if (boyActions.startWalking) {
-    console.log("[boy] no idle or walk animation found, falling back to startWalking");
+    console.log(
+      "[boy] no idle or walk animation found, falling back to startWalking"
+    );
     fadeTo("startWalking");
   } else {
     console.warn("[boy] no animations available");
@@ -176,9 +186,21 @@ export function playBoy(name) {
     if (boyActiveAction && boyActiveAction !== a) boyActiveAction.stop();
     boyActiveAction = a;
     a.clampWhenFinished = true;
-    a.getMixer().addEventListener("finished", () => {
-      if (boyActions.walk) fadeTo("walk", 0.2);
-    });
+    // Remove any previous handler to avoid duplicate triggers
+    if (startWalkFinishedHandler && boyMixer) {
+      boyMixer.removeEventListener("finished", startWalkFinishedHandler);
+      startWalkFinishedHandler = null;
+    }
+    // Only transition when THIS action finishes
+    const onFinished = (e) => {
+      if (e.action === a) {
+        if (boyMixer) boyMixer.removeEventListener("finished", onFinished);
+        startWalkFinishedHandler = null;
+        if (boyActions.walk) fadeTo("walk", 0.2);
+      }
+    };
+    startWalkFinishedHandler = onFinished;
+    a.getMixer().addEventListener("finished", onFinished);
     return;
   }
   fadeTo(name);
