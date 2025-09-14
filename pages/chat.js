@@ -9,6 +9,7 @@ import ChatHistory from '@/components/chat/ChatHistory';
 import ChatInput from '@/components/chat/ChatInput';
 import DebugOverlay from '@/components/chat/DebugOverlay';
 import StreamingText from '@/components/chat/StreamingText';
+import ThinkingIndicator from '@/components/chat/ThinkingIndicator';
 import FeelingTodayModal from '@/components/FeelingTodayModal';
 
 // Multi-AI Chat logic (shared with MultiAIChat component)
@@ -181,9 +182,7 @@ function ChatPage() {
         baseSpeed: 15,
         onComplete: () => {
           setIsStreamingActive(false);
-          
-          // Keep the message visible for a while before fading
-          setTimeout(() => setStreamingText(''), 6000);
+          // Do not auto-clear the displayed text; keep it visible
         }
       });
     }
@@ -474,7 +473,7 @@ function ChatPage() {
         () => {
           addMessage("Demo animation complete!", false);
           setIsStreamingActive(false);
-          setTimeout(() => setStreamingText(''), 2000); // Clear after 2s
+          // Do not auto-clear the demo text
           
           // Re-enable idle motions after streaming is complete
           setTimeout(() => {
@@ -599,7 +598,9 @@ function ChatPage() {
               />
             ) : (
               isBusy && (
-                <div className="streaming-text">Chotto matte! Kaigan is thinking…</div>
+                <div className="streaming-text">
+                  <ThinkingIndicator text="Chotto matte! Kaigan is thinking" />
+                </div>
               )
             )}
           </div>
