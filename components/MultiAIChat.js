@@ -3,8 +3,25 @@ import { Button } from '@/components/ui/button';
 import FeelingTodayModal from './FeelingTodayModal';
 import FeelingBetterModal from './FeelingBetterModal';
 
+// Simple session id generator for grouping logs
+const genSessionId = () => `s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
 export default function MultiAIChat() {
   const [userQuestion, setUserQuestion] = useState('');
+  
+  // Client-side logger to central API so all events go to a single text file
+  const logEvent = async (event, data = {}) => {
+    try {
+      await fetch('/api/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, event, data })
+      });
+    } catch (e) {
+      // non-blocking
+      console.warn('logEvent failed', e);
+    }
+  };
   const [round, setRound] = useState(0); // 0: waiting, 1: initial answers, 2: criticism, 3: voting
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -12,6 +29,7 @@ export default function MultiAIChat() {
   const [showFeelingTodayModal, setShowFeelingTodayModal] = useState(false);
   const [showFeelingBetterModal, setShowFeelingBetterModal] = useState(false);
   const [feelingTodayRating, setFeelingTodayRating] = useState(null);
+  const [sessionId, setSessionId] = useState(genSessionId());
   const [feelingBetterRating, setFeelingBetterRating] = useState(null);
 
   const aiConfig = {
@@ -32,7 +50,9 @@ export default function MultiAIChat() {
         },
         body: JSON.stringify({
           messages: [{ role: 'user', content: message }],
-          model: 'gpt-4o-mini'
+          model: 'gpt-4o-mini',
+          sessionId,
+          round: roundType
         }),
       });
 
@@ -84,6 +104,8 @@ export default function MultiAIChat() {
       round: 'question'
     };
     setMessages([userMessage]);
+    // Log session start with initial rating and question
+    logEvent('session_start', { feelingTodayRating, question: userQuestion });
     
     // Round 1: All AIs provide initial assessment
     const question = `Mental Health Consultation: ${userQuestion}\n\nPlease provide your professional mental health assessment, including:\n1. Your understanding of the concern and emotional state\n2. Potential mental health considerations\n3. Recommended coping strategies or interventions\n4. Any safety concerns or red flags\n5. Suggestions for professional support if needed\n\nPlease be empathetic, supportive, and evidence-based in your response.`;
@@ -245,7 +267,10 @@ export default function MultiAIChat() {
         },
         body: JSON.stringify({
           round3Responses,
-          userQuestion: finalUserQuestion
+          userQuestion: finalUserQuestion,
+          sessionId,
+          feelingToday: feelingTodayRating ?? null,
+          feelingBetter: feelingBetterRating ?? null
         }),
       });
 
@@ -290,11 +315,66 @@ export default function MultiAIChat() {
 
   const handleFeelingTodayRating = (rating) => {
     setFeelingTodayRating(rating);
+    logEvent('initial_feeling', { rating });
     console.log('Feeling today rating:', rating);
+  };
+
+  // Build and send a single-line summary log
+  const sendSimpleSummaryLog = async (betterRating) => {
+    try {
+      const tsDay = new Date();
+      const formatSingleLine = (text) =>
+        String(text || '')
+          .replace(/\s+/g, ' ') // collapse whitespace
+          .trim();
+
+      // Extract user input
+      const userMsg = messages.find(m => m.speaker === 'user')?.content || userQuestion || '';
+
+      // Helper to extract outputs per round
+      const getRoundOutput = (round, aiKey) => {
+        const msg = messages.find(m => m.round === round && m.speaker === aiKey);
+        return msg ? formatSingleLine(msg.content) : '';
+      };
+
+      const r1_ai1 = getRoundOutput('round1', 'ai1');
+      const r1_ai2 = getRoundOutput('round1', 'ai2');
+      const r1_ai3 = getRoundOutput('round1', 'ai3');
+
+      const r2_ai1 = getRoundOutput('round2', 'ai1');
+      const r2_ai2 = getRoundOutput('round2', 'ai2');
+      const r2_ai3 = getRoundOutput('round2', 'ai3');
+
+      const r3_ai1 = getRoundOutput('round3', 'ai1');
+      const r3_ai2 = getRoundOutput('round3', 'ai2');
+      const r3_ai3 = getRoundOutput('round3', 'ai3');
+
+      // Build the single line in the requested order
+      const line = [
+        // time day (local date and time)
+        `date/time: ${tsDay.toLocaleString()}`,
+        `feeling today:${feelingTodayRating ?? ''}`,
+        `user input:${formatSingleLine(userMsg)}`,
+        'round1', `ai1:${r1_ai1}`, `ai2:${r1_ai2}`, `ai3:${r1_ai3}`,
+        'round2', `ai1:${r2_ai1}`, `ai2:${r2_ai2}`, `ai3:${r2_ai3}`,
+        'round3', `ai1:${r3_ai1}`, `ai2:${r3_ai2}`, `ai3:${r3_ai3}`,
+        `feeling better:${betterRating ?? ''}`
+      ].join(' ');
+
+      await fetch('/api/log_summary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ line })
+      });
+    } catch (e) {
+      console.warn('sendSimpleSummaryLog failed', e);
+    }
   };
 
   const handleFeelingBetterRating = (rating) => {
     setFeelingBetterRating(rating);
+    logEvent('post_consult_feeling', { rating });
+    // Do not append consolidated one-line summary; end the session at 'feeling better' in simple log only
     console.log('Feeling better rating:', rating);
   };
 

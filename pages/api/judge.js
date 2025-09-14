@@ -1,5 +1,7 @@
 // pages/api/judge.js - AI Judge for Final Mental Health Recommendation
 
+import { appendLog } from '@/lib/serverLogger';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -12,7 +14,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { round3Responses, userQuestion } = req.body || {};
+    const { round3Responses, userQuestion, sessionId, feelingToday, feelingBetter } = req.body || {};
 
     console.log('Judge API received:', { round3Responses, userQuestion });
 
@@ -64,6 +66,9 @@ export default async function handler(req, res) {
 
     const data = await rpResp.json();
     const text = data?.choices?.[0]?.message?.content ?? '';
+
+    await appendLog({ type: 'judge_output', ai: 'judge', sessionId: sessionId || null, userQuestion, round3Responses, judgeText: text, ratings: { feelingToday: feelingToday ?? null, feelingBetter: feelingBetter ?? null } });
+
     return res.status(200).json({ text, ai: 'judge', color: 'bg-yellow-500' });
   } catch (err) {
     console.error('Judge API error:', err);

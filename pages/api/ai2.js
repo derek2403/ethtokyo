@@ -1,5 +1,7 @@
 // pages/api/ai2.js - AI Agent 2: The Scientist
 
+import { appendLog } from '@/lib/serverLogger';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -12,7 +14,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages, model } = req.body || {};
+    const { messages, model, sessionId, round } = req.body || {};
 
     if (!messages || (Array.isArray(messages) && messages.length === 0)) {
       return res.status(400).json({ error: 'messages array required' });
@@ -50,6 +52,10 @@ export default async function handler(req, res) {
 
     const data = await rpResp.json();
     const text = data?.choices?.[0]?.message?.content ?? '';
+
+    // Log this AI response
+    await appendLog({ type: 'ai_output', ai: 'ai2', round: round || null, sessionId: sessionId || null, userPrompt: Array.isArray(messages) ? messages.map(m => m.content).join('\n') : String(messages), output: text });
+
     return res.status(200).json({ text, ai: 'ai2' });
   } catch (err) {
     console.error('AI2 API error:', err);
