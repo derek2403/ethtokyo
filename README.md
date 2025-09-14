@@ -215,8 +215,8 @@ Our solution leverages cutting-edge services from three strategic partners to de
 
 ### Japan Smart Chain
 
-Explorer link to the SBT Token: 
-Explorer link to the Smart Contract:
+Explorer link to the SBT Token: https://5278000.testnet.routescan.io/tx/0x2784d5256cdf0107daf2d814ae4c441fb6062a2398393fe99657c785e9941e94
+Explorer link to the Smart Contract: https://explorer.kaigan.jsc.dev/address/0xAb8281Eb535238eA29fC10cbc67959e0FBdb6626
 
 ---
 
@@ -251,10 +251,18 @@ Together, these studies underscore that gamification is not just an add-on but a
   - [LinkedIn](https://www.linkedin.com/in/derek2403/) | [Twitter](https://x.com/derek2403)
 
 - **Phen Jing Yuan**  
-  - *Role*: 
+  - *Role*: AI Engineer
   - [LinkedIn](https://www.linkedin.com/in/jing-yuan-phen-b42266295/) | [Twitter](https://x.com/ilovedahmo)
 
 - **Marcus Tan Chi Yau**  
   - *Role*: Frontend Developer & UI/UX Design 
   - [LinkedIn](https://www.linkedin.com/in/marcus-tan-8846ba271/)
+ 
+- **Cedric Chung**  
+  - *Role*: Smart Contract Developer
+  - [LinkedIn](https://www.linkedin.com/in/cedric-chung-2756b4310/)
+ 
+  - **Edwina Hon Kai Xin**  
+  - *Role*: Frontend Developer & UI/UX Design 
+  - [LinkedIn](https://www.linkedin.com/in/edwina-hon-548189340/)
 
