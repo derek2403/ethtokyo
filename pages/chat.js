@@ -346,16 +346,14 @@ function ChatPage() {
   }, [app, model, placeholderFace]);
 
   // Event handlers
-  const handleSendMessage = async (value) => {
-    const input = (value ?? userQuestion ?? '').trim();
-    if (!input || isLoading) return;
-    // Use MultiAIChat orchestration logic
-    await startConsultation(input);
-    if (!isChatOpen) setIsChatOpen(true);
-    setUserQuestion('');
-    return;
-    
-  };
+    const handleSendMessage = async (value) => {
+      const input = (value ?? userQuestion ?? '').trim();
+      if (!input || isLoading) return;
+      // Use MultiAIChat orchestration logic
+      await startConsultation(input);
+      setUserQuestion('');
+      return;
+    };
 
   const handleFeelingTodayRating = (rating) => {
     setFeelingTodayRating(rating);
