@@ -9,8 +9,7 @@ Check out the live demo of **Cure Me Baby**:  👉 [Click here to try it out](ht
 ---
 
 ## Inspiration: How We Came Up With This Idea 💡
-
-
+We were deeply moved by the reality that** suicide remains one of the leading causes of preventable death worldwide**. In Japan especially, rates have long been among the highest in developed nations. But this is not just a Japanese issue—globally, someone dies by suicide every 40 seconds.
 
 We thought:
 
