@@ -108,7 +108,7 @@ export default function MultiAIChat() {
     logEvent('session_start', { feelingTodayRating, question: userQuestion });
     
     // Round 1: All AIs provide initial assessment
-    const { buildRound1Prompt } = await import('@/prompt_enginnering/prompts');
+    const { buildRound1Prompt } = await import('@/prompt_engineering/prompts');
     const question = buildRound1Prompt(userQuestion);
     
     // Run all Round 1 responses concurrently
@@ -133,7 +133,7 @@ export default function MultiAIChat() {
     const ai3Answer = (ai3AnswerFromR1 ?? messages.filter(m => m.round === 'round1').find(m => m.speaker === 'ai3')?.content) ?? '';
     
     // Each AI discusses the other two's approaches
-    const { buildRound2Critiques } = await import('@/prompt_enginnering/prompts');
+    const { buildRound2Critiques } = await import('@/prompt_engineering/prompts');
     const { ai1: ai1Critique, ai2: ai2Critique, ai3: ai3Critique } = buildRound2Critiques(ai1Answer, ai2Answer, ai3Answer);
     
     // Run all Round 2 responses concurrently, then immediately move to Round 3 when done
@@ -156,7 +156,7 @@ export default function MultiAIChat() {
     const round1Messages = messages.filter(m => m.round === 'round1');
     const round2Messages = messages.filter(m => m.round === 'round2');
     
-    const { buildRound3VotingPrompt } = await import('@/prompt_enginnering/prompts');
+    const { buildRound3VotingPrompt } = await import('@/prompt_engineering/prompts');
     const votingPrompt = buildRound3VotingPrompt();
     
     // Run all Round 3 responses concurrently

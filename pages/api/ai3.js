@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     const usedModel = model || 'gpt-4o-mini';
 
     // Centralized system prompt for AI3
-    const { SYSTEM_PROMPTS } = await import('@/prompt_enginnering/prompts');
+    const { SYSTEM_PROMPTS } = await import('@/prompt_engineering/prompts');
     const systemPrompt = SYSTEM_PROMPTS.ai3;
 
     const payloadMessages = Array.isArray(messages)
