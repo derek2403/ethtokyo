@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useMultiAIChat } from '@/lib/chat/useMultiAIChat';
 import { Button } from '@/components/ui/button';
 import FeelingTodayModal from './FeelingTodayModal';
 import FeelingBetterModal from './FeelingBetterModal';
@@ -6,8 +7,22 @@ import FeelingBetterModal from './FeelingBetterModal';
 // Simple session id generator for grouping logs
 const genSessionId = () => `s_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
-export default function MultiAIChat({ showOnlyJudge = false } = {}) {
-  const [userQuestion, setUserQuestion] = useState('');
+export default function MultiAIChat({ showOnlyJudge = true } = {}) {
+  const {
+    userQuestion,
+    setUserQuestion,
+    round,
+    messages,
+    isLoading,
+    finalRecommendation,
+    feelingTodayRating,
+    setFeelingTodayRating,
+    feelingBetterRating,
+    setFeelingBetterRating,
+    aiConfig,
+    startConsultation,
+    clearChat,
+  } = useMultiAIChat({ showOnlyJudge });
   
   // Client-side logger to central API so all events go to a single text file
   const logEvent = async (event, data = {}) => {
@@ -22,7 +37,6 @@ export default function MultiAIChat({ showOnlyJudge = false } = {}) {
       console.warn('logEvent failed', e);
     }
   };
-  const [round, setRound] = useState(0); // 0: waiting, 1: initial answers, 2: criticism, 3: voting
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [finalRecommendation, setFinalRecommendation] = useState(null);

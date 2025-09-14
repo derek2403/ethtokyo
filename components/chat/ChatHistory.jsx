@@ -1,5 +1,6 @@
 // Chat history panel with animation controls
 import React, { useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 
@@ -175,7 +176,7 @@ const ChatHistory = ({
                         ? 'bg-primary text-primary-foreground' 
                         : 'bg-muted text-muted-foreground'
                     }`}>
-                      {msg.text}
+                      <ReactMarkdown>{msg.text}</ReactMarkdown>
                     </div>
                     <div className="text-xs text-muted-foreground mt-1">
                       {msg.timestamp}
