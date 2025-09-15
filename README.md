@@ -113,7 +113,7 @@ Users can further personalize their experience by optionally uploading personal 
   - All sensitive user data remains secure and never leaves the enclave.
 
 - **Integrated LLM:**  
-  The TEE hosts a robust Large Language Model (LLM) that serves as the AI psychiatrist. Additionally, models like Red Pill (ex. Deepseek that are pre-deployed in TEEs by Phala Network) can be utilized without the need for self-hosting, enhancing the system’s capabilities.
+  The TEE hosts a robust Large Language Model (LLM) that serves as the AI psychiatrist. Additionally, models like Red Pill (ex. Deepseek and GPT-4o-mini that are pre-deployed in TEEs by Phala Network) can be utilized without the need for self-hosting, enhancing the system’s capabilities.
 
 ---
 
@@ -177,7 +177,7 @@ Users can further personalize their experience by optionally uploading personal 
 - **Docker** – Containerization solution for securely hosting and deploying code within Phala TEEs.
 - **Ethers.js** – JavaScript library to facilitate blockchain interactions and smart contract integration.
 - **Gensyn Swarm** – Distributed reinforcement learning network where multiple LLMs collaborate to refine mental health guidance based on collective, anonymized user feedback.
-- **Red Pill** – A fine-tuned Deepseek model deployed in a TEE, hosted via Phala Network.
+- **Red Pill** – A fine-tuned GPT-4o-mini model deployed in a TEE, hosted via Phala Network.
 - **Privy** – Privacy-preserving auth and embedded wallet SDK that supports email/phone/social login and passkeys.
 
 ---
