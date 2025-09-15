@@ -58,7 +58,7 @@ To address this gap, we have built an AI-driven mental healthcare assistant (psy
 - **AI-Powered Conversations:** Once authenticated, users interact with our AI psychiatrist—powered by a robust Large Language Model (LLM)—to discuss their challenges and receive empathetic guidance.
 - **Adaptive Feedback:** The LLM tailors its responses in real time, offering therapeutic prompts and personalized advice based on individual session feedback.
 
-### 3. Daily Progress & Visual Memory Wall
+### 3. Daily Progress & Visual Memory Manga
 - **Daily Snapshots:** At the end of each day, the system generates a story or narrative snapshot of the user’s emotional progress. These stories are stored on a comic/manga book, allowing users to visually track and reflect on their journey.
 - **Engaging Feedback:** This gamified progress tracking approach reinforces positive changes by offering an interactive and rewarding visual timeline of personal growth.
 
@@ -140,7 +140,7 @@ Users can further personalize their experience by optionally uploading personal 
   The extracted context is combined with session data within the TEE, allowing the LLM to deliver even more targeted and empathetic advice.
 ---
 
-## 5. Gamified Daily Memory & Progress Tracking
+## 5. Gamified Daily Memory Manga & Progress Tracking
 
 - **Daily Visual Snapshots:**  
   Each day, the system automatically generates a visual or narrative story snapshot of the user's emotional state and progress.
