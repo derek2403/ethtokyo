@@ -38,16 +38,42 @@ const ChatHistory = ({
           </div>
         ) : (
           <div className="message-list">
-            {messages.map(msg => (
-              <div key={msg.id} className={`message ${msg.isUser ? 'user-message' : 'ai-message'}`}>
-                <div className="message-content">
-                  <ReactMarkdown>{msg.text}</ReactMarkdown>
+            {messages.map(msg => {
+              const LinkRenderer = ({ href = '', children }) => {
+                if (href && href.startsWith('copy:')) {
+                  const toCopy = decodeURIComponent(href.slice(5));
+                  return (
+                    <a
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        try {
+                          navigator.clipboard?.writeText(toCopy);
+                        } catch (_) {}
+                      }}
+                      className="underline hover:opacity-80"
+                    >
+                      {children}
+                    </a>
+                  );
+                }
+                return (
+                  <a href={href} target="_blank" rel="noopener noreferrer" className="underline hover:opacity-80">
+                    {children}
+                  </a>
+                );
+              };
+              return (
+                <div key={msg.id} className={`message ${msg.isUser ? 'user-message' : 'ai-message'}`}>
+                  <div className="message-content">
+                    <ReactMarkdown components={{ a: LinkRenderer }}>{msg.text}</ReactMarkdown>
+                  </div>
+                  <div className="message-timestamp">
+                    {msg.timestamp}
+                  </div>
                 </div>
-                <div className="message-timestamp">
-                  {msg.timestamp}
-                </div>
-              </div>
-            ))}
+              );
+            })}
             <div ref={messagesEndRef} />
           </div>
         )}
