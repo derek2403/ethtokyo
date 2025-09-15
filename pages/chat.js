@@ -588,7 +588,7 @@ function ChatPage() {
             ref={canvasContainerRef} 
             className="w-full h-full"
             style={{
-              transform: 'translateX(-17%)', 
+              transform: 'translateX(-20%) translateY(8%)', 
               transformOrigin: 'center bottom'
             }}
           />
