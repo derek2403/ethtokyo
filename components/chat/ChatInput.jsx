@@ -19,6 +19,7 @@ const ChatInput = ({
   placeholder = "Chat with your VTuber...", 
   disabled = false 
 }) => {
+  const fileInputRef = React.useRef(null);
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -30,12 +31,51 @@ const ChatInput = ({
     if (!value.trim() || disabled) return;
     onSend(value.trim());
   };
+
+  const handleAttachClick = () => {
+    if (disabled) return;
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFilesSelected = (e) => {
+    const files = Array.from(e.target.files || []);
+    // Front-end only: no upload — for now we just clear the selection
+    // and could optionally surface a UI hook later.
+    // Reset the input so selecting the same file again still triggers change.
+    e.target.value = '';
+  };
   
   return (
     <>
       <div className="chat-input-container">
         <div className="input-wrapper">
           <div className="input-container">
+            {/* Left circle: plus/attach button (front-end only) */}
+            <Button 
+              type="button"
+              onClick={handleAttachClick}
+              disabled={disabled}
+              className="attach-button"
+              aria-label={disabled ? 'Uploader disabled' : 'Attach document'}
+              title={disabled ? 'Waiting for reply' : 'Attach'}
+            >
+              {/* Plus icon */}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 5v14M5 12h14"/>
+              </svg>
+            </Button>
+
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept=".pdf,.doc,.docx,.txt,.md,.png,.jpg,.jpeg,.gif,.webp,.csv,.json"
+              onChange={handleFilesSelected}
+              style={{ display: 'none' }}
+            />
             <Textarea
               value={value}
               onChange={(e) => onChange(e.target.value)}
@@ -135,12 +175,30 @@ const ChatInput = ({
           margin-right: 4px;
         }
 
-        :global(.submit-button:hover) {
+        :global(.attach-button) {
+          background: rgba(255, 255, 255, 0.2);
+          border: none;
+          border-radius: 50%;
+          width: 48px;
+          height: 48px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          margin-left: 4px;
+          margin-right: 8px;
+        }
+
+        :global(.submit-button:hover),
+        :global(.attach-button:hover) {
           background: rgba(255, 255, 255, 0.3);
           transform: scale(1.05);
         }
 
-        :global(.submit-button:disabled) {
+        :global(.submit-button:disabled),
+        :global(.attach-button:disabled) {
           opacity: 0.5;
           cursor: not-allowed;
         }
