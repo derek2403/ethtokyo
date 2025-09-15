@@ -235,6 +235,7 @@ Our solution leverages cutting-edge services from three strategic partners to de
 ### Japan Smart Chain
 
 Explorer link to the SBT Token: https://5278000.testnet.routescan.io/tx/0x2784d5256cdf0107daf2d814ae4c441fb6062a2398393fe99657c785e9941e94
+
 Explorer link to the Smart Contract: https://explorer.kaigan.jsc.dev/address/0xAb8281Eb535238eA29fC10cbc67959e0FBdb6626
 
 ---
