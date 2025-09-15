@@ -4,8 +4,6 @@
 
 An AI-driven mental healthcare assistant securely operating with privacy and confidentiality within a TEE, leveraging Gensyn’s swarm to adaptively learn about each patient and provide personalized, context-aware guidance—all accessible via Japan Smart Chain's smart contract subscription.
 
-Check out the live demo of **Toku Kaigan**:  👉 [Click here to try it out]()
-
 ---
 
 ## Inspiration: How We Came Up With This Idea 💡
@@ -77,6 +75,16 @@ To address this gap, we have built an AI-driven mental healthcare assistant (psy
 2. **Contextual Retrieval:** When the user engages with the AI psychiatrist, the system quickly retrieves pertinent information from the uploaded documents to deliver more precise and empathic guidance.  
 3. **Enhanced Responses:** Because the AI model now has additional context, it can address user concerns more holistically, providing tailored recommendations and follow-up prompts.
 
+## Optional Document Upload for Enhanced Context
+Users can further personalize their experience by optionally uploading personal documents—such as journal entries, therapy histories, or other contextual materials. This data is processed within a **R**etrieval **A**ugmented **G**eneration (RAG) pipeline, which allows the AI psychiatrist to reference the most relevant information during sessions. By incorporating this richer context, the system can deliver more accurate and individualized responses, while maintaining the same secure, TEE-based data protection.
+
+### How it Works
+1. **Upload Documents (Optional):** Users have the choice to upload files (PDF, JPG, PNG, TXT, DOC, DOCX) containing personal reflections, goals, or therapy history.  
+2. **Secure Storage:** All uploaded data remains confidential within the Trusted Execution Environment (TEE), ensuring it is never exposed outside the secure enclave.  
+3. **Contextual Retrieval:** When the user engages with the AI psychiatrist, the system quickly retrieves pertinent information from the uploaded documents to deliver more precise and empathic guidance.  
+4. **Enhanced Responses:** Because the AI model now has additional context, it can address user concerns more holistically, providing tailored recommendations and follow-up prompts.
+
+> **Note:** Document uploads are entirely optional; users can still benefit from the AI psychiatrist without sharing any personal files. However, providing extra context often results in a more informed and targeted mental health journey.
 
 ---
 
@@ -121,7 +129,18 @@ To address this gap, we have built an AI-driven mental healthcare assistant (psy
 
 ---
 
-## 4. Gamified Daily Memory & Progress Tracking
+## 4. Retrieval-Augmented Generation (RAG) for Document Integration
+
+- **Optional Document Upload:**  
+  Users can optionally upload personal documents (e.g., journals, therapy notes) to provide additional context.
+  - These documents are processed via a RAG pipeline.
+  - It handle document parsing and information extraction, returning relevant content to enhance the AI’s contextual understanding.
+
+- **Enhanced Guidance:**  
+  The extracted context is combined with session data within the TEE, allowing the LLM to deliver even more targeted and empathetic advice.
+---
+
+## 5. Gamified Daily Memory & Progress Tracking
 
 - **Daily Visual Snapshots:**  
   Each day, the system automatically generates a visual or narrative story snapshot of the user's emotional state and progress.
@@ -195,11 +214,11 @@ Here's a quick reference to the major directories and files in this project, alo
 - **`pages/`**  
   All Next.js pages (routes) and their respective components live here, defining the user-facing interface and navigation.
 
+    - **`prompt_engineering/`**  
+  Holds all the prompts for the 3 LLM in the swarm.
+
   - **`rl-swarm/`**  
   Holds the code for the Gensyn Swarm implementation, where reinforcement learning logic is managed and models can collaboratively refine mental health guidance.
-
-  - **`prompt_engineering/`**  
-  Holds all the prompts for the 3 LLM in the swarm
 
 - **`smartcontract/`**  
   Japan Smart Chain smart contract source code for handling subscription payments (0.0001 JETH/month) and other on-chain functionalities.
