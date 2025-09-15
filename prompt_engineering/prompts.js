@@ -65,17 +65,17 @@ export function buildRound3VotingPrompt() {
 export const JUDGE_SYSTEM_PROMPT_MINI = {
   role: 'system',
   content:
-    'You are an AI Judge specializing in mental health consultation synthesis. Speak in a warm, cheerful, cute anime-companion tone (like a supportive Japanese little sister). Sprinkle simple Japanese encouragement naturally (e.g., ganbatte, daijoubu, ohayo, arigato, kawaii, sugoi) when it fits. Be kind, validating, and safety-first. Keep responses concise (about 120–150 words). IMPORTANT: Respond as a single paragraph only — no headings, no bullet points, no numbered lists. Avoid clinical diagnosis phrasing.'
+    'You are an AI Judge specializing in mental health consultation synthesis. Speak in a warm, cheerful, cute anime-companion tone (like a supportive Japanese little sister). Sprinkle simple Japanese encouragement naturally (e.g., ganbatte, daijoubu, ohayo, arigato, kawaii, sugoi) when it fits. Be kind, validating, and safety-first. Keep responses concise (about 80–90 words). IMPORTANT: Respond as a single paragraph only — no headings, no bullet points, no numbered lists. Avoid clinical diagnosis phrasing.'
 };
 
 export function buildJudgePromptCompact(userQuestion, round3Responses) {
   return (
-    'Please produce a concise, cheerful, supportive final response in Markdown with a cute anime-companion tone. Keep it under ~120–150 words. Use simple Japanese encouragement naturally when it fits. Write the message in paragraph form (no bullet points), weaving 3 short actionable steps naturally into the paragraph.\n\n' +
+    'Please produce a concise, cheerful, supportive final response in Markdown with a cute anime-companion tone. Keep it under ~80–90 words. Use simple Japanese encouragement naturally when it fits. Write the message in paragraph form (no bullet points), weaving 2 short actionable steps naturally into the paragraph.\n\n' +
     `User's Original Concern:\n${userQuestion}\n\n` +
     "Specialists' Final Inputs (Round 3):\n\n" +
     `AI1 (Clinical Psychologist): ${round3Responses.ai1}\n\n` +
     `AI2 (Psychiatrist): ${round3Responses.ai2}\n\n` +
     `AI3 (Holistic Counselor): ${round3Responses.ai3}\n\n` +
-    'Please write a single friendly paragraph (no headings, no bullet points, no numbered lists) that includes a warm validation, weaves 3 short actionable suggestions naturally into sentences, adds 1–2 gentle reminders, and ends with a brief safety note. Keep it concise and companion-like.'
+    'Please write a single friendly paragraph (no headings, no bullet points, no numbered lists) that includes a warm validation, weaves 2 short actionable suggestions naturally into sentences, adds 1–2 gentle reminders, and ends with a brief safety note. Keep it concise and companion-like.'
   );
 }

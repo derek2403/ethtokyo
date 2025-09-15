@@ -9,6 +9,7 @@ import ChatHistory from '@/components/chat/ChatHistory';
 import ChatInput from '@/components/chat/ChatInput';
 import DebugOverlay from '@/components/chat/DebugOverlay';
 import StreamingText from '@/components/chat/StreamingText';
+import ThinkingIndicator from '@/components/chat/ThinkingIndicator';
 import FeelingTodayModal from '@/components/FeelingTodayModal';
 
 // Multi-AI Chat logic (shared with MultiAIChat component)
@@ -154,6 +155,8 @@ function ChatPage() {
   // Streaming state
   const [streamingText, setStreamingText] = useState('');
   const [isStreamingActive, setIsStreamingActive] = useState(false);
+  // UI busy state: loading across multi-round flow until output visible
+  const isBusy = isLoading || round !== 0;
   
   // System state
   const [app, setApp] = useState(null);
@@ -179,9 +182,7 @@ function ChatPage() {
         baseSpeed: 15,
         onComplete: () => {
           setIsStreamingActive(false);
-          
-          // Keep the message visible for a while before fading
-          setTimeout(() => setStreamingText(''), 6000);
+          // Do not auto-clear the displayed text; keep it visible
         }
       });
     }
@@ -472,7 +473,7 @@ function ChatPage() {
         () => {
           addMessage("Demo animation complete!", false);
           setIsStreamingActive(false);
-          setTimeout(() => setStreamingText(''), 2000); // Clear after 2s
+          // Do not auto-clear the demo text
           
           // Re-enable idle motions after streaming is complete
           setTimeout(() => {
@@ -575,6 +576,12 @@ function ChatPage() {
           backgroundRepeat: 'no-repeat'
         }}
       >
+        {/* Clickable hotspot over the book area on the table */}
+        <a
+          href="/book"
+          aria-label="Open book memories"
+          className="book-hotspot"
+        />
         {/* Character Stage - positioned to stand on floor */}
         <div className="absolute inset-0 bottom-20">
           <div 
@@ -588,13 +595,19 @@ function ChatPage() {
           
           {/* AI Response Streaming Display */}
           <div className="streaming-container">
-            {streamingText && (
+            {streamingText ? (
               <StreamingText
                 text={streamingText}
                 speed={18}
                 isStreaming={isStreamingActive}
                 className="streaming-text"
               />
+            ) : (
+              isBusy && (
+                <div className="streaming-text">
+                  <ThinkingIndicator text="Chotto matte! Kaigan is thinking" />
+                </div>
+              )
             )}
           </div>
         </div>
@@ -607,6 +620,15 @@ function ChatPage() {
           >
             {isChatOpen ? '✕' : '💬'}
           </button>
+          {/* Memories button */}
+          <a
+            href="/book"
+            className="history-button memories-button"
+            title="Open Memories"
+            aria-label="Open Memories"
+          >
+            📚
+          </a>
           
           {isChatOpen && (
             <div className="history-panel">
@@ -619,13 +641,15 @@ function ChatPage() {
           )}
         </div>
 
+        {/* Thinking indicator now shown in streaming container for consistent style */}
+
         {/* Chat Input */}
         <ChatInput
           value={userQuestion}
           onChange={setUserQuestion}
           onSend={handleSendMessage}
           placeholder="Share your mental health concern..."
-          disabled={isLoading}
+          disabled={isBusy}
         />
 
         {/* Feeling Today Modal */}
@@ -695,7 +719,10 @@ function ChatPage() {
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
-            font-size: 20px;
+            font-size: 22px;
+            line-height: 1;
+            text-align: center;
+            padding: 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -721,6 +748,35 @@ function ChatPage() {
             animation: slideIn 0.3s ease forwards;
           }
 
+          /* Book hotspot over background image */
+          .book-hotspot {
+            position: absolute;
+            bottom: 12%;
+            left: 60%;
+            transform: translateX(-50%);
+            width: min(20vw, 300px);
+            height: min(13vw, 200px);
+            border-radius: 12px;
+            z-index: 40; /* above streaming text (30) and below chat button (50) */
+            cursor: pointer;
+            /* invisible but still clickable */
+            background: transparent;
+          }
+
+          .book-hotspot:hover {
+            outline: 2px solid rgba(255, 255, 255, 0.2);
+            outline-offset: 2px;
+          }
+
+          .memories-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+          }
+
+          /* Removed separate thinking indicator styles; using .streaming-text style */
+
           @keyframes fadeIn {
             from {
               opacity: 0;
@@ -732,10 +788,10 @@ function ChatPage() {
             }
           }
 
-          @keyframes slideIn {
+          @keyframes slideIn    
             from {
               opacity: 0;
-              transform: translateX(20px);
+              transform: translateX(-20px);
             }
             to {
               opacity: 1;
@@ -750,7 +806,7 @@ function ChatPage() {
           onChange={setUserQuestion}
           onSend={handleSendMessage}
           placeholder="Share your mental health concern..."
-          disabled={isLoading}
+          disabled={isBusy}
         />
         
         {/* Feeling Today Modal */}

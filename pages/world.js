@@ -1,12 +1,78 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/router";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment";
 import { loadBoy, updateBoy, playBoy } from "../components/boy.js";
+import { usePrivy } from "@privy-io/react-auth";
+import subscriptionAbi from "@/lib/subscription-abi.json";
+import ConnectWalletButton from "@/components/ConnectWalletButton";
+
+const RPC_URL = `https://rpc.kaigan.jsc.dev/rpc?token=${process.env.NEXT_PUBLIC_KAIGAN_RPC_TOKEN}`;
+const SUBSCRIPTION_CONTRACT_ADDRESS = "0xAb8281Eb535238eA29fC10cbc67959e0FBdb6626";
+const chain = {
+  id: 5278000,
+  name: "JSC Kaigan Testnet",
+  nativeCurrency: { name: "JSC Testnet Ether", symbol: "JETH", decimals: 18 },
+  rpcUrls: { default: { http: [RPC_URL] } }
+};
 
 export default function HomePage() {
   const containerRef = useRef(null);
+  const router = useRouter();
+  const { ready, authenticated, user } = usePrivy();
+  const [showSubscribePrompt, setShowSubscribePrompt] = useState(false);
+  const [plans, setPlans] = useState([]);
+  const [subLoading, setSubLoading] = useState(false);
+  const [subError, setSubError] = useState("");
+
+  async function createPublicClient() {
+    const { createPublicClient, http } = await import("viem");
+    return createPublicClient({ chain, transport: http(RPC_URL) });
+  }
+
+  async function getContract(client) {
+    const { getContract } = await import("viem");
+    return getContract({ address: SUBSCRIPTION_CONTRACT_ADDRESS, abi: subscriptionAbi, client });
+  }
+
+  // On load, check if the connected wallet is verified + subscribed
+  useEffect(() => {
+    if (!ready) return;
+    if (!authenticated || !user?.wallet?.address) {
+      setShowSubscribePrompt(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const client = await createPublicClient();
+        const ok = await client.readContract({
+          address: SUBSCRIPTION_CONTRACT_ADDRESS,
+          abi: subscriptionAbi,
+          functionName: 'isCallerVerifiedAndSubscribed',
+          account: user.wallet.address,
+        });
+        if (!cancelled) setShowSubscribePrompt(!Boolean(ok));
+
+        // Also load available plans for the modal
+        const contract = await getContract(client);
+        const nextId = await contract.read.nextPlanId();
+        const fetched = [];
+        for (let i = 1; i < Number(nextId); i++) {
+          try {
+            const plan = await contract.read.getPlan([BigInt(i)]);
+            if (plan.active) fetched.push({ id: i, ...plan });
+          } catch {}
+        }
+        if (!cancelled) setPlans(fetched);
+      } catch (_) {
+        if (!cancelled) setShowSubscribePrompt(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [ready, authenticated, user?.wallet?.address]);
 
   useEffect(() => {
     const containerElement = containerRef.current;
@@ -133,6 +199,14 @@ export default function HomePage() {
     let islandRoot = null;
     const islandMeshes = [];
 
+    // House doorway trigger state
+    let houseRef = null;
+    let enteredDoor = false;
+    let doorTriggerLocal = null;
+    const SHOW_DOOR_TRIGGER_DEBUG = false;
+    let doorDebug = null;
+    let goalIsHouse = false;
+
     let boy = null;
     let isWalking = false;
     let wasWalking = false; // track animation state transitions
@@ -239,6 +313,57 @@ export default function HomePage() {
       if (!candidates.length) return null;
       candidates.sort((a, b) => b.point.y - a.point.y);
       return candidates[0];
+    }
+
+    function computeLocalAABB(obj) {
+      const worldBB = new THREE.Box3().setFromObject(obj);
+      const corners = [
+        new THREE.Vector3(worldBB.min.x, worldBB.min.y, worldBB.min.z),
+        new THREE.Vector3(worldBB.min.x, worldBB.min.y, worldBB.max.z),
+        new THREE.Vector3(worldBB.min.x, worldBB.max.y, worldBB.min.z),
+        new THREE.Vector3(worldBB.min.x, worldBB.max.y, worldBB.max.z),
+        new THREE.Vector3(worldBB.max.x, worldBB.min.y, worldBB.min.z),
+        new THREE.Vector3(worldBB.max.x, worldBB.min.y, worldBB.max.z),
+        new THREE.Vector3(worldBB.max.x, worldBB.max.y, worldBB.min.z),
+        new THREE.Vector3(worldBB.max.x, worldBB.max.y, worldBB.max.z),
+      ];
+      const localBB = new THREE.Box3();
+      for (const c of corners) {
+        const lc = obj.worldToLocal(c.clone());
+        localBB.expandByPoint(lc);
+      }
+      return localBB;
+    }
+
+    function computeDoorTriggerLocal(obj) {
+      // Entire house bounds, with slight padding on all axes
+      const bb = computeLocalAABB(obj);
+      const w = bb.max.x - bb.min.x;
+      const h = bb.max.y - bb.min.y;
+      const d = bb.max.z - bb.min.z;
+      const padFrac = 0.06; // 6% padding around house
+      const px = w * padFrac;
+      const py = h * padFrac * 0.5; // smaller Y pad to avoid ground
+      const pz = d * padFrac;
+      const min = new THREE.Vector3(bb.min.x - px, bb.min.y - py, bb.min.z - pz);
+      const max = new THREE.Vector3(bb.max.x + px, bb.max.y + py, bb.max.z + pz);
+      return { min, max };
+    }
+
+    function computeHouseApproachPoint() {
+      if (!houseRef || !doorTriggerLocal) return null;
+      // Aim for a point slightly in front of the door center (outside the house)
+      const centerLocal = new THREE.Vector3(
+        (doorTriggerLocal.min.x + doorTriggerLocal.max.x) * 0.5,
+        (doorTriggerLocal.min.y + doorTriggerLocal.max.y) * 0.5,
+        doorTriggerLocal.min.z
+      );
+      const margin = 0.35; // step out in front of the door
+      const outsideLocal = centerLocal.clone();
+      outsideLocal.z -= margin; // assuming door on -Z side
+      const outsideWorld = houseRef.localToWorld(outsideLocal.clone());
+      const hit = groundHitAt(outsideWorld.x, outsideWorld.z, islandMeshes);
+      return hit ? hit.point.clone() : outsideWorld;
     }
 
     // Place by island-bounds fractions (decoupled from camera and other props)
@@ -363,6 +488,31 @@ export default function HomePage() {
         const pos = house.position.clone();
         house.lookAt(new THREE.Vector3(center.x, pos.y, center.z));
         scene.add(house);
+        houseRef = house;
+        doorTriggerLocal = computeDoorTriggerLocal(house);
+        if (SHOW_DOOR_TRIGGER_DEBUG && doorTriggerLocal) {
+          const size = new THREE.Vector3(
+            doorTriggerLocal.max.x - doorTriggerLocal.min.x,
+            doorTriggerLocal.max.y - doorTriggerLocal.min.y,
+            doorTriggerLocal.max.z - doorTriggerLocal.min.z
+          );
+          const center = new THREE.Vector3(
+            (doorTriggerLocal.min.x + doorTriggerLocal.max.x) * 0.5,
+            (doorTriggerLocal.min.y + doorTriggerLocal.max.y) * 0.5,
+            (doorTriggerLocal.min.z + doorTriggerLocal.max.z) * 0.5
+          );
+          const g = new THREE.BoxGeometry(size.x, size.y, size.z);
+          const m = new THREE.MeshBasicMaterial({
+            color: 0x00ff88,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.6,
+            depthTest: false,
+          });
+          doorDebug = new THREE.Mesh(g, m);
+          doorDebug.position.copy(center);
+          house.add(doorDebug);
+        }
 
         loader.load("/assets/tree.glb", (tgltf) => {
           const tree = tgltf.scene;
@@ -595,21 +745,34 @@ export default function HomePage() {
       const y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
       mouse.set(x, y);
       raycaster.setFromCamera(mouse, camera);
+      if (!boy) return;
+
+      // Prefer clicking the house: if hit, set goal to house and compute approach point
+      if (houseRef) {
+        const houseHits = raycaster.intersectObject(houseRef, true);
+        if (houseHits.length) {
+          goalIsHouse = true;
+          const ap = computeHouseApproachPoint();
+          if (ap) targetPos.copy(ap);
+          if (!isWalking) {
+            isWalking = true;
+            playBoy("walk");
+          }
+          return;
+        }
+      }
+
+      // Otherwise, walk to ground point and clear house goal
       const hits = raycaster.intersectObjects(islandMeshes, true);
-      if (!hits.length || !boy) return;
+      if (!hits.length) return;
       const hit = hits[0];
-      // Ignore water-like surfaces
       const n = (hit.object.name || "").toLowerCase();
       const m = (hit.object.material?.name || "").toLowerCase();
-      if (/water|pond|lake|pool/.test(n) || /water|pond|lake|pool/.test(m))
-        return;
-
+      if (/water|pond|lake|pool/.test(n) || /water|pond|lake|pool/.test(m)) return;
+      goalIsHouse = false;
       targetPos.copy(hit.point);
-
-      // Only start walking if not already walking
       if (!isWalking) {
         isWalking = true;
-        // Play walk animation directly - no startWalking animation
         playBoy("walk");
       }
     }
@@ -659,6 +822,21 @@ export default function HomePage() {
       }
       updateBoy(dt);
 
+      // Doorway trigger attached to house (local-space box), only when heading to the house
+      if (boy && houseRef && doorTriggerLocal && goalIsHouse) {
+        const lp = houseRef.worldToLocal(boy.position.clone());
+        const inside =
+          lp.x >= doorTriggerLocal.min.x && lp.x <= doorTriggerLocal.max.x &&
+          lp.y >= doorTriggerLocal.min.y && lp.y <= doorTriggerLocal.max.y &&
+          lp.z >= doorTriggerLocal.min.z && lp.z <= doorTriggerLocal.max.z;
+        if (inside && !enteredDoor) {
+          enteredDoor = true;
+          router.push("/chat");
+        } else if (!inside) {
+          enteredDoor = false;
+        }
+      }
+
       // Animate floating cherry blossom petals
       if (window.floatingPetals) {
         window.floatingPetals.forEach((petal) => {
@@ -706,5 +884,119 @@ export default function HomePage() {
     };
   }, []);
 
-  return <div ref={containerRef} style={{ width: "100vw", height: "100vh" }} />;
+  // Transaction helpers and subscribe action (outside JSX)
+  async function txWrite(method, args = [], value = 0n) {
+    if (!ready) throw new Error("Privy not ready");
+    if (!authenticated || !user?.wallet?.address) throw new Error("Please connect your wallet");
+
+    if (user.wallet.id) {
+      const resp = await fetch('/api/transaction', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ walletId: user.wallet.id, method, args, value: value.toString(), contractAddress: SUBSCRIPTION_CONTRACT_ADDRESS, abi: subscriptionAbi })
+      });
+      if (!resp.ok) {
+        const e = await resp.json().catch(() => ({}));
+        throw new Error(e.error || 'Transaction failed');
+      }
+      return (await resp.json()).hash;
+    }
+
+    const { createWalletClient, custom, encodeFunctionData } = await import('viem');
+    if (!window.ethereum) throw new Error('No ethereum provider');
+    const hexChainId = '0x' + chain.id.toString(16);
+    try {
+      await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: hexChainId }] });
+    } catch (switchErr) {
+      if (switchErr?.code === 4902) {
+        await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [{ chainId: hexChainId, chainName: chain.name, nativeCurrency: chain.nativeCurrency, rpcUrls: chain.rpcUrls.default.http }] });
+        await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: hexChainId }] });
+      } else {
+        throw new Error(`Please switch your wallet to ${chain.name}`);
+      }
+    }
+    const walletClient = createWalletClient({ chain, transport: custom(window.ethereum), account: user.wallet.address });
+    const data = encodeFunctionData({ abi: subscriptionAbi, functionName: method, args });
+    return walletClient.sendTransaction({ to: SUBSCRIPTION_CONTRACT_ADDRESS, data, value, chain });
+  }
+
+  async function subscribeToPlan(plan) {
+    setSubError("");
+    setSubLoading(true);
+    try {
+      const hash = await txWrite('subscribe', [BigInt(plan.id)], plan.price);
+      const client = await createPublicClient();
+      try {
+        if (hash) {
+          await client.waitForTransactionReceipt({ hash });
+        }
+      } catch (_) {}
+      const ok = await client.readContract({ address: SUBSCRIPTION_CONTRACT_ADDRESS, abi: subscriptionAbi, functionName: 'isCallerVerifiedAndSubscribed', account: user.wallet.address });
+      setShowSubscribePrompt(!Boolean(ok));
+      if (ok) {
+        // Ensure UI reflects new permissions/state
+        if (typeof window !== 'undefined') window.location.reload();
+      }
+    } catch (e) {
+      setSubError(e?.message || 'Failed to subscribe');
+    } finally {
+      setSubLoading(false);
+    }
+  }
+
+  return (
+    <>
+      <div ref={containerRef} style={{ width: "100vw", height: "100vh" }} />
+      {showSubscribePrompt && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)' }}>
+          <div
+            className="w-full max-w-md"
+            style={{
+              background: 'rgba(255,255,255,0.25)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255,255,255,0.4)',
+              borderRadius: 20,
+              boxShadow: '0 10px 30px rgba(0,0,0,0.35)'
+            }}
+          >
+            <div className="flex items-center justify-between" style={{ padding: '12px 16px' }}>
+              <h3 style={{ color: '#fff', fontWeight: 600 }}>Subscribe</h3>
+              <button onClick={() => setShowSubscribePrompt(false)} style={{ color: 'rgba(255,255,255,0.9)' }}>✕</button>
+            </div>
+            {subError && <div className="text-sm" style={{ color: '#fecaca', padding: '0 16px 8px' }}>{subError}</div>}
+            {!authenticated && (
+              <div className="flex justify-center" style={{ padding: '0 16px 12px' }}>
+                <ConnectWalletButton className="cta-primary" />
+              </div>
+            )}
+            <div style={{ padding: '8px 12px 16px' }}>
+              {plans.length ? plans.map((plan) => (
+                <div key={plan.id} className="flex items-center justify-between" style={{
+                  margin: '8px 4px',
+                  padding: '12px 14px',
+                  background: 'rgba(255,255,255,0.35)',
+                  border: '1px solid rgba(255,255,255,0.4)',
+                  borderRadius: 16
+                }}>
+                  <div>
+                    <div style={{ color: '#111', fontWeight: 700, fontSize: 18 }}>{(Number(plan.price) / 1e18).toString()} JETH</div>
+                    <div style={{ color: '#374151', fontSize: 14 }}>{Math.round(Number(plan.duration)/(24*60*60))} days</div>
+                  </div>
+                  <button
+                    disabled={subLoading || !authenticated}
+                    onClick={() => subscribeToPlan(plan)}
+                    className="manifesto-button"
+                    style={{ padding: '10px 18px', fontSize: 14 }}
+                  >
+                    {subLoading ? 'Processing…' : 'Subscribe'}
+                  </button>
+                </div>
+              )) : (
+                <div className="text-center text-sm" style={{ color: 'rgba(255,255,255,0.9)', padding: '8px 12px 16px' }}>No active plans configured.</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }

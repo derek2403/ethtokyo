@@ -7,7 +7,10 @@ const HalfPageView = ({ src, isLeft }) => {
   let imagePath = src;
   
   // Handle different texture sources
-  if (src.startsWith('/book_pages/')) {
+  if (typeof src === 'string' && src.startsWith('data:')) {
+    // Direct data URL from generated canvas
+    imagePath = src;
+  } else if (src.startsWith('/book_pages/')) {
     // Use PNG images from book_pages directory (cover, back cover, etc.)
     imagePath = src;
   } else if (src === 'book-cover') {
@@ -60,9 +63,10 @@ const Modal = ({ open, onClose, children }) => {
       <div className="relative z-10 w-full h-full bg-transparent flex flex-col items-center justify-center">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 rounded-full bg-white/20 hover:bg-white/30 text-white px-3 py-1 font-medium transition-colors backdrop-blur-sm"
+          className="absolute top-4 left-4 z-20 rounded-full bg-white/20 hover:bg-white/30 text-white px-3 py-1 font-medium transition-colors backdrop-blur-sm"
+          aria-label="Close"
         >
-          ✕ Close
+          ✕
         </button>
         <div className="flex-shrink-0">
           {children}
@@ -92,7 +96,7 @@ const pictures = [
 
 // Determine the texture image URLs used by the 3D Book for a given page index
 // This mirrors the logic in components/book/Book.jsx
-function textureUrlsForPage(index) {
+function textureUrlsForPage(index, summaryTextureUrl) {
   const total = pages.length; // includes cover and back cover entries
   
   if (index === 0) {
@@ -109,6 +113,14 @@ function textureUrlsForPage(index) {
       back: "/book_pages/back_cover.png" 
     };
   }
+
+  // First content spread (right page next to page_1): use dynamic summary if available
+  if (index === 1 && summaryTextureUrl) {
+    return {
+      front: summaryTextureUrl,
+      back: summaryTextureUrl,
+    };
+  }
   
   // Content pages: map to the texture images
   // Each page spread (index) corresponds to 2 texture images
@@ -123,6 +135,8 @@ function textureUrlsForPage(index) {
 
 // Global state for current page
 export const pageAtom = atom(0);
+// Data URL for the dynamic summary texture (right page of first spread)
+export const summaryTextureAtom = atom(null);
 // Modal state for showing page content popup
 // Holds { page: number, side: 'front'|'back', half: 'left'|'right' } or null
 export const modalPageAtom = atom(null);
@@ -152,6 +166,7 @@ pages.push({
 export const UI = () => {
   const [page, setPage] = useAtom(pageAtom);
   const [modalPage, setModalPage] = useAtom(modalPageAtom);
+  const [summaryTextureUrl] = useAtom(summaryTextureAtom);
 
   // Page flip sound effect - disabled for now to avoid 416 errors
   // useEffect(() => {
@@ -179,14 +194,14 @@ export const UI = () => {
       />
       
       {/* Main UI overlay */}
-      <main className="pointer-events-none select-none z-10 fixed inset-0 flex flex-col justify-end">
+      <main className="pointer-events-none select-none z-10 fixed inset-0">
         {/* Modal for page content */}
         <Modal open={modalPage !== null} onClose={() => setModalPage(null)}>
             {modalPage !== null && (
               <div className="text-black">
                 {/* Zoomed textures of the exact page content, cropped to the half clicked */}
               {(() => {
-                const urls = textureUrlsForPage(modalPage.page);
+                const urls = textureUrlsForPage(modalPage.page, summaryTextureUrl);
                 const imgSrc = modalPage.side === 'front' ? urls.front : urls.back;
                 const isLeft = modalPage.half === 'left';
                 return (
@@ -198,13 +213,15 @@ export const UI = () => {
             </div>
           )}
         </Modal>
-        
-        {/* Large navigation arrows on sides */}
-        <div className="pointer-events-auto fixed inset-0 flex items-center justify-between px-12 z-20">
+
+        {/* Glass arrows for previous/next navigation */}
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-between px-6">
           {/* Previous/Back Arrow */}
           <div
-            className={`transition-all duration-300 hover:scale-110 ${
-              page <= 0 ? 'opacity-30 cursor-not-allowed' : 'opacity-90 hover:opacity-100 cursor-pointer'
+            className={`pointer-events-auto transition-all duration-300 hover:scale-110 ${
+              page <= 0
+                ? 'opacity-30 cursor-not-allowed'
+                : 'opacity-90 hover:opacity-100 cursor-pointer'
             }`}
             style={{
               background: 'rgba(255, 255, 255, 0.15)',
@@ -217,7 +234,7 @@ export const UI = () => {
               alignItems: 'center',
               justifyContent: 'center'
             }}
-            onClick={() => page > 0 && setPage(page - 1)}
+            onClick={() => page > 0 && setPage(Math.max(0, page - 1))}
           >
             <div
               style={{
@@ -228,14 +245,15 @@ export const UI = () => {
                 width: '80px',
                 height: '80px'
               }}
-            >
-            </div>
+            />
           </div>
 
           {/* Next/Forward Arrow */}
           <div
-            className={`transition-all duration-300 hover:scale-110 ${
-              page >= pages.length ? 'opacity-30 cursor-not-allowed' : 'opacity-90 hover:opacity-100 cursor-pointer'
+            className={`pointer-events-auto transition-all duration-300 hover:scale-110 ${
+              page >= pages.length
+                ? 'opacity-30 cursor-not-allowed'
+                : 'opacity-90 hover:opacity-100 cursor-pointer'
             }`}
             style={{
               background: 'rgba(255, 255, 255, 0.15)',
@@ -248,7 +266,7 @@ export const UI = () => {
               alignItems: 'center',
               justifyContent: 'center'
             }}
-            onClick={() => page < pages.length && setPage(page + 1)}
+            onClick={() => page < pages.length && setPage(Math.min(pages.length, page + 1))}
           >
             <div
               style={{
@@ -259,8 +277,7 @@ export const UI = () => {
                 width: '80px',
                 height: '80px'
               }}
-            >
-            </div>
+            />
           </div>
         </div>
       </main>
