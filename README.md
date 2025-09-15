@@ -282,6 +282,6 @@ Together, these studies underscore that gamification is not just an add-on but a
   - [LinkedIn](https://www.linkedin.com/in/cedric-chung-2756b4310/)
  
 - **Edwina Hon Kai Xin**  
-- *Role*: Frontend Developer & UI/UX Design 
-- [LinkedIn](https://www.linkedin.com/in/edwina-hon-548189340/)
+  - *Role*: Frontend Developer & UI/UX Design 
+  - [LinkedIn](https://www.linkedin.com/in/edwina-hon-548189340/)
 
