@@ -4,6 +4,8 @@
 
 An AI-driven mental healthcare assistant securely operating with privacy and confidentiality within a TEE, leveraging Gensyn’s swarm to adaptively learn about each patient and provide personalized, context-aware guidance—all accessible via Japan Smart Chain's smart contract subscription.
 
+Slide Link: https://www.canva.com/design/DAGy7ouwsn8/lAP3jTSWG2w9P-KoNIn_xw/edit?utm_content=DAGy7ouwsn8&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
+
 ---
 
 ## Inspiration: How We Came Up With This Idea 💡
